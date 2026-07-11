@@ -515,7 +515,7 @@ function viewDash(){
     ${stat(t('Расходы в сумах','Spend in UZS'),f.out>0?pct(f.uzsOut/f.out*100):'—',t('валютный риск','FX exposure'),f.out>0&&f.uzsOut/f.out>0.7?'neg':'')}
   </div>
   <div class="grid mini m32" style="margin-bottom:12px">
-    ${stat(t('Законтрактовано','Contracted'),money(contractSum+backlog),activeContracts.length+t(' активных контрактов',' active contracts')+(avgContract?' · '+t('средний','avg')+' '+money(avgContract):'')+' · '+t('бэклог проектов','projects backlog')+' '+money(backlog)+(projPct!==null?' ('+pct(projPct)+' '+t('выполнено','done')+')':''),'pos')}
+    ${stat(t('Законтрактовано','Contracted'),money(contractSum||backlog),activeContracts.length+t(' активных контрактов',' active contracts')+(avgContract?' · '+t('средний','avg')+' '+money(avgContract):'')+' · '+t('бэклог проектов','projects backlog')+' '+money(backlog)+(projPct!==null?' ('+pct(projPct)+' '+t('выполнено','done')+')':''),'pos')}
     ${stat(t('Задачи','Tasks'),String(active),(overdue?overdue+t(' просрочено',' overdue')+' · ':'')+doneCnt+' done'+(urgCnt?' · '+urgCnt+t(' срочных',' urgent'):''),overdue?'neg':'')}
   </div>
 
@@ -642,6 +642,7 @@ function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const com
   <div class="fs"><label>${t('Метка','Label')}</label><input id="td-label" value="${esc(x.label||'')}"></div></div>
   ${DB.payroll.people.length?`<div class="fs"><label>${t('Исполнитель','Assignee')}</label><select id="td-ass"><option value="">— ${t('не назначен','unassigned')} —</option>${DB.payroll.people.map(p=>`<option value="${p.id}" ${x.assigneeId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>`:''}
   <div class="fs"><label>${t('Описание','Description')}</label><textarea id="td-desc">${esc(x.desc||'')}</textarea></div>
+  ${filesBlock('task',id)}
   </div><div class="lbl" style="margin:6px 0 8px">${t('Комментарии','Comments')}</div><div style="max-height:220px;overflow:auto;margin-bottom:10px">${comments.length?comments.map(c=>`<div class="comment"><div class="meta"><b>${esc(c.author)}</b> · ${esc(c.ts)}</div><div>${esc(c.text)}</div></div>`).join(''):`<div class="hint">${t('Пока нет комментариев','No comments yet')}</div>`}</div>
   <textarea id="cm-text" placeholder="${t('Написать комментарий…','Write a comment…')}"></textarea>
   <div class="actions" style="margin-top:12px"><button class="btn" onclick="closeModal()">${t('Закрыть','Close')}</button><button class="btn" onclick="addComment('${id}')">${t('Комментировать','Comment')}</button><button class="btn pri" onclick="saveTaskDetail('${id}')">${t('Сохранить','Save')}</button></div>`);
@@ -724,11 +725,48 @@ function delProject(id){const p=DB.orders.find(x=>x.id===id);confirmModal(t('У�
 function logProgress(id){const p=DB.orders.find(x=>x.id===id);if(!p)return;const inp=document.getElementById('pl-'+id);const q=parseFloat(inp.value);if(!q)return;p.log=p.log||[];p.log.push({date:today(),qty:q});save('orders');render();toast('+'+fmt0(q)+' · '+p.name);}
 
 /* ── contracts ── */
+/* ── attachments: Supabase Storage, bucket 'docs' ── */
+function fileHost(scope,id){return scope==='task'?DB.tasks.find(x=>x.id===id):DB.contracts.find(x=>x.id===id);}
+function fileSaveKey(scope){return scope==='task'?'tasks':'contracts';}
+async function attachFiles(scope,id,inputId){
+  const inp=document.getElementById(inputId);if(!inp||!inp.files||!inp.files.length){toast(t('Выбери файл','Pick a file'));return;}
+  const host=fileHost(scope,id);if(!host)return;
+  if(!Array.isArray(host.files))host.files=[];
+  toast(t('Загрузка…','Uploading…'));
+  for(const f of Array.from(inp.files)){
+    if(f.size>50*1024*1024){toast(t('Файл больше 50 МБ','File over 50 MB')+': '+f.name);continue;}
+    const safe=f.name.replace(/[^\w.\-]+/g,'_');
+    const path=scope+'/'+id+'/'+Date.now()+'_'+safe;
+    try{const r=await sb.storage.from('docs').upload(path,f);if(r.error)throw r.error;host.files.push({name:f.name,path});}
+    catch(e){toast(t('Не удалось загрузить','Upload failed')+': '+f.name+(e&&e.message?' · '+e.message:''));}
+  }
+  save(fileSaveKey(scope));toast(t('Готово','Done'));
+  if(scope==='task')openTask(id);else contractModal(id);
+}
+async function openDoc(path){
+  try{const r=await sb.storage.from('docs').createSignedUrl(path,3600);if(r.error)throw r.error;window.open(r.data.signedUrl,'_blank');}
+  catch(e){toast(t('Не удалось открыть файл','Could not open file')+(e&&e.message?' · '+e.message:''));}
+}
+function delDoc(scope,id,idx){
+  const host=fileHost(scope,id);if(!host||!Array.isArray(host.files)||!host.files[idx])return;
+  const f=host.files[idx];
+  confirmModal(t('Удалить файл','Delete file')+' «'+esc(f.name)+'»?',async()=>{
+    try{await sb.storage.from('docs').remove([f.path]);}catch(e){}
+    host.files.splice(idx,1);save(fileSaveKey(scope));
+    if(scope==='task')openTask(id);else contractModal(id);
+  });
+}
+function filesBlock(scope,id){
+  const host=fileHost(scope,id);const fs=(host&&host.files)||[];
+  return `<div class="lbl" style="margin:10px 0 6px">${t('Файлы','Files')}${fs.length?' · '+fs.length:''}</div>
+  ${fs.map((f,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:3px 0"><a href="#" onclick="openDoc('${esc(f.path)}');return false" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">&#128206; ${esc(f.name)}</a><button class="ib danger" onclick="delDoc('${scope}','${id}',${i})" aria-label="delete">×</button></div>`).join('')}
+  <div style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="file" id="att-${scope}" multiple style="flex:1;min-width:0;font-size:12px"><button class="btn sm" onclick="attachFiles('${scope}','${id}','att-${scope}')">${t('Прикрепить','Attach')}</button></div>`;
+}
 function viewContracts(){
   const list=DB.contracts;
   return `<div class="vhead"><div><h1 class="view">${t('Контракты','Contracts')}</h1><div class="vsub">${list.filter(c=>c.status==='active').length} ${t('активных','active')} · ${t('файлы храни в облаке, здесь — ссылки и условия','store files in the cloud, keep links & terms here')}</div></div><button class="btn pri" onclick="contractModal()">+ ${t('Контракт','Contract')} <kbd>C</kbd></button></div>
   ${list.length?`<div class="card"><table><tr><th>${t('Название','Name')}</th><th>${t('Контрагент','Counterparty')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Дата','Date')}</th><th>${t('Статус','Status')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
-  ${list.map(c=>`<tr><td style="font-weight:500">${esc(c.name)}${c.url?` <a href="${esc(c.url)}" target="_blank" rel="noopener" title="${t('Открыть документ','Open document')}">↗</a>`:''}</td><td class="muted">${esc(c.party||'—')}</td><td class="muted">${esc(entName(c.entityId))}</td><td class="mono" style="font-size:11px">${c.date||'—'}</td><td><span class="pill" style="color:${(CSTAT[c.status]||{}).c||'var(--dim)'}">${csL(c.status||'draft')}</span></td><td class="n">${c.amount?money(toUSD(c.amount,c.currency)):'—'}</td><td style="white-space:nowrap;text-align:right"><button class="ib" onclick="contractModal('${c.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delContract('${c.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table></div>`
+  ${list.map(c=>`<tr><td style="font-weight:500">${esc(c.name)}${c.url?` <a href="${esc(c.url)}" target="_blank" rel="noopener" title="${t('Открыть документ','Open document')}">↗</a>`:''}${(c.files&&c.files.length)?` <span class="tag">&#128206;${c.files.length}</span>`:''}</td><td class="muted">${esc(c.party||'—')}</td><td class="muted">${esc(entName(c.entityId))}</td><td class="mono" style="font-size:11px">${c.date||'—'}</td><td><span class="pill" style="color:${(CSTAT[c.status]||{}).c||'var(--dim)'}">${csL(c.status||'draft')}</span></td><td class="n">${c.amount?money(toUSD(c.amount,c.currency)):'—'}</td><td style="white-space:nowrap;text-align:right"><button class="ib" onclick="contractModal('${c.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delContract('${c.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table></div>`
   :`<div class="empty"><b>${t('Контрактов нет','No contracts')}</b>${t('Добавь первый (C): название, контрагент, сумма и ссылка на документ','Add the first one (C): name, counterparty, amount and a document link')}</div>`}`;
 }
 function contractModal(id){
@@ -743,6 +781,7 @@ function contractModal(id){
   <div class="fs"><label>${t('Статус','Status')}</label><select id="k-status">${['draft','active','closed'].map(s=>`<option value="${s}" ${c&&c.status===s?'selected':''}>${csL(s)}</option>`).join('')}</select></div></div>
   <div class="fs"><label>${t('Ссылка на документ (Drive, Dropbox…)','Document link (Drive, Dropbox…)')}</label><input id="k-url" value="${c?esc(c.url||''):''}" placeholder="https://…"></div>
   <div class="fs"><label>${t('Заметки / условия','Notes / terms')}</label><textarea id="k-notes">${c?esc(c.notes||''):''}</textarea></div>
+  ${c?filesBlock('contract',id):`<div class="hint">${t('Сохрани контракт — после этого можно прикрепить файлы','Save the contract first, then attach files')}</div>`}
   </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveContract('${id||''}')">${c?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);
 }
 function saveContract(id){const g=k=>document.getElementById(k);
