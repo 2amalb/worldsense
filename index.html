@@ -198,6 +198,7 @@
   .mtl{display:flex;gap:8px;}
   .ib.big{width:36px;height:36px;border-radius:10px;}
   .mtlogo{display:flex;justify-content:center;}
+  .emeta{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;line-height:1.4;}
   .mtlogo svg{height:30px !important;width:auto !important;}
   .mtlogo svg{height:22px;width:auto;}
   #acct-btn-m{justify-self:end;width:34px;height:34px;font-size:13px;box-shadow:none;}
@@ -1040,7 +1041,7 @@ function entityCard(e,isRoot){
   ${logo?`<div class="entlogo" style="height:${isRoot?'56px':'42px'};margin-bottom:12px">${logo}</div>`:''}
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px">
     <div style="min-width:0"><div style="font-family:var(--disp);font-weight:600;font-size:${isRoot?'17px':'15px'}">${esc(e.name)}${isRoot?` <span class="tag" style="color:var(--cyan)">${t('Холдинг','Holding')}</span>`:''}</div>
-    <div class="hint" style="margin-top:2px">${e.status?`<span class="pill" style="color:${(ESTAT[e.status]||{}).c||'var(--dim)'}">${esL(e.status)}</span> · `:''}${e.kind?`<span class="tag">${ekL(e.kind)}</span> · `:''}${esc(e.type||'')}${e.country?` · <span class="tag">${esc(e.country)}</span>`:''}${e.site?` · <a href="${esc(/^https?:/.test(e.site)?e.site:'https://'+e.site)}" target="_blank" rel="noopener">${esc(e.site.replace(/^https?:\/\//,''))} ↗</a>`:''}</div></div>
+    <div class="hint emeta" style="margin-top:4px">${e.status?`<span class="pill" style="color:${(ESTAT[e.status]||{}).c||'var(--dim)'}">${esL(e.status)}</span>`:''}${e.kind?`<span class="tag">${ekL(e.kind)}</span>`:''}${e.type?`<span>${esc(e.type)}</span>`:''}${e.country?`<span class="tag">${esc(e.country)}</span>`:''}${e.site?`<a href="${esc(/^https?:/.test(e.site)?e.site:'https://'+e.site)}" target="_blank" rel="noopener">${esc(e.site.replace(/^https?:\/\//,''))} ↗</a>`:''}</div></div>
     <div style="display:flex;gap:6px;flex:0 0 auto"><button class="ib" onclick="entityModal('${e.id}')" aria-label="edit">✎</button><button class="ib danger" onclick="delEntity('${e.id}')" aria-label="delete">×</button></div>
   </div>
   ${e.desc?`<div style="font-size:12.5px;color:var(--mid);line-height:1.5;margin:6px 0 4px">${esc(e.desc)}</div>`:''}
