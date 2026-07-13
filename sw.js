@@ -2,7 +2,7 @@
    Стратегия network-first: всегда пробуем сеть (чтобы обновления
    подхватывались сразу), при офлайне отдаём кэшированную оболочку.
    При изменении файлов повышай версию CACHE — старый кэс удалится сам. */
-const CACHE = 'ws-os-v5';
+const CACHE = 'ws-os-v7';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png'];
 
 self.addEventListener('install', (e) => {

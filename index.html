@@ -93,6 +93,7 @@
 
   .grid{display:grid;gap:12px;}
   .g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
   .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));}
   .card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad);padding:16px;}
   .card h2{font-size:13px;font-weight:600;margin-bottom:12px;}
@@ -197,12 +198,13 @@
   .mtl{display:flex;gap:8px;}
   .ib.big{width:36px;height:36px;border-radius:10px;}
   .mtlogo{display:flex;justify-content:center;}
+  .mtlogo svg{height:30px !important;width:auto !important;}
   .mtlogo svg{height:22px;width:auto;}
   #acct-btn-m{justify-self:end;width:34px;height:34px;font-size:13px;box-shadow:none;}
   #drawer{position:fixed;top:0;bottom:0;left:0;width:272px;background:var(--s1);border-right:1px solid var(--b1);z-index:130;transform:translateX(-105%);transition:transform .2s ease;padding:calc(16px + env(safe-area-inset-top)) 12px 16px;display:flex;flex-direction:column;gap:4px;overflow:auto;}
   #drawer.open{transform:none;}
   #drawer .dlogo{padding:2px 10px 16px;}
-  #drawer .dlogo svg{height:26px;width:auto;}
+  #drawer .dlogo svg{height:34px;width:auto;}
   #drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:120;display:none;}
   #drawer-bg.open{display:block;}
   @media(max-width:760px){
@@ -226,13 +228,12 @@
 <div id="mobiletop">
   <div class="mtl">
     <button class="ib big" onclick="toggleDrawer()" aria-label="menu"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-    <button class="ib big" onclick="openGearModal()" aria-label="settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l7 4v10l-7 4-7-4V7z"/><circle cx="12" cy="12" r="2.6"/></svg></button>
   </div>
   <div class="mtlogo" id="mt-logo"></div>
   <button class="acctbtn mob" id="acct-btn-m" onclick="openAcctModal()" aria-label="account">•</button>
 </div>
 <div id="drawer-bg" onclick="toggleDrawer()"></div>
-<aside id="drawer"><div class="dlogo" id="dr-logo"></div><div id="drawer-nav"></div></aside>
+<aside id="drawer"><div class="dlogo" id="dr-logo"></div><div id="drawer-nav"></div><div style="flex:1"></div><button class="nbtn" onclick="closeDrawer();openGearModal()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l7 4v10l-7 4-7-4V7z"/><circle cx="12" cy="12" r="2.6"/></svg><span class="lab" style="opacity:1">НАСТРОЙКИ</span></button></aside>
 <div id="shell">
   <aside id="side">
     <div class="topline"><span class="logomini"><svg width="950" height="921" viewBox="0 272 935 392" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M157.424 282.597C63.7626 298.35 -4.55685 383.449 0.237499 478.48C4.34694 562.039 60.8518 630.872 143.726 653.474C156.225 656.898 161.876 657.412 189.614 657.241C207.079 657.241 223.004 656.556 225.229 655.529C228.825 653.988 228.312 653.474 217.695 645.426C191.327 625.393 167.526 587.038 156.054 545.772C148.691 519.232 146.294 499.883 146.294 469.063C146.294 426.941 152.458 395.435 167.697 360.847C180.197 332.081 202.799 302.801 222.661 289.617C226.257 287.22 228.312 284.823 227.455 284.309C224.202 282.254 201.771 279.857 187.046 280.028C178.656 280.199 165.3 281.227 157.424 282.597Z" fill="white"/><path d="M264.268 281.229C259.645 282.428 260.501 283.113 277.282 291.331C287.042 296.126 301.253 304.858 308.616 310.509C322.314 321.125 324.883 322.495 324.883 319.07C324.883 318.214 326.937 313.077 329.335 307.94C331.732 302.632 333.444 298.181 333.273 298.009C329.506 294.756 316.835 288.249 308.616 285.167C297.829 281.058 273.686 279.003 264.268 281.229Z" fill="white"/><path d="M361.703 282.602C358.963 283.972 355.196 286.54 353.484 288.081C346.635 294.245 346.806 295.786 357.422 307.087C382.592 333.97 399.03 368.387 408.961 415.131C414.269 439.446 414.783 496.978 409.989 519.58C404.681 544.921 398.516 564.27 390.126 582.249C380.195 603.138 370.949 617.008 357.08 631.905L346.635 643.034L351.6 648.171C358.278 655.191 364.442 658.273 371.976 658.273C385.161 658.273 401.256 636.528 412.043 604.166C446.974 499.889 429.509 315.991 381.565 283.801C374.716 279.177 368.894 278.835 361.703 282.602Z" fill="white"/><path d="M231.221 295.272C184.989 326.092 155.367 393.556 155.367 468.211C155.367 517.866 166.497 561.187 189.099 598.857C202.626 621.459 233.275 649.711 244.234 649.711C256.22 649.711 294.917 628.65 312.553 612.726L319.745 606.048L315.635 592.008C307.588 564.782 300.91 510.161 300.91 471.121C300.91 430.027 307.074 377.46 315.293 347.496L319.574 332.085L313.238 326.435C302.28 316.675 277.109 300.751 263.925 295.272C244.234 287.053 243.378 287.053 231.221 295.272Z" fill="white"/><path d="M336.178 315.99C333.781 321.64 331.727 326.948 331.727 327.804C331.727 328.66 336.692 335.509 342.685 343.043C403.813 418.897 403.128 524.201 340.973 597.658C335.836 603.651 331.727 609.472 331.727 610.5C331.727 613.582 340.63 632.588 342 632.588C344.569 632.588 361.006 613.582 368.54 601.767C419.052 523.859 415.628 395.61 361.178 326.092C353.644 316.503 343.37 305.545 341.829 305.545C341.315 305.545 338.747 310.168 336.178 315.99Z" fill="white"/><path d="M322.657 357.942C313.411 396.639 312.041 411.707 312.041 469.924C312.041 528.141 313.411 541.668 322.657 580.366L327.109 599.029L332.931 592.351C370.087 549.716 386.011 488.588 374.539 432.597C367.518 398.18 355.19 373.01 331.218 344.244L327.109 339.107L322.657 357.942Z" fill="white"/><path d="M317.176 621.628C307.759 629.676 283.958 644.743 271.63 650.394C261.185 655.36 259.987 656.216 263.411 657.072C277.281 660.839 303.992 656.901 319.402 649.024C334.642 641.148 334.299 641.833 328.477 628.648C325.566 622.313 323.169 617.176 322.827 617.176C322.484 617.347 320.087 619.231 317.176 621.628Z" fill="white"/><path d="M543.204 282.429C524.026 292.018 506.048 335.68 496.63 394.754C492.692 419.582 492.178 512.729 495.774 538.413C504.335 598.513 522.999 645.772 542.519 655.874C551.423 660.326 558.272 658.957 567.347 650.738L575.566 643.375L566.662 633.444C533.615 597.315 514.951 551.769 509.643 494.75C503.137 423.177 525.567 347.666 565.463 306.743C570.6 301.435 574.881 296.47 574.881 295.613C574.881 293.73 564.607 284.141 559.984 281.744C554.847 279.176 549.368 279.347 543.204 282.429Z" fill="white"/><path d="M623.674 282.257C613.401 284.825 600.559 290.304 593.71 295.27L588.744 298.866L593.71 309.139C596.449 314.961 598.847 319.926 599.36 320.269C599.703 320.783 606.723 315.988 614.942 309.824C623.161 303.831 637.201 295.099 646.448 290.647C662.029 282.941 662.714 282.428 657.92 281.4C649.53 279.517 632.921 280.031 623.674 282.257Z" fill="white"/><path d="M705.524 281.915C699.531 282.771 694.737 284.141 694.737 284.997C694.737 285.682 697.819 288.25 701.757 290.819C712.544 298.01 727.955 314.619 738.571 330.715C754.666 354.686 766.823 386.535 772.987 420.266C777.097 443.211 777.097 495.092 772.816 518.722C762.371 576.939 733.263 627.622 696.449 651.594C692.34 654.333 692.34 654.333 703.469 656.388C730.01 661.011 769.22 657.587 794.391 648.683C855.348 626.937 900.723 577.966 916.818 516.496C922.64 494.065 924.181 458.621 920.071 436.704C904.832 355.885 843.19 295.442 762.543 282.429C745.249 279.689 721.791 279.347 705.524 281.915Z" fill="white"/><path d="M665.452 292.36C644.391 301.093 619.905 316.332 606.378 329.174L602.783 332.598L606.892 346.981C626.069 412.904 625.556 531.564 605.865 596.288L602.611 606.904L613.912 615.979C632.918 631.047 647.13 639.094 667.849 646.971L678.807 651.08L687.882 645.772C701.238 638.067 718.703 620.944 729.662 604.506C746.271 579.679 757.4 549.714 764.078 511.873C767.331 493.38 767.845 452.628 764.934 432.423C758.085 382.425 738.394 338.762 710.313 310.51C699.354 299.552 682.917 288.422 677.609 288.422C676.239 288.422 670.76 290.305 665.452 292.36Z" fill="white"/><path d="M573.678 311.023C547.651 338.419 529.159 378.658 521.625 424.547C517.002 453.141 517.687 498.859 523.337 524.714C532.07 565.466 548.679 599.712 571.281 624.197C581.041 634.813 581.554 634.642 587.719 619.745L591.828 609.643L584.636 601.424C547.823 558.617 529.673 503.653 535.494 451.258C540.289 407.081 557.069 368.042 583.267 339.447L592.17 329.687L587.376 318.215C584.808 311.879 581.726 306.4 580.869 306.058C579.842 305.715 576.589 307.941 573.678 311.023Z" fill="white"/><path d="M591.476 343.899C567.333 373.007 554.491 399.205 547.47 433.793C539.08 475.059 546.614 523.173 567.161 559.816C572.812 569.918 593.017 598.342 594.558 598.342C596.27 598.342 601.064 578.479 604.831 556.22C615.276 495.606 613.906 423.348 601.407 364.446C596.441 340.646 595.585 338.933 591.476 343.899Z" fill="white"/><path d="M593.888 628.651C589.607 637.555 588.751 640.295 590.634 641.493C608.784 653.479 623.852 658.273 642.516 658.273C664.262 658.273 664.604 657.075 646.112 648C631.729 640.808 620.599 633.617 603.819 620.775L599.538 617.35L593.888 628.651Z" fill="white"/><rect x="453.322" y="279.955" width="17.9788" height="377.555" fill="white"/></svg></span><div class="logofull"><svg width="2979" height="921" viewBox="0 0 2979 921" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1128.49 609.977H1091.03L1007.17 312.013H1043.36L1109.76 568.687L1182.97 312.013H1220.86L1293.64 568.262L1360.47 312.013H1396.23L1312.37 609.977H1274.92L1201.7 363.093L1128.49 609.977ZM1486.23 612.956C1466.08 612.956 1448.06 608.558 1432.17 599.761C1416.28 590.964 1403.79 578.478 1394.71 562.302C1385.63 545.844 1381.09 526.405 1381.09 503.987C1381.09 481.285 1385.63 461.704 1394.71 445.245C1404.07 428.787 1416.7 416.159 1432.59 407.362C1448.77 398.565 1466.93 394.166 1487.08 394.166C1507.23 394.166 1525.25 398.565 1541.14 407.362C1557.31 416.159 1569.94 428.787 1579.02 445.245C1588.39 461.421 1593.07 480.717 1593.07 503.135C1593.07 525.837 1588.39 545.418 1579.02 561.877C1569.66 578.336 1556.89 590.964 1540.71 599.761C1524.54 608.558 1506.37 612.956 1486.23 612.956ZM1485.8 582.734C1498.29 582.734 1510.06 580.038 1521.13 574.647C1532.2 568.971 1541.14 560.316 1547.95 548.681C1555.04 536.763 1558.59 521.723 1558.59 503.561C1558.59 485.116 1555.18 470.076 1548.37 458.441C1541.56 446.806 1532.62 438.293 1521.56 432.901C1510.77 427.226 1499.14 424.388 1486.65 424.388C1474.17 424.388 1462.53 427.226 1451.75 432.901C1440.96 438.293 1432.17 446.948 1425.36 458.867C1418.83 470.501 1415.57 485.4 1415.57 503.561C1415.57 522.006 1418.83 537.047 1425.36 548.681C1431.88 560.316 1440.4 568.971 1450.9 574.647C1461.68 580.038 1473.31 582.734 1485.8 582.734ZM1611.3 397.146H1640.68L1642.38 428.219C1648.05 420.557 1654.86 414.03 1662.81 408.639C1671.04 403.247 1679.98 399.558 1689.63 397.571C1699.56 395.301 1710.06 395.159 1721.13 397.146V429.07C1709.21 426.8 1698.42 426.8 1688.78 429.07C1679.41 431.341 1671.32 435.597 1664.51 441.84C1657.7 448.083 1652.45 456.029 1648.76 465.677C1645.07 475.042 1643.23 485.967 1643.23 498.453V609.977H1611.3V397.146ZM1730.64 303.5H1762.56V609.977H1730.64V303.5ZM1957.75 440.138L1954.34 440.563V303.5H1986.27V609.977H1956.9L1954.77 570.39C1948.24 582.309 1938.45 592.383 1925.4 600.612C1912.63 608.841 1896.74 612.956 1877.72 612.956C1858.14 612.956 1840.97 608.558 1826.22 599.761C1811.74 590.68 1800.39 577.91 1792.16 561.451C1784.22 544.992 1780.25 525.696 1780.25 503.561C1780.25 481.427 1784.22 462.272 1792.16 446.097C1800.39 429.638 1811.74 416.868 1826.22 407.787C1840.97 398.706 1858.14 394.166 1877.72 394.166C1897.87 394.166 1914.61 398.565 1927.95 407.362C1941.29 416.159 1951.22 427.084 1957.75 440.138ZM1814.72 503.561C1814.72 527.966 1820.97 547.404 1833.45 561.877C1845.94 576.066 1862.97 583.16 1884.53 583.16C1897.87 583.16 1909.79 580.038 1920.29 573.795C1930.79 567.552 1939.02 558.471 1944.98 546.553C1951.22 534.634 1954.34 520.304 1954.34 503.561C1954.34 486.818 1951.22 472.63 1944.98 460.995C1939.02 449.076 1930.79 439.996 1920.29 433.753C1909.79 427.226 1897.87 423.962 1884.53 423.962C1863.25 423.962 1846.22 431.199 1833.45 445.671C1820.97 459.86 1814.72 479.157 1814.72 503.561ZM2034.98 544.85C2036.68 553.364 2039.81 560.458 2044.35 566.133C2048.89 571.525 2054.7 575.64 2061.8 578.478C2069.18 581.315 2077.69 582.734 2087.34 582.734C2102.38 582.734 2113.73 579.896 2121.39 574.221C2129.34 568.262 2133.31 560.884 2133.31 552.087C2133.31 544.708 2130.9 538.749 2126.07 534.209C2121.53 529.668 2115.43 525.979 2107.77 523.142C2100.11 520.02 2091.59 517.324 2082.23 515.054C2074.85 513.351 2066.91 511.365 2058.39 509.095C2049.88 506.541 2041.79 503.135 2034.13 498.879C2026.47 494.622 2020.22 489.089 2015.4 482.278C2010.58 475.467 2008.16 466.529 2008.16 455.461C2008.16 443.259 2011.43 432.618 2017.95 423.537C2024.77 414.172 2033.99 406.936 2045.62 401.828C2057.54 396.72 2071.16 394.166 2086.49 394.166C2104.08 394.166 2119.69 397.997 2133.31 405.659C2147.21 413.321 2156.86 425.239 2162.25 441.415L2132.46 451.63C2130.47 444.252 2126.78 438.577 2121.39 434.604C2116.28 430.631 2110.47 427.935 2103.94 426.516C2097.7 425.098 2091.45 424.388 2085.21 424.388C2072.44 424.388 2062.08 426.942 2054.14 432.05C2046.47 436.874 2042.64 444.252 2042.64 454.184C2042.64 459.576 2043.92 464.116 2046.47 467.806C2049.03 471.211 2052.58 474.049 2057.12 476.319C2061.66 478.589 2067.05 480.575 2073.29 482.278C2079.53 483.697 2086.34 485.4 2093.72 487.386C2101.95 489.372 2110.32 491.926 2118.84 495.048C2127.35 497.886 2135.3 501.717 2142.67 506.541C2150.05 511.081 2156.01 517.04 2160.55 524.419C2165.38 531.513 2167.79 540.452 2167.79 551.235C2167.79 563.721 2164.38 574.647 2157.57 584.011C2150.76 593.092 2141.25 600.186 2129.05 605.294C2117.13 610.402 2103.23 612.956 2087.34 612.956C2065.49 612.956 2047.33 608.132 2032.85 598.484C2018.66 588.552 2009.16 574.079 2004.33 555.066L2034.98 544.85ZM2274.89 612.956C2255.02 612.956 2237.29 608.132 2221.68 598.484C2206.36 588.835 2194.3 575.64 2185.5 558.897C2176.7 542.154 2172.3 523 2172.3 501.433C2172.3 480.717 2176.7 462.272 2185.5 446.097C2194.3 429.922 2206.36 417.294 2221.68 408.213C2237 398.848 2254.46 394.166 2274.04 394.166C2293.33 394.166 2310.5 398.423 2325.54 406.936C2340.87 415.449 2352.78 427.226 2361.3 442.266C2369.81 457.306 2373.78 474.474 2373.22 493.771C2373.22 496.892 2373.07 500.156 2372.79 503.561C2372.51 506.966 2372.22 510.656 2371.94 514.628H2207.21C2207.78 527.966 2211.04 539.742 2217 549.958C2222.96 560.174 2230.76 568.262 2240.41 574.221C2250.34 579.896 2261.55 582.734 2274.04 582.734C2290.5 582.734 2304.4 579.613 2315.75 573.37C2327.39 567.127 2335.76 558.188 2340.87 546.553L2368.53 557.62C2360.02 575.498 2347.68 589.261 2331.5 598.909C2315.33 608.274 2296.45 612.956 2274.89 612.956ZM2338.31 486.96C2338.6 474.758 2335.9 463.975 2330.22 454.61C2324.83 445.245 2317.17 437.867 2307.24 432.476C2297.31 427.084 2285.81 424.388 2272.76 424.388C2261.41 424.388 2251.05 427.084 2241.69 432.476C2232.32 437.867 2224.52 445.387 2218.27 455.036C2212.32 464.4 2208.77 475.042 2207.63 486.96H2338.31ZM2391.71 397.146H2421.08L2422.79 427.368C2429.6 416.868 2438.53 408.78 2449.6 403.105C2460.67 397.146 2473.58 394.166 2488.34 394.166C2504.51 394.166 2518.7 397.713 2530.9 404.808C2543.11 411.618 2552.61 421.976 2559.42 435.881C2566.23 449.502 2569.64 466.67 2569.64 487.386V609.977H2537.71V491.217C2537.71 469.083 2532.89 452.34 2523.24 440.989C2513.88 429.354 2500.26 423.537 2482.38 423.537C2463.93 423.537 2449.46 429.638 2438.96 441.84C2428.74 454.043 2423.64 472.062 2423.64 495.899V609.977H2391.71V397.146ZM2614.96 544.85C2616.66 553.364 2619.79 560.458 2624.33 566.133C2628.87 571.525 2634.68 575.64 2641.78 578.478C2649.16 581.315 2657.67 582.734 2667.32 582.734C2682.36 582.734 2693.71 579.896 2701.37 574.221C2709.32 568.262 2713.29 560.884 2713.29 552.087C2713.29 544.708 2710.88 538.749 2706.05 534.209C2701.51 529.668 2695.41 525.979 2687.75 523.142C2680.09 520.02 2671.57 517.324 2662.21 515.054C2654.83 513.351 2646.89 511.365 2638.37 509.095C2629.86 506.541 2621.77 503.135 2614.11 498.879C2606.45 494.622 2600.21 489.089 2595.38 482.278C2590.56 475.467 2588.14 466.529 2588.14 455.461C2588.14 443.259 2591.41 432.618 2597.94 423.537C2604.75 414.172 2613.97 406.936 2625.6 401.828C2637.52 396.72 2651.14 394.166 2666.47 394.166C2684.06 394.166 2699.67 397.997 2713.29 405.659C2727.19 413.321 2736.84 425.239 2742.23 441.415L2712.44 451.63C2710.45 444.252 2706.76 438.577 2701.37 434.604C2696.26 430.631 2690.45 427.935 2683.92 426.516C2677.68 425.098 2671.43 424.388 2665.19 424.388C2652.42 424.388 2642.06 426.942 2634.12 432.05C2626.45 436.874 2622.62 444.252 2622.62 454.184C2622.62 459.576 2623.9 464.116 2626.45 467.806C2629.01 471.211 2632.56 474.049 2637.1 476.319C2641.64 478.589 2647.03 480.575 2653.27 482.278C2659.51 483.697 2666.32 485.4 2673.7 487.386C2681.93 489.372 2690.3 491.926 2698.82 495.048C2707.33 497.886 2715.28 501.717 2722.65 506.541C2730.03 511.081 2735.99 517.04 2740.53 524.419C2745.36 531.513 2747.77 540.452 2747.77 551.235C2747.77 563.721 2744.36 574.647 2737.55 584.011C2730.74 593.092 2721.24 600.186 2709.03 605.294C2697.11 610.402 2683.21 612.956 2667.32 612.956C2645.47 612.956 2627.31 608.132 2612.83 598.484C2598.64 588.552 2589.14 574.079 2584.31 555.066L2614.96 544.85ZM2854.87 612.956C2835 612.956 2817.27 608.132 2801.66 598.484C2786.34 588.835 2774.28 575.64 2765.48 558.897C2756.68 542.154 2752.28 523 2752.28 501.433C2752.28 480.717 2756.68 462.272 2765.48 446.097C2774.28 429.922 2786.34 417.294 2801.66 408.213C2816.98 398.848 2834.44 394.166 2854.02 394.166C2873.31 394.166 2890.48 398.423 2905.52 406.936C2920.85 415.449 2932.76 427.226 2941.28 442.266C2949.79 457.306 2953.76 474.474 2953.2 493.771C2953.2 496.892 2953.05 500.156 2952.77 503.561C2952.49 506.966 2952.2 510.656 2951.92 514.628H2787.19C2787.76 527.966 2791.02 539.742 2796.98 549.958C2802.94 560.174 2810.74 568.262 2820.39 574.221C2830.32 579.896 2841.53 582.734 2854.02 582.734C2870.48 582.734 2884.38 579.613 2895.73 573.37C2907.37 567.127 2915.74 558.188 2920.85 546.553L2948.51 557.62C2940 575.498 2927.66 589.261 2911.48 598.909C2895.31 608.274 2876.44 612.956 2854.87 612.956ZM2918.29 486.96C2918.58 474.758 2915.88 463.975 2910.2 454.61C2904.81 445.245 2897.15 437.867 2887.22 432.476C2877.29 427.084 2865.79 424.388 2852.74 424.388C2841.39 424.388 2831.03 427.084 2821.67 432.476C2812.3 437.867 2804.5 445.387 2798.26 455.036C2792.3 464.4 2788.75 475.042 2787.61 486.96H2918.29Z" fill="white"/><path d="M157.424 282.597C63.7626 298.35 -4.55685 383.449 0.237499 478.48C4.34694 562.039 60.8518 630.872 143.726 653.474C156.225 656.898 161.876 657.412 189.614 657.241C207.079 657.241 223.004 656.556 225.229 655.529C228.825 653.988 228.312 653.474 217.695 645.426C191.327 625.393 167.526 587.038 156.054 545.772C148.691 519.232 146.294 499.883 146.294 469.063C146.294 426.941 152.458 395.435 167.697 360.847C180.197 332.081 202.799 302.801 222.661 289.617C226.257 287.22 228.312 284.823 227.455 284.309C224.202 282.254 201.771 279.857 187.046 280.028C178.656 280.199 165.3 281.227 157.424 282.597Z" fill="white"/><path d="M264.268 281.229C259.645 282.428 260.501 283.113 277.282 291.331C287.042 296.126 301.253 304.858 308.616 310.509C322.314 321.125 324.883 322.495 324.883 319.07C324.883 318.214 326.937 313.077 329.335 307.94C331.732 302.632 333.444 298.181 333.273 298.009C329.506 294.756 316.835 288.249 308.616 285.167C297.829 281.058 273.686 279.003 264.268 281.229Z" fill="white"/><path d="M361.703 282.602C358.963 283.972 355.196 286.54 353.484 288.081C346.635 294.245 346.806 295.786 357.422 307.087C382.592 333.97 399.03 368.387 408.961 415.131C414.269 439.446 414.783 496.978 409.989 519.58C404.681 544.921 398.516 564.27 390.126 582.249C380.195 603.138 370.949 617.008 357.08 631.905L346.635 643.034L351.6 648.171C358.278 655.191 364.442 658.273 371.976 658.273C385.161 658.273 401.256 636.528 412.043 604.166C446.974 499.889 429.509 315.991 381.565 283.801C374.716 279.177 368.894 278.835 361.703 282.602Z" fill="white"/><path d="M231.221 295.272C184.989 326.092 155.367 393.556 155.367 468.211C155.367 517.866 166.497 561.187 189.099 598.857C202.626 621.459 233.275 649.711 244.234 649.711C256.22 649.711 294.917 628.65 312.553 612.726L319.745 606.048L315.635 592.008C307.588 564.782 300.91 510.161 300.91 471.121C300.91 430.027 307.074 377.46 315.293 347.496L319.574 332.085L313.238 326.435C302.28 316.675 277.109 300.751 263.925 295.272C244.234 287.053 243.378 287.053 231.221 295.272Z" fill="white"/><path d="M336.178 315.99C333.781 321.64 331.727 326.948 331.727 327.804C331.727 328.66 336.692 335.509 342.685 343.043C403.813 418.897 403.128 524.201 340.973 597.658C335.836 603.651 331.727 609.472 331.727 610.5C331.727 613.582 340.63 632.588 342 632.588C344.569 632.588 361.006 613.582 368.54 601.767C419.052 523.859 415.628 395.61 361.178 326.092C353.644 316.503 343.37 305.545 341.829 305.545C341.315 305.545 338.747 310.168 336.178 315.99Z" fill="white"/><path d="M322.657 357.942C313.411 396.639 312.041 411.707 312.041 469.924C312.041 528.141 313.411 541.668 322.657 580.366L327.109 599.029L332.931 592.351C370.087 549.716 386.011 488.588 374.539 432.597C367.518 398.18 355.19 373.01 331.218 344.244L327.109 339.107L322.657 357.942Z" fill="white"/><path d="M317.176 621.628C307.759 629.676 283.958 644.743 271.63 650.394C261.185 655.36 259.987 656.216 263.411 657.072C277.281 660.839 303.992 656.901 319.402 649.024C334.642 641.148 334.299 641.833 328.477 628.648C325.566 622.313 323.169 617.176 322.827 617.176C322.484 617.347 320.087 619.231 317.176 621.628Z" fill="white"/><path d="M543.204 282.429C524.026 292.018 506.048 335.68 496.63 394.754C492.692 419.582 492.178 512.729 495.774 538.413C504.335 598.513 522.999 645.772 542.519 655.874C551.423 660.326 558.272 658.957 567.347 650.738L575.566 643.375L566.662 633.444C533.615 597.315 514.951 551.769 509.643 494.75C503.137 423.177 525.567 347.666 565.463 306.743C570.6 301.435 574.881 296.47 574.881 295.613C574.881 293.73 564.607 284.141 559.984 281.744C554.847 279.176 549.368 279.347 543.204 282.429Z" fill="white"/><path d="M623.674 282.257C613.401 284.825 600.559 290.304 593.71 295.27L588.744 298.866L593.71 309.139C596.449 314.961 598.847 319.926 599.36 320.269C599.703 320.783 606.723 315.988 614.942 309.824C623.161 303.831 637.201 295.099 646.448 290.647C662.029 282.941 662.714 282.428 657.92 281.4C649.53 279.517 632.921 280.031 623.674 282.257Z" fill="white"/><path d="M705.524 281.915C699.531 282.771 694.737 284.141 694.737 284.997C694.737 285.682 697.819 288.25 701.757 290.819C712.544 298.01 727.955 314.619 738.571 330.715C754.666 354.686 766.823 386.535 772.987 420.266C777.097 443.211 777.097 495.092 772.816 518.722C762.371 576.939 733.263 627.622 696.449 651.594C692.34 654.333 692.34 654.333 703.469 656.388C730.01 661.011 769.22 657.587 794.391 648.683C855.348 626.937 900.723 577.966 916.818 516.496C922.64 494.065 924.181 458.621 920.071 436.704C904.832 355.885 843.19 295.442 762.543 282.429C745.249 279.689 721.791 279.347 705.524 281.915Z" fill="white"/><path d="M665.452 292.36C644.391 301.093 619.905 316.332 606.378 329.174L602.783 332.598L606.892 346.981C626.069 412.904 625.556 531.564 605.865 596.288L602.611 606.904L613.912 615.979C632.918 631.047 647.13 639.094 667.849 646.971L678.807 651.08L687.882 645.772C701.238 638.067 718.703 620.944 729.662 604.506C746.271 579.679 757.4 549.714 764.078 511.873C767.331 493.38 767.845 452.628 764.934 432.423C758.085 382.425 738.394 338.762 710.313 310.51C699.354 299.552 682.917 288.422 677.609 288.422C676.239 288.422 670.76 290.305 665.452 292.36Z" fill="white"/><path d="M573.678 311.023C547.651 338.419 529.159 378.658 521.625 424.547C517.002 453.141 517.687 498.859 523.337 524.714C532.07 565.466 548.679 599.712 571.281 624.197C581.041 634.813 581.554 634.642 587.719 619.745L591.828 609.643L584.636 601.424C547.823 558.617 529.673 503.653 535.494 451.258C540.289 407.081 557.069 368.042 583.267 339.447L592.17 329.687L587.376 318.215C584.808 311.879 581.726 306.4 580.869 306.058C579.842 305.715 576.589 307.941 573.678 311.023Z" fill="white"/><path d="M591.476 343.899C567.333 373.007 554.491 399.205 547.47 433.793C539.08 475.059 546.614 523.173 567.161 559.816C572.812 569.918 593.017 598.342 594.558 598.342C596.27 598.342 601.064 578.479 604.831 556.22C615.276 495.606 613.906 423.348 601.407 364.446C596.441 340.646 595.585 338.933 591.476 343.899Z" fill="white"/><path d="M593.888 628.651C589.607 637.555 588.751 640.295 590.634 641.493C608.784 653.479 623.852 658.273 642.516 658.273C664.262 658.273 664.604 657.075 646.112 648C631.729 640.808 620.599 633.617 603.819 620.775L599.538 617.35L593.888 628.651Z" fill="white"/><rect x="453.322" y="279.955" width="17.9788" height="377.555" fill="white"/></svg></div><button class="pinbtn" onclick="togglePin()" title="Закрепить" aria-label="pin"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 4h6l1 6 3 3H5l3-3 1-6z"/><path d="M12 13v7"/></svg></button></div>
@@ -267,10 +268,10 @@ function t(ru,en){return LANG==='ru'?ru:en;}
 function setLang(l){LANG=l;document.documentElement.lang=l;document.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('on',b.dataset.lang===l));renderChrome();render();}
 
 /* ── storage ── */
-const KEY={settings:'ws3:settings',costs:'ws3:costs',income:'ws3:income',tasks:'ws3:tasks',payroll:'ws3:payroll',tx:'ws3:tx',contracts:'ws3:contracts',orders:'ws3:orders'};
-const PRIVATE_KEYS=new Set([KEY.payroll,KEY.tx]);
+const KEY={settings:'ws3:settings',costs:'ws3:costs',income:'ws3:income',tasks:'ws3:tasks',payroll:'ws3:payroll',tx:'ws3:tx',contracts:'ws3:contracts',orders:'ws3:orders',debts:'ws3:debts',docs:'ws3:docs',invoices:'ws3:invoices'};
+const PRIVATE_KEYS=new Set([KEY.payroll,KEY.tx,KEY.debts,KEY.invoices]);
 let sb=null,sbProfile=null;
-let DB={settings:null,costs:[],income:[],tasks:[],payroll:{people:[]},tx:[],contracts:[],orders:[]};
+let DB={settings:null,costs:[],income:[],tasks:[],payroll:{people:[]},tx:[],contracts:[],orders:[],debts:[],docs:[],invoices:[]};
 let DISPLAY='USD',view='dash';
 
 function loadSupabase(){return new Promise((res,rej)=>{if(window.supabase)return res();const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';let done=false;const to=setTimeout(()=>{if(!done){done=true;rej(new Error('timeout'));}},9000);sc.onload=()=>{if(!done){done=true;clearTimeout(to);res();}};sc.onerror=()=>{if(!done){done=true;clearTimeout(to);rej(new Error('CDN'));}};document.head.appendChild(sc);});}
@@ -286,6 +287,9 @@ async function loadAll(){
   DB.costs=await sGet(KEY.costs)||[];
   DB.income=await sGet(KEY.income)||[];
   DB.tasks=await sGet(KEY.tasks)||[];
+  DB.debts=await sGet(KEY.debts)||[];
+  DB.docs=await sGet(KEY.docs)||[];
+  DB.invoices=await sGet(KEY.invoices)||[];
   DB.contracts=await sGet(KEY.contracts)||[];
   DB.orders=await sGet(KEY.orders)||[];
   DB.payroll=await sGet(KEY.payroll)||{people:[]};
@@ -299,7 +303,11 @@ const fmt0=n=>Math.round(n||0).toLocaleString('en-US');
 const fmt1=n=>(Math.round((n||0)*10)/10).toLocaleString('en-US');
 const pct=n=>(Math.round((n||0)*10)/10)+'%';
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-function toUSD(a,c){return c==='UZS'?(a/(DB.settings.fx||1)):a;}
+function toUSD(a,c){return c==='UZS'?(a/(DB.settings.fx||1)):c==='EUR'?(a*(DB.settings.fxEur||1.08)):a;}
+function curOpts(sel){return ['USD','EUR','UZS'].map(c=>`<option ${sel===c?'selected':''}>${c}</option>`).join('');}
+function fmtRaw(v){return Math.round(v).toLocaleString('en-US');}
+function balByCur(){const b={USD:0,EUR:0,UZS:0};DB.settings.entities.forEach(e=>{b.USD+=e.opening||0;});DB.tx.forEach(x=>{const c=x.currency||'USD';b[c]=(b[c]||0)+(x.kind==='in'?1:-1)*x.amount;});return b;}
+function balLine(){const b=balByCur();const s=[];if(Math.round(b.USD))s.push('$'+fmtRaw(b.USD));if(Math.round(b.EUR))s.push('€'+fmtRaw(b.EUR));if(Math.round(b.UZS))s.push(fmtRaw(b.UZS)+' '+t('сум','UZS'));return s.join(' · ')||'$0';}
 function money(v){if(DISPLAY==='UZS'){const x=v*(DB.settings.fx||1);return (x<0?'−':'')+fmt0(Math.abs(x))+t(' сум',' UZS');}return (v<0?'−$':'$')+fmt0(Math.abs(v));}
 const entName=id=>{const e=DB.settings.entities.find(e=>e.id===id);return e?e.name:'—';};
 const personName=id=>{const p=DB.payroll.people.find(p=>p.id===id);return p?p.name:'';};
@@ -335,7 +343,8 @@ const ICO={
   fin:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>',
   contracts:'<svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>',
   structure:'<svg viewBox="0 0 24 24"><path d="M4 21h16"/><path d="M6 21V8l6-4 6 4v13"/><path d="M10 21v-4h4v4"/><path d="M9.5 11h1.4M13.1 11h1.4M9.5 14.5h1.4M13.1 14.5h1.4"/></svg>',
-  projects:'<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M12 7v5l3.4 2"/><path d="M17 3.5l4 1-1 4"/></svg>'
+  projects:'<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M12 7v5l3.4 2"/><path d="M17 3.5l4 1-1 4"/></svg>',
+  docs:'<svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h4l2 2.4h6a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>'
 };
 
 /* ── nav ── */
@@ -348,9 +357,10 @@ function tabsFor(){
     ['structure',t('Структура','Structure'),'structure','5'],
     ['projects',t('Проекты','Projects'),'projects','6'],
     ['contracts',t('Контракты','Contracts'),'contracts','7'],
+    ['docs',t('Документы','Documents'),'docs','8'],
   ];
 }
-const MOBILE_TABS=['dash','fin','team'];
+const MOBILE_TABS=['dash','fin','tasks'];
 function acctContent(){
   const name=(sbProfile&&(sbProfile.name||sbProfile.email))||'';
   return `<div class="name">${esc(name||'—')}</div><div class="mail">${esc((sbProfile&&sbProfile.email)||'')}</div>
@@ -364,6 +374,8 @@ function gearContent(){
   return `<div class="name" style="font-weight:600;font-size:13px;margin-bottom:10px">${t('Общие настройки','General settings')}</div>
     <div class="lbl" style="margin-bottom:5px">${t('Курс сум / $','FX UZS / $')}</div>
     <input class="mono" type="number" value="${DB.settings?DB.settings.fx:12650}" onchange="saveFx(this.value)" style="margin-bottom:10px">
+    <div class="lbl" style="margin-bottom:5px">${t('Курс $ / €','FX $ / €')}</div>
+    <input class="mono" type="number" step="0.01" value="${DB.settings&&DB.settings.fxEur?DB.settings.fxEur:1.08}" onchange="saveFxEur(this.value)" style="margin-bottom:10px">
     <div style="display:flex;gap:8px"><button class="btn sm" style="flex:1" onclick="exportData()">${t('Экспорт JSON','Export JSON')}</button><button class="btn sm" style="flex:1" onclick="importPrompt()">${t('Импорт','Import')}</button></div>
     <div class="hint" style="margin-top:8px">${t('Экспорт — бэкап всей базы. Делай регулярно.','Export = full backup. Do it regularly.')}</div>`;
 }
@@ -417,6 +429,7 @@ function render(){
   else if(view==='projects')a.innerHTML=viewProjects();
   else if(view==='contracts')a.innerHTML=viewContracts();
   else if(view==='structure')a.innerHTML=viewStructure();
+  else if(view==='docs')a.innerHTML=viewDocs();
   const qa=document.getElementById('qa-input');
   if(qa)qa.onkeydown=e=>{if(e.key==='Enter')quickAddTask();};
 }
@@ -517,7 +530,12 @@ function viewDash(){
   </div>
   <div class="grid mini m32" style="margin-bottom:12px">
     ${stat(t('Законтрактовано','Contracted'),money(contractSum||backlog),activeContracts.length+t(' активных контрактов',' active contracts')+(avgContract?' · '+t('средний','avg')+' '+money(avgContract):'')+' · '+t('бэклог проектов','projects backlog')+' '+money(backlog)+(projPct!==null?' ('+pct(projPct)+' '+t('выполнено','done')+')':''),'pos')}
-    ${stat(t('Задачи','Tasks'),String(active),(overdue?overdue+t(' просрочено',' overdue')+' · ':'')+doneCnt+' done'+(urgCnt?' · '+urgCnt+t(' срочных',' urgent'):''),overdue?'neg':'')}
+
+    <div class="grid g3" style="margin-bottom:14px">
+    ${stat(t('Регулярные обязательства','Recurring commitments'),money(costsMonthlyUSD())+' / '+t('мес','mo'),(()=>{const ym=ymNow();const done=DB.costs.filter(c=>c.lastPosted===ym).length;return ym+': '+t('проведено','posted')+' '+done+' / '+DB.costs.length+' · '+t('ФОТ план','payroll plan')+' '+money(payrollMo());})(),DB.costs.some(c=>c.lastPosted!==ymNow())&&new Date().getDate()>5?'neg':'')}
+    ${stat(t('Нам должны','Owed to us'),money(debtsSum('in')),t('мы должны','we owe')+' '+money(debtsSum('out')),debtsSum('in')>0?'pos':'')}
+    ${stat(t('Ближайший платёж','Next payment'),(()=>{const u=upcomingPayments();return u.length?fmtDM(u[0].d)+' · '+money(u[0].usd):'—';})(),(()=>{const u=upcomingPayments();return u.length?esc(u[0].label)+(u.length>1?' · '+t('дальше','then')+' '+fmtDM(u[1].d)+' '+esc(u[1].label):''):t('добавь дни платежей в регулярке и ЗП','set pay days on costs & salaries');})())}
+    </div>    ${stat(t('Задачи','Tasks'),String(active),(overdue?overdue+t(' просрочено',' overdue')+' · ':'')+doneCnt+' done'+(urgCnt?' · '+urgCnt+t(' срочных',' urgent'):''),overdue?'neg':'')}
   </div>
 
   <div class="grid g2" style="margin-bottom:12px">
@@ -542,7 +560,7 @@ function newTx(kind){
   <div class="f2"><div class="fs"><label>${t('Тип','Type')}</label><select id="x-kind" onchange="txKindUI()"><option value="in" ${kind==='in'?'selected':''}>${t('Доход','Income')}</option><option value="out" ${kind!=='in'?'selected':''}>${t('Расход','Expense')}</option></select></div>
   <div class="fs"><label>${t('Дата','Date')}</label><input id="x-date" type="date" value="${today()}"></div></div>
   <div class="f2"><div class="fs"><label>${t('Сумма','Amount')}</label><input id="x-amt" class="mono" type="number"></div>
-  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="x-cur"><option>USD</option><option>UZS</option></select></div></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="x-cur">${curOpts('USD')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="x-ent">${DB.settings.entities.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}</select></div>
   <div class="fs" id="x-cat-wrap"><label>${t('Категория','Category')}</label><select id="x-cat">${CATS.map(x=>`<option value="${esc(x[0])}">${t(x[0],x[1])}</option>`).join('')}</select></div></div>
   <div class="fs"><label>${t('Назначение','Purpose')}</label><input id="x-memo" placeholder="${t('за что / от кого','what for / from whom')}"></div>
@@ -561,7 +579,7 @@ function viewTeam(){
   const mo=payrollMo();
   return `<div class="vhead"><div><h1 class="view">${t('Команда','Team')}</h1><div class="vsub">${money(mo)}/${t('мес','mo')} ${t('ФОТ','payroll')}</div></div><button class="btn pri" onclick="personModal()">+ ${t('Человек','Person')} <kbd>P</kbd></button></div>
   ${DB.payroll.people.length?`<div class="card"><table><tr><th>${t('Имя','Name')}</th><th>${t('Должность','Title')}</th><th>${t('Юр.лицо','Entity')}</th><th class="n">${t('Офиц.','Official')}</th><th class="n">${t('Неофиц.','Unofficial')}</th><th class="n">${t('Итого / мес','Total / mo')}</th><th>Equity</th><th></th></tr>
-  ${DB.payroll.people.map(p=>`<tr><td style="font-weight:500">${esc(p.name)}</td><td class="muted">${esc(p.title||'')}</td><td class="muted">${esc(entName(p.entityId))}</td><td class="n muted">${p.salary?money(toUSD(p.salary,p.currency)):'—'}</td><td class="n muted">${p.extra?money(toUSD(p.extra,p.extraCur||'USD')):'—'}</td><td class="n">${money(compUSD(p))}</td><td class="muted">${esc(p.equity||'—')}</td><td style="white-space:nowrap;text-align:right"><button class="btn sm pay" onclick="payPerson('${p.id}')">${t('Выплатить','Pay')}</button> <button class="ib" onclick="personModal('${p.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delPerson('${p.id}')" aria-label="delete">×</button></td></tr>`).join('')}
+  ${DB.payroll.people.map(p=>`<tr><td style="font-weight:500">${esc(p.name)}</td><td class="muted">${esc(p.title||'')}</td><td class="muted">${esc(entName(p.entityId))}</td><td class="n muted">${p.salary?money(toUSD(p.salary,p.currency)):'—'}</td><td class="n muted">${p.extra?money(toUSD(p.extra,p.extraCur||'USD')):'—'}</td><td class="n">${money(compUSD(p))}${(()=>{const r=(p.paid&&p.paid[ymNow()])||{};const b=[];if(r.of)b.push(t('оф','of'));if(r.un)b.push(t('неоф','un'));return b.length?` <span class="tag pos" title="${ymNow()}">${b.join('+')} ✓</span>`:'';})()}</td><td class="muted">${esc(p.equity||'—')}</td><td style="white-space:nowrap;text-align:right"><button class="btn sm pay" onclick="payPerson('${p.id}')">${t('Выплатить','Pay')}</button> <button class="ib" onclick="personModal('${p.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delPerson('${p.id}')" aria-label="delete">×</button></td></tr>`).join('')}
   <tr class="tot"><td colspan="5">${t('Итого ФОТ / мес','Total payroll / mo')}</td><td class="n">${money(mo)}</td><td colspan="2"></td></tr></table></div>`
   :`<div class="empty"><b>${t('Команда пуста','Team empty')}</b>${t('Добавь первого человека (P)','Add the first person (P)')}</div>`}`;
 }
@@ -571,31 +589,44 @@ function personModal(id){
   <div class="fs"><label>${t('Имя','Name')}</label><input id="t-name" value="${p?esc(p.name):''}"></div>
   <div class="fs"><label>${t('Должность','Title')}</label><input id="t-title" value="${p?esc(p.title||''):''}"></div>
   <div class="f2"><div class="fs"><label>${t('Офиц. ЗП / мес','Official salary / mo')}</label><input id="t-sal" class="mono" type="number" value="${p?p.salary:''}" placeholder="1300000"></div>
-  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-cur"><option ${p&&p.currency==='USD'?'selected':''}>USD</option><option ${!p||p.currency==='UZS'?'selected':''}>UZS</option></select></div></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-cur">${curOpts(p?p.currency:'UZS')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('Неофиц. часть / мес','Unofficial part / mo')}</label><input id="t-extra" class="mono" type="number" value="${p&&p.extra?p.extra:''}" placeholder="0"></div>
-  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-xcur"><option ${!p||!p.extraCur||p.extraCur==='USD'?'selected':''}>USD</option><option ${p&&p.extraCur==='UZS'?'selected':''}>UZS</option></select></div></div>
-  <div class="f2"><div class="fs"><label>Equity</label><input id="t-eq" value="${p?esc(p.equity||''):''}"></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-xcur">${curOpts(p&&p.extraCur?p.extraCur:'USD')}</select></div></div>
+  <div class="f2"><div class="fs"><label>${t('День выплаты (опц.)','Pay day (opt.)')}</label><input id="t-payday" type="number" min="1" max="28" value="${p&&p.payDay?p.payDay:''}"></div>
+  <div class="fs"><label>Equity</label><input id="t-eq" value="${p?esc(p.equity||''):''}"></div></div>
+  <div class="f2"><div class="fs" style="display:none"><label>-</label><input></div>
   <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="t-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${p&&p.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
   </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="savePerson('${id||''}')">${p?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);
 }
 function savePerson(id){
   const g=k=>document.getElementById(k);
-  const data={name:g('t-name').value||'—',title:g('t-title').value||'',salary:parseFloat(g('t-sal').value)||0,currency:g('t-cur').value,extra:parseFloat(g('t-extra').value)||0,extraCur:g('t-xcur').value,equity:g('t-eq').value||'',entityId:g('t-ent').value};
+  const data={name:g('t-name').value||'—',title:g('t-title').value||'',salary:parseFloat(g('t-sal').value)||0,currency:g('t-cur').value,extra:parseFloat(g('t-extra').value)||0,extraCur:g('t-xcur').value,payDay:parseInt(g('t-payday').value)||null,equity:g('t-eq').value||'',entityId:g('t-ent').value};
   if(id){const p=DB.payroll.people.find(x=>x.id===id);if(p)Object.assign(p,data);}
   else DB.payroll.people.push(Object.assign({id:uid('p'),role:'employee',bonusPerHour:0},data));
   save('payroll');closeModal();render();
 }
 function delPerson(id){const p=DB.payroll.people.find(x=>x.id===id);confirmModal(t('Удалить','Delete')+(p?` «${esc(p.name)}»`:'')+'?',()=>{DB.payroll.people=DB.payroll.people.filter(x=>x.id!==id);save('payroll');render();});}
 function payPerson(id){const p=DB.payroll.people.find(x=>x.id===id);if(!p)return;
-  const ym=new Date().toISOString().slice(0,7);
-  const parts=[];
-  if(p.salary>0)parts.push(t('офиц.','official')+' '+money(toUSD(p.salary,p.currency)));
-  if(p.extra>0)parts.push(t('неофиц.','unofficial')+' '+money(toUSD(p.extra,p.extraCur||'USD')));
-  confirmModal(t('Выплатить ЗП','Pay salary')+' '+money(compUSD(p))+' ('+esc(p.name)+(parts.length>1?': '+parts.join(' + '):'')+') '+t('с баланса','from')+' '+esc(entName(p.entityId))+'?',()=>{
-    if(p.salary>0)addTx({kind:'payout',entityId:p.entityId,amount:p.salary,currency:p.currency,memo:t('ЗП офиц.','Salary official')+' · '+ym,who:p.name});
-    if(p.extra>0)addTx({kind:'payout',entityId:p.entityId,amount:p.extra,currency:p.extraCur||'USD',memo:t('ЗП неофиц.','Salary unofficial')+' · '+ym,who:p.name});
-    toast(t('Выплачено','Paid')+' · '+p.name);render();
-  },false);}
+  const ym=ymNow();const paid=(p.paid&&p.paid[ym])||{};
+  modal(`<h3>${t('Выплата','Payout')} · ${esc(p.name)}</h3><div class="field-stack">
+  <div class="fs"><label>${t('За месяц','For month')}</label><input id="pm-ym" type="month" value="${ym}"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:4px 0"><input type="checkbox" id="pm-of-on" ${p.salary>0?'checked':''} style="width:auto"><div class="fs" style="flex:1"><label>${t('Офиц. часть','Official part')}${paid.of?' · '+ym+' ✓':''}</label><div style="display:flex;gap:8px"><input id="pm-of" class="mono" type="number" value="${p.salary||0}" style="flex:1"><select id="pm-of-cur" style="width:84px">${curOpts(p.currency||'UZS')}</select></div></div></div>
+  <div style="display:flex;align-items:center;gap:10px;margin:4px 0"><input type="checkbox" id="pm-un-on" ${p.extra>0?'checked':''} style="width:auto"><div class="fs" style="flex:1"><label>${t('Неофиц. часть','Unofficial part')}${paid.un?' · '+ym+' ✓':''}</label><div style="display:flex;gap:8px"><input id="pm-un" class="mono" type="number" value="${p.extra||0}" style="flex:1"><select id="pm-un-cur" style="width:84px">${curOpts(p.extraCur||'USD')}</select></div></div></div>
+  <div class="hint">${t('Спишется с баланса','Charged to')}: ${esc(entName(p.entityId))}</div>
+  </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="doPay('${id}')">${t('Провести','Post')}</button></div>`);}
+function doPay(id){const p=DB.payroll.people.find(x=>x.id===id);if(!p)return;const g=k=>document.getElementById(k);
+  const ym=g('pm-ym').value||ymNow();
+  const wantOf=g('pm-of-on').checked,wantUn=g('pm-un-on').checked;
+  const amOf=parseFloat(g('pm-of').value)||0,amUn=parseFloat(g('pm-un').value)||0;
+  if((!wantOf||amOf<=0)&&(!wantUn||amUn<=0)){toast(t('Нечего проводить','Nothing to post'));return;}
+  p.paid=p.paid||{};const rec=p.paid[ym]=p.paid[ym]||{};
+  const already=[];if(wantOf&&rec.of)already.push(t('офиц.','official'));if(wantUn&&rec.un)already.push(t('неофиц.','unofficial'));
+  const go=()=>{
+    if(wantOf&&amOf>0){addTx({kind:'payout',entityId:p.entityId,amount:amOf,currency:g('pm-of-cur').value,memo:t('ЗП офиц.','Salary official')+' · '+ym,who:p.name});rec.of=true;}
+    if(wantUn&&amUn>0){addTx({kind:'payout',entityId:p.entityId,amount:amUn,currency:g('pm-un-cur').value,memo:t('ЗП неофиц.','Salary unofficial')+' · '+ym,who:p.name});rec.un=true;}
+    save('payroll');toast(t('Выплачено','Paid')+' · '+p.name);render();};
+  if(already.length){confirmModal(t('За','For')+' '+ym+' '+t('уже проведено','already posted')+': '+already.join(', ')+'. '+t('Провести ещё раз?','Post again?'),go);}
+  else{closeModal();go();}}
 
 /* ── tasks ── */
 function nextTaskId(){let mx=0;DB.tasks.forEach(x=>{const m=/^WS-(\d+)$/.exec(x.id||'');if(m)mx=Math.max(mx,parseInt(m[1],10));});return 'WS-'+String(mx+1).padStart(2,'0');}
@@ -672,41 +703,184 @@ function costModal(id){
   modal(`<h3>${c?t('Регулярный расход','Recurring cost'):t('Новый регулярный расход','New recurring cost')}</h3><div class="field-stack">
   <div class="fs"><label>${t('Название','Name')}</label><input id="rc-name" value="${c?esc(c.name):''}" placeholder="${t('Аренда офиса','Office rent')}"></div>
   <div class="f2"><div class="fs"><label>${t('Сумма / мес','Amount / mo')}</label><input id="rc-amount" type="number" step="0.01" value="${c?c.amount:''}"></div>
-  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="rc-cur"><option ${!c||c.currency==='USD'?'selected':''}>USD</option><option ${c&&c.currency==='UZS'?'selected':''}>UZS</option></select></div></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="rc-cur">${curOpts(c?c.currency:'USD')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('Категория','Category')}</label><input id="rc-cat" value="${c?esc(c.category||''):''}" placeholder="${t('Офис / Инфра / Софт…','Office / Infra / Software…')}"></div>
   <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="rc-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${c&&c.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
+  <div class="fs"><label>${t('День платежа (число месяца, опц.)','Payment day of month (opt.)')}</label><input id="rc-day" type="number" min="1" max="28" value="${c&&c.dueDay?c.dueDay:''}"></div>
   </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveCostItem('${id||''}')">${c?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);
 }
 function saveCostItem(id){const g=k=>document.getElementById(k);
-  const data={name:g('rc-name').value||t('Расход','Cost'),amount:parseFloat(g('rc-amount').value)||0,currency:g('rc-cur').value,category:g('rc-cat').value||t('Прочее','Other'),entityId:g('rc-ent')?g('rc-ent').value:((DB.settings.entities[0]||{}).id||''),recurring:true};
+  const data={name:g('rc-name').value||t('Расход','Cost'),amount:parseFloat(g('rc-amount').value)||0,currency:g('rc-cur').value,category:g('rc-cat').value||t('Прочее','Other'),entityId:g('rc-ent')?g('rc-ent').value:((DB.settings.entities[0]||{}).id||''),dueDay:parseInt(g('rc-day').value)||null,recurring:true};
   if(id){const c=DB.costs.find(x=>x.id===id);if(c)Object.assign(c,data);}
   else DB.costs.push(Object.assign({id:uid('cst')},data));
   save('costs');closeModal();render();}
 function delCost(id){const c=DB.costs.find(x=>x.id===id);if(!c)return;
   confirmModal(t('Удалить регулярный расход','Delete recurring cost')+' «'+esc(c.name)+'»?',()=>{DB.costs=DB.costs.filter(x=>x.id!==id);save('costs');render();});}
 function postMonthlyCosts(){
-  const ym=ymNow();const due=DB.costs.filter(c=>c.lastPosted!==ym);
-  if(!due.length){toast(t('За этот месяц всё уже проведено','Everything already posted this month'));return;}
+  const ym=ymNow();
+  const ids=Array.from(document.querySelectorAll('.rc-chk:checked')).map(el=>el.getAttribute('data-id'));
+  const due=DB.costs.filter(c=>ids.includes(c.id));
+  if(!due.length){toast(t('Отметь галочками, что проводить','Tick what to post'));return;}
   const sum=due.reduce((s,c)=>s+toUSD(c.amount||0,c.currency),0);
-  confirmModal(t('Провести','Post')+' '+due.length+' × '+ym+' ('+money(sum)+')?',()=>{
+  const rep=due.filter(c=>c.lastPosted===ym);
+  confirmModal(t('Провести','Post')+' '+due.length+' × '+ym+' ('+money(sum)+')'+(rep.length?'<br><span class="hint">'+t('Внимание: уже проведены в этом месяце','Warning: already posted this month')+': '+rep.map(c=>esc(c.name)).join(', ')+'</span>':'')+'?',()=>{
     const today=new Date().toISOString().slice(0,10);
     due.forEach(c=>{DB.tx.unshift({id:uid('tx'),kind:'out',date:today,amount:c.amount,currency:c.currency||'USD',entityId:c.entityId||'',category:c.category||t('Прочее','Other'),memo:c.name+' · '+ym,who:'',projectId:''});c.lastPosted=ym;});
     save('tx');save('costs');toast(t('Проведено','Posted')+': '+money(sum));render();
   },false);
 }
+/* ── debts: нам должны / мы должны ── */
+function debtsSum(dir){return DB.debts.filter(d=>d.status!=='done'&&d.dir===dir).reduce((s,d)=>s+toUSD(d.amount||0,d.currency),0);}
+function debtModal(id){
+  const d=id?DB.debts.find(x=>x.id===id):null;
+  modal(`<h3>${d?t('Обязательство','Obligation'):t('Новое обязательство','New obligation')}</h3><div class="field-stack">
+  <div class="fs"><label>${t('Тип','Type')}</label><select id="db-dir"><option value="in" ${!d||d.dir==='in'?'selected':''}>${t('Нам должны','Owed to us')}</option><option value="out" ${d&&d.dir==='out'?'selected':''}>${t('Мы должны','We owe')}</option></select></div>
+  <div class="fs"><label>${t('Кто / кому','Who')}</label><input id="db-who" value="${d?esc(d.who||''):''}"></div>
+  <div class="f2"><div class="fs"><label>${t('Сумма','Amount')}</label><input id="db-amount" class="mono" type="number" step="0.01" value="${d?d.amount:''}"></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="db-cur">${curOpts(d?d.currency:'USD')}</select></div></div>
+  <div class="f2"><div class="fs"><label>${t('Ожидаем к','Due')}</label><input id="db-due" type="date" value="${d&&d.due?d.due:''}"></div>
+  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="db-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${d&&d.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
+  <div class="fs"><label>${t('Заметка','Note')}</label><input id="db-memo" value="${d?esc(d.memo||''):''}"></div>
+  </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveDebt('${id||''}')">${d?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);}
+function saveDebt(id){const g=k=>document.getElementById(k);
+  const data={dir:g('db-dir').value,who:g('db-who').value||'—',amount:parseFloat(g('db-amount').value)||0,currency:g('db-cur').value,due:g('db-due').value||'',entityId:g('db-ent')?g('db-ent').value:'',memo:g('db-memo').value||''};
+  if(id){const d=DB.debts.find(x=>x.id===id);if(d)Object.assign(d,data);}
+  else DB.debts.unshift(Object.assign({id:uid('db'),status:'open'},data));
+  save('debts');closeModal();render();}
+function delDebt(id){const d=DB.debts.find(x=>x.id===id);if(!d)return;
+  confirmModal(t('Удалить обязательство','Delete obligation')+' «'+esc(d.who)+'»?',()=>{DB.debts=DB.debts.filter(x=>x.id!==id);save('debts');render();});}
+function settleDebt(id){const d=DB.debts.find(x=>x.id===id);if(!d)return;
+  confirmModal((d.dir==='in'?t('Получено','Received'):t('Оплачено','Paid'))+' '+money(toUSD(d.amount,d.currency))+' ('+esc(d.who)+')? '+t('Запись уйдёт в кассу.','Will be posted to the ledger.'),()=>{
+    addTx({kind:d.dir==='in'?'in':'out',entityId:d.entityId||'',amount:d.amount,currency:d.currency,category:d.dir==='in'?'':t('Прочее','Other'),memo:(d.memo||(d.dir==='in'?t('Поступление по обязательству','Receivable settled'):t('Оплата обязательства','Payable settled'))),who:d.who});
+    d.status='done';d.settled=new Date().toISOString().slice(0,10);save('debts');toast(t('Проведено в кассу','Posted to ledger'));render();},false);}
+/* ── upcoming payments ── */
+function upcomingPayments(){
+  const out=[];const now=new Date();now.setHours(0,0,0,0);
+  const push=(day,label,usd)=>{if(!day)return;let d=new Date(now.getFullYear(),now.getMonth(),day);if(d<now)d=new Date(now.getFullYear(),now.getMonth()+1,day);out.push({d,label,usd});};
+  DB.costs.forEach(c=>push(c.dueDay,c.name,toUSD(c.amount||0,c.currency)));
+  DB.payroll.people.forEach(p=>push(p.payDay,t('ЗП','Pay')+' · '+p.name,compUSD(p)));
+  DB.debts.filter(d=>d.status!=='done'&&d.dir==='out'&&d.due).forEach(d=>{const dd=new Date(d.due);if(dd>=now)out.push({d:dd,label:d.who,usd:toUSD(d.amount,d.currency)});});
+  return out.sort((a,b)=>a.d-b.d);}
+function fmtDM(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');}
+/* ── documents ── */
+const DOCCATS=['Учредительные','Договоры','Инвойсы','Отчёты','Банк','Прочее'];
+let docFilter={q:'',cat:''};
+function setDocQ(v){docFilter.q=v.toLowerCase();renderDocsOnly();}
+function setDocCat(v){docFilter.cat=v;renderDocsOnly();}
+function renderDocsOnly(){const a=document.getElementById('app');if(view==='docs')a.innerHTML=viewDocs();const q=document.getElementById('doc-q');if(q){q.value=docFilter.q;q.focus();q.setSelectionRange(q.value.length,q.value.length);}}
+function docExpiring(d){if(!d.validTill)return false;const dd=new Date(d.validTill);const lim=new Date();lim.setDate(lim.getDate()+30);return dd<=lim;}
+function viewDocs(){
+  const q=docFilter.q,cat=docFilter.cat;
+  const list=DB.docs.filter(d=>(!q||(d.name+' '+(d.note||'')+' '+(d.who||'')).toLowerCase().includes(q))&&(!cat||d.cat===cat));
+  const clinked=DB.contracts.filter(c=>c.files&&c.files.length);
+  return `<div class="vhead"><div><h1 class="view">${t('Документы','Documents')}</h1><div class="vsub">${DB.docs.length} ${t('в реестре','on file')} · ${t('хранение в приватном облаке','stored in private cloud')}</div></div>
+  <div style="display:flex;gap:8px"><button class="btn" onclick="invoiceModal()">${t('Новый инвойс','New invoice')}</button><button class="btn pri" onclick="docModal()">+ ${t('Документ','Document')} <kbd>D</kbd></button></div></div>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+    <input id="doc-q" placeholder="${t('Поиск…','Search…')}" oninput="setDocQ(this.value)" style="flex:1;min-width:160px" value="${esc(q)}">
+    <select onchange="setDocCat(this.value)" style="width:auto"><option value="">${t('Все категории','All categories')}</option>${DOCCATS.map(c=>`<option ${cat===c?'selected':''}>${c}</option>`).join('')}</select>
+  </div>
+  ${list.length?`<div class="card" style="margin-bottom:12px"><table><tr><th>${t('Название','Name')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Дата','Date')}</th><th>${t('Действует до','Valid till')}</th><th></th></tr>
+  ${list.map(d=>`<tr><td style="font-weight:500">${esc(d.name)}${(d.files&&d.files.length)?` <span class="tag">&#128206;${d.files.length}</span>`:''}</td><td class="muted">${esc(d.cat||'—')}</td><td class="muted">${esc(entName(d.entityId))}</td><td class="mono" style="font-size:11px">${d.date||'—'}</td><td class="mono" style="font-size:11px">${d.validTill?`<span class="${docExpiring(d)?'neg':''}">${d.validTill}${docExpiring(d)?' ⚠':''}</span>`:'—'}</td><td style="white-space:nowrap;text-align:right">${(d.files&&d.files.length)?`<button class="btn sm" onclick="openDoc('${esc(d.files[0].path)}')">${t('Открыть','Open')}</button> `:''}<button class="ib" onclick="docModal('${d.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delDocRec('${d.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table></div>`
+  :`<div class="empty" style="margin-bottom:12px"><b>${t('Документов нет','No documents')}</b>${t('Устав, договор аренды, доверенности, инвойсы — всё в одном месте (D)','Charter, lease, PoAs, invoices — all in one place (D)')}</div>`}
+  ${DB.invoices.length?`<div class="card" style="margin-bottom:12px"><h2>${t('Выставленные инвойсы','Issued invoices')} <span class="hint">${DB.invoices.length}</span></h2><table><tr><th>№</th><th>${t('Дата','Date')}</th><th>${t('Кому','Bill to')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
+  ${DB.invoices.map(v=>`<tr><td class="mono" style="font-weight:600">${esc(v.num)}</td><td class="mono" style="font-size:11px">${v.date}</td><td class="muted">${esc(v.toName||'')}</td><td class="n">${money(toUSD(v.total,v.currency))}</td><td style="white-space:nowrap;text-align:right"><button class="btn sm" onclick="printInvoice('${v.id}')">${t('Печать / PDF','Print / PDF')}</button> <button class="ib danger" onclick="delInvoice('${v.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table></div>`:''}
+  ${clinked.length?`<div class="card"><h2>${t('Файлы контрактов','Contract files')}</h2>${clinked.map(c=>c.files.map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><a href="#" onclick="openDoc('${esc(f.path)}');return false" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">&#128206; ${esc(f.name)}</a><span class="tag">${esc(c.name)}</span></div>`).join('')).join('')}</div>`:''}`;
+}
+function docModal(id){
+  const d=id?DB.docs.find(x=>x.id===id):null;
+  modal(`<h3>${d?t('Документ','Document')+': '+esc(d.name):t('Новый документ','New document')}</h3><div class="field-stack">
+  <div class="fs"><label>${t('Название','Name')}</label><input id="dc-name" value="${d?esc(d.name):''}"></div>
+  <div class="f2"><div class="fs"><label>${t('Категория','Category')}</label><select id="dc-cat">${DOCCATS.map(c=>`<option ${d&&d.cat===c?'selected':''}>${c}</option>`).join('')}</select></div>
+  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="dc-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${d&&d.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
+  <div class="f2"><div class="fs"><label>${t('Дата документа','Document date')}</label><input id="dc-date" type="date" value="${d&&d.date?d.date:''}"></div>
+  <div class="fs"><label>${t('Действует до (опц.)','Valid till (opt.)')}</label><input id="dc-till" type="date" value="${d&&d.validTill?d.validTill:''}"></div></div>
+  <div class="fs"><label>${t('Заметка','Note')}</label><input id="dc-note" value="${d?esc(d.note||''):''}"></div>
+  ${d?filesBlock('doc',id):`<div class="hint">${t('Сохрани документ — после этого можно прикрепить файлы','Save first, then attach files')}</div>`}
+  </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveDocRec('${id||''}')">${d?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);}
+function saveDocRec(id){const g=k=>document.getElementById(k);
+  const data={name:g('dc-name').value||t('Документ','Document'),cat:g('dc-cat').value,entityId:g('dc-ent')?g('dc-ent').value:'',date:g('dc-date').value||'',validTill:g('dc-till').value||'',note:g('dc-note').value||''};
+  if(id){const d=DB.docs.find(x=>x.id===id);if(d)Object.assign(d,data);}
+  else DB.docs.unshift(Object.assign({id:uid('doc'),files:[]},data));
+  save('docs');closeModal();render();}
+function delDocRec(id){const d=DB.docs.find(x=>x.id===id);if(!d)return;
+  confirmModal(t('Удалить документ','Delete document')+' «'+esc(d.name)+'»? '+t('Файлы тоже удалятся.','Files will be removed too.'),async()=>{
+    if(d.files&&d.files.length){try{await sb.storage.from('docs').remove(d.files.map(f=>f.path));}catch(e){}}
+    DB.docs=DB.docs.filter(x=>x.id!==id);save('docs');render();});}
+/* ── invoice generator ── */
+function nextInvoiceNum(){let mx=3;DB.invoices.forEach(v=>{const m=(v.num||'').match(/(\d+)\s*$/);if(m)mx=Math.max(mx,parseInt(m[1]));});return 'Exp-'+String(mx+1).padStart(2,'0');}
+function invRow(i,it){it=it||{};return `<div class="f2" style="grid-template-columns:1fr 64px 110px"><input class="inv-desc" placeholder="${t('Описание','Description')}" value="${esc(it.desc||'')}"><input class="inv-qty mono" type="number" value="${it.qty||1}"><input class="inv-price mono" type="number" step="0.01" placeholder="${t('Цена','Price')}" value="${it.price||''}"></div>`;}
+function addInvRow(){document.getElementById('inv-items').insertAdjacentHTML('beforeend',invRow());}
+function invoiceModal(){
+  const eg=DB.settings.entities.find(e=>e.req)||DB.settings.entities[0]||{};
+  const defTo='Cord Technologies Limited\nAddress: 86-90 Paul Street, 3rd floor, London, EC2A 4NE, United Kingdom\nBank Name: Revolut Business\nBank Account: 00996964539514\nSWIFT CODE: REVOGB2L';
+  modal(`<h3>${t('Новый инвойс','New invoice')}</h3><div class="field-stack">
+  <div class="f2"><div class="fs"><label>№</label><input id="inv-num" class="mono" value="${nextInvoiceNum()}"></div>
+  <div class="fs"><label>${t('Дата','Date')}</label><input id="inv-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
+  <div class="fs"><label>${t('Юр. лицо (исполнитель)','Entity (supplier)')}</label><select id="inv-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${e.id===eg.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div>
+  <div class="fs"><label>Bill to</label><textarea id="inv-to" style="min-height:96px">${esc(defTo)}</textarea></div>
+  <div class="fs"><label>${t('Позиции','Items')}</label><div id="inv-items">${invRow(0)}</div><button class="btn sm" style="margin-top:6px" onclick="addInvRow()">+ ${t('Позиция','Item')}</button></div>
+  <div class="f2"><div class="fs"><label>${t('Валюта','Currency')}</label><select id="inv-cur">${curOpts('USD')}</select></div>
+  <div class="fs"><label>Payment terms</label><input id="inv-terms" value="100% advance payment"></div></div>
+  <div class="fs"><label>Scope of Work (${t('опц., попадёт в документ','opt., appears in the doc')})</label><textarea id="inv-scope" style="min-height:70px"></textarea></div>
+  <div class="fs"><label>${t('Подписант','Signatory')}</label><input id="inv-sign" value="Director Bashirov A.I."></div>
+  <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="inv-debt" checked style="width:auto">${t('Добавить в «нам должны»','Add to receivables')}</label>
+  </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="makeInvoice()">${t('Сформировать','Generate')}</button></div>`);}
+function makeInvoice(){const g=k=>document.getElementById(k);
+  const items=Array.from(document.querySelectorAll('#inv-items .f2')).map(r=>({desc:r.querySelector('.inv-desc').value,qty:parseFloat(r.querySelector('.inv-qty').value)||1,price:parseFloat(r.querySelector('.inv-price').value)||0})).filter(it=>it.desc&&it.price>0);
+  if(!items.length){toast(t('Добавь хотя бы одну позицию','Add at least one item'));return;}
+  const cur=g('inv-cur').value,total=items.reduce((s,it)=>s+it.qty*it.price,0);
+  const inv={id:uid('inv'),num:g('inv-num').value||nextInvoiceNum(),date:g('inv-date').value,entityId:g('inv-ent').value,to:g('inv-to').value,toName:(g('inv-to').value.split('\n')[0]||'').trim(),items,currency:cur,total,terms:g('inv-terms').value,scope:g('inv-scope').value,sign:g('inv-sign').value};
+  DB.invoices.unshift(inv);save('invoices');
+  if(g('inv-debt').checked){DB.debts.unshift({id:uid('db'),dir:'in',who:inv.toName,amount:total,currency:cur,due:'',entityId:inv.entityId,status:'open',memo:t('Инвойс','Invoice')+' '+inv.num+' '+t('от','of')+' '+inv.date});save('debts');}
+  closeModal();render();printInvoice(inv.id);}
+function delInvoice(id){confirmModal(t('Удалить инвойс из реестра?','Delete invoice from the registry?'),()=>{DB.invoices=DB.invoices.filter(v=>v.id!==id);save('invoices');render();});}
+function curSym(c){return c==='USD'?'USD':c==='EUR'?'EUR':'UZS';}
+function printInvoice(id){
+  const v=DB.invoices.find(x=>x.id===id);if(!v)return;
+  const e=DB.settings.entities.find(x=>x.id===v.entityId)||{};
+  const reqLines=(e.req||esc(e.name)).split(' · ').map(esc);
+  const fmt=n=>n.toLocaleString('en-US',{maximumFractionDigits:2});
+  const rows=v.items.map((it,i)=>`<tr><td class="c">${i+1}</td><td>${esc(it.desc)}</td><td class="c">${it.qty}</td><td class="r">${fmt(it.price)} ${curSym(v.currency)}</td><td class="r">${fmt(it.qty*it.price)} ${curSym(v.currency)}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice ${esc(v.num)}</title><style>
+  body{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#111;max-width:760px;margin:32px auto;padding:0 24px;}
+  h1{font-size:15px;margin:0 0 2px;} .addr{font-size:11px;color:#333;margin-bottom:18px;}
+  .inv{font-size:14px;font-weight:bold;margin:14px 0 2px;} .dt{font-weight:bold;margin-bottom:14px;}
+  table{width:100%;border-collapse:collapse;margin-bottom:14px;} td,th{border:1px solid #999;padding:6px 8px;vertical-align:top;font-size:11.5px;}
+  th{background:#f2f2f2;text-align:left;} .c{text-align:center;} .r{text-align:right;white-space:nowrap;}
+  .two td{width:50%;} .tot td{font-weight:bold;} .nb td{border:none;padding:2px 0;}
+  .sig{margin-top:44px;} @media print{body{margin:12mm auto;}}
+  </style></head><body>
+  <h1>${esc(e.name==='EGOX'?'EGOX OPERATIONS LLC.':e.name)}</h1>
+  <div class="addr">${reqLines.length>1?reqLines[1]:''}</div>
+  <div class="inv">Invoice № ${esc(v.num)}</div><div class="dt">${new Date(v.date).toLocaleDateString('en-US',{month:'long',day:'2-digit',year:'numeric'})}</div>
+  <table class="two"><tr><td><b>Bill to:</b><br>${esc(v.to).replace(/\n/g,'<br>')}</td><td><b>Payment Instructions</b><br>${reqLines.join('<br>')}</td></tr></table>
+  <table><tr><th class="c">№</th><th>Product Description</th><th class="c">Quantity</th><th>Price</th><th>Sum</th></tr>${rows}
+  <tr class="tot"><td colspan="4" class="r">Total</td><td class="r">${fmt(v.total)} ${curSym(v.currency)}</td></tr></table>
+  <div>Total Invoice amount in ${curSym(v.currency)}: <b>${fmt(v.total)}</b>.</div>
+  <div style="margin-top:6px">Payment terms: ${esc(v.terms||'')}</div>
+  ${v.scope?`<div style="margin-top:16px"><b>Scope of Work</b><div style="white-space:pre-wrap;margin-top:6px">${esc(v.scope)}</div></div>`:''}
+  <div class="sig">${esc(e.name==='EGOX'?'EGOX OPERATIONS LLC':e.name)}<br><br>${esc(v.sign||'Director')} __________</div>
+  <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script></body></html>`;
+  const w=window.open('','_blank');if(!w){toast(t('Разреши всплывающие окна','Allow pop-ups'));return;}
+  w.document.write(html);w.document.close();}
 /* ── finance: transaction ledger ── */
 function viewFin(){
   const f=flows30();
   const total=DB.tx.length;
   return `<div class="vhead"><div><h1 class="view">${t('Финансы','Finance')}</h1><div class="vsub">${t('Единый реестр движений — доходы и расходы в одном месте','One ledger — income and spend in one place')}</div></div>
   <button class="btn pri" onclick="newTx()">+ ${t('Движение','Entry')} <kbd>T</kbd></button></div>
-  <div class="grid g4" style="margin-bottom:14px">${stat(t('Доход · 30 дней','Income · 30d'),money(f.inn),'','pos')}${stat(t('Расход · 30 дней','Spend · 30d'),money(f.out),t('ФОТ','payroll')+' '+money(f.pay),'neg')}${stat('Net · 30'+t('д','d'),money(f.net),'',f.net>=0?'pos':'neg')}${stat(t('Касса','Cash'),money(totalBalance()),t('все юр.лица','all entities'))}</div>
+  <div class="grid g4" style="margin-bottom:14px">${stat(t('Доход · 30 дней','Income · 30d'),money(f.inn),'','pos')}${stat(t('Расход · 30 дней','Spend · 30d'),money(f.out),t('ФОТ','payroll')+' '+money(f.pay),'neg')}${stat('Net · 30'+t('д','d'),money(f.net),'',f.net>=0?'pos':'neg')}${stat(t('Касса','Cash'),money(totalBalance()),balLine())}</div>
   ${Object.keys(f.cats).length?`<div class="card" style="margin-bottom:12px"><h2>${t('Расходы по категориям','Spend by category')} · 30${t('д','d')}</h2>${shareBars(Object.entries(f.cats).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),f.out)}</div>`:''}
   <div class="card" style="margin-bottom:12px"><h2>${t('Регулярные расходы','Recurring costs')} <span class="hint">${DB.costs.length?money(costsMonthlyUSD())+' / '+t('мес','mo'):''}</span></h2>
-  ${DB.costs.length?`<table><tr><th>${t('Название','Name')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Проведено за','Posted for')}</th><th class="n">${t('Сумма / мес','Amount / mo')}</th><th></th></tr>
-  ${DB.costs.map(c=>`<tr><td style="font-weight:500">${esc(c.name)}</td><td class="muted">${esc(c.category||'—')}</td><td class="muted">${esc(entName(c.entityId))}</td><td class="mono" style="font-size:11px">${c.lastPosted===ymNow()?`<span class="pos">${ymNow()} ✓</span>`:(c.lastPosted||'—')}</td><td class="n">${money(toUSD(c.amount||0,c.currency))}</td><td style="white-space:nowrap;text-align:right"><button class="ib" onclick="costModal('${c.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delCost('${c.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table>`
+  ${DB.costs.length?`<table><tr><th></th><th>${t('Название','Name')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Проведено за','Posted for')}</th><th class="n">${t('Сумма / мес','Amount / mo')}</th><th></th></tr>
+  ${DB.costs.map(c=>`<tr><td style="width:26px"><input type="checkbox" class="rc-chk" data-id="${c.id}" ${c.lastPosted===ymNow()?'':'checked'} style="width:auto"></td><td style="font-weight:500">${esc(c.name)}${c.dueDay?` <span class="hint">· ${c.dueDay} ${t('числа','th')}</span>`:''}</td><td class="muted">${esc(c.category||'—')}</td><td class="muted">${esc(entName(c.entityId))}</td><td class="mono" style="font-size:11px">${c.lastPosted===ymNow()?`<span class="pos">${ymNow()} ✓</span>`:(c.lastPosted||'—')}</td><td class="n">${money(toUSD(c.amount||0,c.currency))}</td><td style="white-space:nowrap;text-align:right"><button class="ib" onclick="costModal('${c.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delCost('${c.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table>`
   :`<div class="hint" style="padding:6px 0">${t('Аренда, подписки, связь — добавь и проводи в кассу одной кнопкой раз в месяц','Rent, subscriptions, telecom — add once, post to the ledger monthly with one click')}</div>`}
-  <div class="actions" style="margin-top:10px;justify-content:flex-start"><button class="btn sm" onclick="costModal()">+ ${t('Регулярный расход','Recurring cost')}</button>${DB.costs.length?`<button class="btn sm pri" onclick="postMonthlyCosts()">${t('Провести за','Post for')} ${ymNow()}</button>`:''}</div></div>
+  <div class="actions" style="margin-top:10px;justify-content:flex-start"><button class="btn sm" onclick="costModal()">+ ${t('Регулярный расход','Recurring cost')}</button>${DB.costs.length?`<button class="btn sm pri" onclick="postMonthlyCosts()">${t('Провести отмеченные','Post selected')}</button>`:''}</div></div>
+  <div class="card" style="margin-bottom:12px"><h2>${t('Нам должны / мы должны','Receivables / payables')} <span class="hint">${DB.debts.filter(d=>d.status!=='done').length?'+'+money(debtsSum('in'))+' · −'+money(debtsSum('out')):''}</span></h2>
+  ${DB.debts.filter(d=>d.status!=='done').length?`<table><tr><th>${t('Тип','Type')}</th><th>${t('Кто','Who')}</th><th>${t('Заметка','Note')}</th><th>${t('Срок','Due')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
+  ${DB.debts.filter(d=>d.status!=='done').map(d=>`<tr><td><span class="${d.dir==='in'?'pos':'neg'}">${d.dir==='in'?t('Нам','To us'):t('Мы','We owe')}</span></td><td style="font-weight:500">${esc(d.who)}</td><td class="muted">${esc(d.memo||'—')}</td><td class="mono" style="font-size:11px">${d.due||'—'}</td><td class="n ${d.dir==='in'?'pos':'neg'}">${money(toUSD(d.amount,d.currency))}</td><td style="white-space:nowrap;text-align:right"><button class="btn sm" onclick="settleDebt('${d.id}')">${d.dir==='in'?t('Получено','Received'):t('Оплачено','Paid')}</button> <button class="ib" onclick="debtModal('${d.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delDebt('${d.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table>`
+  :`<div class="hint" style="padding:6px 0">${t('Ожидаемые поступления и долги — чтобы деньги в пути не терялись из виду','Money in flight — expected receipts and dues')}</div>`}
+  <div class="actions" style="margin-top:10px;justify-content:flex-start"><button class="btn sm" onclick="debtModal()">+ ${t('Обязательство','Obligation')}</button></div></div>
   <div class="card"><h2>${t('Реестр транзакций','Transaction ledger')} <span class="hint">${total}</span></h2>
   ${total?`<table><tr><th>${t('Дата','Date')}</th><th>${t('Тип','Type')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Назначение','Purpose')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
   ${DB.tx.map(x=>{const u=toUSD(x.amount,x.currency)*(x.kind==='in'?1:-1);const prj=x.projectId?(DB.orders.find(p=>p.id===x.projectId)||{}).name:'';return `<tr><td class="mono" style="font-size:11px;white-space:nowrap">${x.date}</td><td><span class="${x.kind==='in'?'pos':'neg'}">${x.kind==='in'?t('Доход','Income'):x.kind==='payout'?t('Выплата','Payout'):t('Расход','Expense')}</span></td><td class="muted">${x.kind==='payout'?t('ФОТ','Payroll'):(x.category?esc(catL(x.category)):'—')}</td><td class="muted">${esc(entName(x.entityId))}</td><td>${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}${prj?` <span class="tag" style="color:var(--purple)">${esc(prj)}</span>`:''}</td><td class="n ${u>=0?'pos':'neg'}">${money(u)}</td><td style="text-align:right"><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></td></tr>`;}).join('')}</table>`:`<div class="empty"><b>${t('Реестр пуст','Ledger empty')}</b>${t('Добавь первое движение (T). «Выплатить» в Команде тоже пишет сюда.','Add the first entry (T). Pay in Team writes here too.')}</div>`}</div>`;
@@ -773,8 +947,8 @@ function logProgress(id){const p=DB.orders.find(x=>x.id===id);if(!p)return;const
 
 /* ── contracts ── */
 /* ── attachments: Supabase Storage, bucket 'docs' ── */
-function fileHost(scope,id){return scope==='task'?DB.tasks.find(x=>x.id===id):DB.contracts.find(x=>x.id===id);}
-function fileSaveKey(scope){return scope==='task'?'tasks':'contracts';}
+function fileHost(scope,id){return scope==='task'?DB.tasks.find(x=>x.id===id):scope==='doc'?DB.docs.find(x=>x.id===id):DB.contracts.find(x=>x.id===id);}
+function fileSaveKey(scope){return scope==='task'?'tasks':scope==='doc'?'docs':'contracts';}
 async function attachFiles(scope,id,inputId){
   const inp=document.getElementById(inputId);if(!inp||!inp.files||!inp.files.length){toast(t('Выбери файл','Pick a file'));return;}
   const host=fileHost(scope,id);if(!host)return;
@@ -788,7 +962,7 @@ async function attachFiles(scope,id,inputId){
     catch(e){toast(t('Не удалось загрузить','Upload failed')+': '+f.name+(e&&e.message?' · '+e.message:''));}
   }
   save(fileSaveKey(scope));toast(t('Готово','Done'));
-  if(scope==='task')openTask(id);else contractModal(id);
+  if(scope==='task')openTask(id);else if(scope==='doc')docModal(id);else contractModal(id);
 }
 async function openDoc(path){
   try{const r=await sb.storage.from('docs').createSignedUrl(path,3600);if(r.error)throw r.error;window.open(r.data.signedUrl,'_blank');}
@@ -800,7 +974,7 @@ function delDoc(scope,id,idx){
   confirmModal(t('Удалить файл','Delete file')+' «'+esc(f.name)+'»?',async()=>{
     try{await sb.storage.from('docs').remove([f.path]);}catch(e){}
     host.files.splice(idx,1);save(fileSaveKey(scope));
-    if(scope==='task')openTask(id);else contractModal(id);
+    if(scope==='task')openTask(id);else if(scope==='doc')docModal(id);else contractModal(id);
   });
 }
 function filesBlock(scope,id){
@@ -823,7 +997,7 @@ function contractModal(id){
   <div class="f2"><div class="fs"><label>${t('Контрагент','Counterparty')}</label><input id="k-party" value="${c?esc(c.party||''):''}"></div>
   <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="k-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${c&&c.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('Сумма','Amount')}</label><input id="k-amount" class="mono" type="number" value="${c&&c.amount?c.amount:''}"></div>
-  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="k-cur"><option ${c&&c.currency==='USD'?'selected':''}>USD</option><option ${c&&c.currency==='UZS'?'selected':''}>UZS</option></select></div></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="k-cur">${curOpts(c?c.currency:'USD')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('Дата','Date')}</label><input id="k-date" type="date" value="${c?c.date||'':''}"></div>
   <div class="fs"><label>${t('Статус','Status')}</label><select id="k-status">${['draft','active','closed'].map(s=>`<option value="${s}" ${c&&c.status===s?'selected':''}>${csL(s)}</option>`).join('')}</select></div></div>
   <div class="fs"><label>${t('Ссылка на документ (Drive, Dropbox…)','Document link (Drive, Dropbox…)')}</label><input id="k-url" value="${c?esc(c.url||''):''}" placeholder="https://…"></div>
@@ -920,8 +1094,9 @@ function shAdd(eid){const e=DB.settings.entities.find(x=>x.id===eid);if(!e)retur
 function shSet(eid,sid,field,v){const e=DB.settings.entities.find(x=>x.id===eid);if(!e)return;const s=(e.shareholders||[]).find(x=>x.id===sid);if(!s)return;s[field]=field==='pct'?(parseFloat(v)||0):v;save('settings');if(field==='pct')render();}
 function shDel(eid,sid){const e=DB.settings.entities.find(x=>x.id===eid);if(!e)return;e.shareholders=(e.shareholders||[]).filter(x=>x.id!==sid);save('settings');render();}
 function saveFx(v){DB.settings.fx=parseFloat(v)||1;save('settings');render();toast(t('Курс обновлён','FX updated'));}
+function saveFxEur(v){DB.settings.fxEur=parseFloat(v)||1.08;save('settings');render();toast(t('Курс обновлён','FX updated'));}
 function exportData(){const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='worldsense-os-'+today()+'.json';a.click();toast(t('Экспортировано','Exported'));}
-function importPrompt(){const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);['settings','costs','income','tasks','payroll','tx','contracts','orders'].forEach(k=>{if(d[k])DB[k]=d[k];});['settings','costs','income','tasks','payroll','tx','contracts','orders'].forEach(save);render();toast(t('Импортировано','Imported'));}catch(e){toast(t('Ошибка файла','File error'));}};r.readAsText(f);};inp.click();}
+function importPrompt(){const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);['settings','costs','income','tasks','payroll','tx','contracts','orders','debts','docs','invoices'].forEach(k=>{if(d[k])DB[k]=d[k];});['settings','costs','income','tasks','payroll','tx','contracts','orders','debts','docs','invoices'].forEach(save);render();toast(t('Импортировано','Imported'));}catch(e){toast(t('Ошибка файла','File error'));}};r.readAsText(f);};inp.click();}
 
 /* ── keyboard shortcuts ── */
 const SHORTCUTS=[
