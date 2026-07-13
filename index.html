@@ -531,12 +531,13 @@ function viewDash(){
   <div class="grid mini m32" style="margin-bottom:12px">
     ${stat(t('Законтрактовано','Contracted'),money(contractSum||backlog),activeContracts.length+t(' активных контрактов',' active contracts')+(avgContract?' · '+t('средний','avg')+' '+money(avgContract):'')+' · '+t('бэклог проектов','projects backlog')+' '+money(backlog)+(projPct!==null?' ('+pct(projPct)+' '+t('выполнено','done')+')':''),'pos')}
 
+    ${stat(t('Задачи','Tasks'),String(active),(overdue?overdue+t(' просрочено',' overdue')+' · ':'')+doneCnt+' done'+(urgCnt?' · '+urgCnt+t(' срочных',' urgent'):''),overdue?'neg':'')}
+  </div>
     <div class="grid g3" style="margin-bottom:14px">
     ${stat(t('Регулярные обязательства','Recurring commitments'),money(costsMonthlyUSD())+' / '+t('мес','mo'),(()=>{const ym=ymNow();const done=DB.costs.filter(c=>c.lastPosted===ym).length;return ym+': '+t('проведено','posted')+' '+done+' / '+DB.costs.length+' · '+t('ФОТ план','payroll plan')+' '+money(payrollMo());})(),DB.costs.some(c=>c.lastPosted!==ymNow())&&new Date().getDate()>5?'neg':'')}
     ${stat(t('Нам должны','Owed to us'),money(debtsSum('in')),t('мы должны','we owe')+' '+money(debtsSum('out')),debtsSum('in')>0?'pos':'')}
     ${stat(t('Ближайший платёж','Next payment'),(()=>{const u=upcomingPayments();return u.length?fmtDM(u[0].d)+' · '+money(u[0].usd):'—';})(),(()=>{const u=upcomingPayments();return u.length?esc(u[0].label)+(u.length>1?' · '+t('дальше','then')+' '+fmtDM(u[1].d)+' '+esc(u[1].label):''):t('добавь дни платежей в регулярке и ЗП','set pay days on costs & salaries');})())}
-    </div>    ${stat(t('Задачи','Tasks'),String(active),(overdue?overdue+t(' просрочено',' overdue')+' · ':'')+doneCnt+' done'+(urgCnt?' · '+urgCnt+t(' срочных',' urgent'):''),overdue?'neg':'')}
-  </div>
+    </div>
 
   <div class="grid g2" style="margin-bottom:12px">
     <div class="card"><h2>${t('Доходы и расходы по месяцам','Monthly income & spend')} · 6${t('м','m')}</h2>${monthlyBarsSVG(monthlySeries(6))}</div>
@@ -594,8 +595,7 @@ function personModal(id){
   <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-xcur">${curOpts(p&&p.extraCur?p.extraCur:'USD')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('День выплаты (опц.)','Pay day (opt.)')}</label><input id="t-payday" type="number" min="1" max="28" value="${p&&p.payDay?p.payDay:''}"></div>
   <div class="fs"><label>Equity</label><input id="t-eq" value="${p?esc(p.equity||''):''}"></div></div>
-  <div class="f2"><div class="fs" style="display:none"><label>-</label><input></div>
-  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="t-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${p&&p.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
+  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="t-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${p&&p.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div>
   </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="savePerson('${id||''}')">${p?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);
 }
 function savePerson(id){
@@ -618,17 +618,16 @@ function doPay(id){const p=DB.payroll.people.find(x=>x.id===id);if(!p)return;con
   const ym=g('pm-ym').value||ymNow();
   const wantOf=g('pm-of-on').checked,wantUn=g('pm-un-on').checked;
   const amOf=parseFloat(g('pm-of').value)||0,amUn=parseFloat(g('pm-un').value)||0;
+  const curOf=g('pm-of-cur').value,curUn=g('pm-un-cur').value;
   if((!wantOf||amOf<=0)&&(!wantUn||amUn<=0)){toast(t('Нечего проводить','Nothing to post'));return;}
   p.paid=p.paid||{};const rec=p.paid[ym]=p.paid[ym]||{};
   const already=[];if(wantOf&&rec.of)already.push(t('офиц.','official'));if(wantUn&&rec.un)already.push(t('неофиц.','unofficial'));
   const go=()=>{
-    if(wantOf&&amOf>0){addTx({kind:'payout',entityId:p.entityId,amount:amOf,currency:g('pm-of-cur').value,memo:t('ЗП офиц.','Salary official')+' · '+ym,who:p.name});rec.of=true;}
-    if(wantUn&&amUn>0){addTx({kind:'payout',entityId:p.entityId,amount:amUn,currency:g('pm-un-cur').value,memo:t('ЗП неофиц.','Salary unofficial')+' · '+ym,who:p.name});rec.un=true;}
-    save('payroll');toast(t('Выплачено','Paid')+' · '+p.name);render();};
+    if(wantOf&&amOf>0){addTx({kind:'payout',entityId:p.entityId,amount:amOf,currency:curOf,memo:t('ЗП офиц.','Salary official')+' · '+ym,who:p.name});rec.of=true;}
+    if(wantUn&&amUn>0){addTx({kind:'payout',entityId:p.entityId,amount:amUn,currency:curUn,memo:t('ЗП неофиц.','Salary unofficial')+' · '+ym,who:p.name});rec.un=true;}
+    save('payroll');closeModal();toast(t('Выплачено','Paid')+' · '+p.name);render();};
   if(already.length){confirmModal(t('За','For')+' '+ym+' '+t('уже проведено','already posted')+': '+already.join(', ')+'. '+t('Провести ещё раз?','Post again?'),go);}
-  else{closeModal();go();}}
-
-/* ── tasks ── */
+  else go();}
 function nextTaskId(){let mx=0;DB.tasks.forEach(x=>{const m=/^WS-(\d+)$/.exec(x.id||'');if(m)mx=Math.max(mx,parseInt(m[1],10));});return 'WS-'+String(mx+1).padStart(2,'0');}
 const TSTAT={progress:{lab:'In Progress',c:'var(--amber)'},todo:{lab:'Todo',c:'var(--mid)'},blocked:{lab:'Blocked',c:'var(--red)'},done:{lab:'Done',c:'var(--green)'}};
 function statusIcon(st){
@@ -756,7 +755,7 @@ function settleDebt(id){const d=DB.debts.find(x=>x.id===id);if(!d)return;
 /* ── upcoming payments ── */
 function upcomingPayments(){
   const out=[];const now=new Date();now.setHours(0,0,0,0);
-  const push=(day,label,usd)=>{if(!day)return;let d=new Date(now.getFullYear(),now.getMonth(),day);if(d<now)d=new Date(now.getFullYear(),now.getMonth()+1,day);out.push({d,label,usd});};
+  const push=(day,label,usd)=>{if(!day||!(usd>0))return;let d=new Date(now.getFullYear(),now.getMonth(),day);if(d<now)d=new Date(now.getFullYear(),now.getMonth()+1,day);out.push({d,label,usd});};
   DB.costs.forEach(c=>push(c.dueDay,c.name,toUSD(c.amount||0,c.currency)));
   DB.payroll.people.forEach(p=>push(p.payDay,t('ЗП','Pay')+' · '+p.name,compUSD(p)));
   DB.debts.filter(d=>d.status!=='done'&&d.dir==='out'&&d.due).forEach(d=>{const dd=new Date(d.due);if(dd>=now)out.push({d:dd,label:d.who,usd:toUSD(d.amount,d.currency)});});
@@ -1115,6 +1114,7 @@ function helpModal(){
 function contextNew(){
   if(view==='tasks'){const q=document.getElementById('qa-input');if(q){q.focus();return;}taskModal();}
   else if(view==='team')personModal();
+  else if(view==='docs')docModal();
   else if(view==='fin')newTx();
   else if(view==='projects')projectModal();
   else if(view==='contracts')contractModal();
@@ -1130,11 +1130,12 @@ document.addEventListener('keydown',e=>{
   if(document.querySelector('.modal-bg'))return;
   const code=e.code;
   const secs=tabsFor().map(x=>x[0]);
-  if(/^Digit[1-7]$/.test(code)){const i=parseInt(code.slice(5),10)-1;if(secs[i])go(secs[i]);e.preventDefault();return;}
+  if(/^Digit[1-8]$/.test(code)){const i=parseInt(code.slice(5),10)-1;if(secs[i])go(secs[i]);e.preventDefault();return;}
   if(code==='KeyN'){contextNew();e.preventDefault();}
   else if(code==='KeyT'){newTx();e.preventDefault();}
   else if(code==='KeyP'){personModal();e.preventDefault();}
   else if(code==='KeyC'){contractModal();e.preventDefault();}
+  else if(code==='KeyD'){docModal();e.preventDefault();}
   else if(code==='KeyU'){entityModal();e.preventDefault();}
   else if(code==='KeyO'){projectModal();e.preventDefault();}
   else if(code==='KeyQ'){view='tasks';render();const q=document.getElementById('qa-input');if(q)q.focus();e.preventDefault();}
