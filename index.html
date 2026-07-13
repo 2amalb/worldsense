@@ -323,7 +323,8 @@ const catL=ru=>{const c=CATS.find(x=>x[0]===ru);return c?t(c[0],c[1]):ru;};
 /* ── money math ── */
 function entityBalance(id){let b=(DB.settings.entities.find(e=>e.id===id)||{}).opening||0;DB.tx.forEach(x=>{if(x.entityId===id){const u=toUSD(x.amount,x.currency);b+=(x.kind==='in'?u:-u);}});return b;}
 function totalBalance(){return DB.settings.entities.reduce((s,e)=>s+entityBalance(e.id),0);}
-function payrollMo(){return DB.payroll.people.reduce((s,p)=>s+toUSD(p.salary,p.currency),0);}
+function payrollMo(){return DB.payroll.people.reduce((s,p)=>s+toUSD(p.salary||0,p.currency)+toUSD(p.extra||0,p.extraCur||'USD'),0);}
+function compUSD(p){return toUSD(p.salary||0,p.currency)+toUSD(p.extra||0,p.extraCur||'USD');}
 function addTx(x){DB.tx.unshift(Object.assign({id:uid('tx'),date:today()},x));save('tx');}
 
 /* ── icons ── */
@@ -559,9 +560,9 @@ function delTx(id){confirmModal(t('Удалить движение?','Delete ent
 function viewTeam(){
   const mo=payrollMo();
   return `<div class="vhead"><div><h1 class="view">${t('Команда','Team')}</h1><div class="vsub">${money(mo)}/${t('мес','mo')} ${t('ФОТ','payroll')}</div></div><button class="btn pri" onclick="personModal()">+ ${t('Человек','Person')} <kbd>P</kbd></button></div>
-  ${DB.payroll.people.length?`<div class="card"><table><tr><th>${t('Имя','Name')}</th><th>${t('Должность','Title')}</th><th>${t('Юр.лицо','Entity')}</th><th class="n">${t('ЗП / мес','Salary / mo')}</th><th>Equity</th><th></th></tr>
-  ${DB.payroll.people.map(p=>`<tr><td style="font-weight:500">${esc(p.name)}</td><td class="muted">${esc(p.title||'')}</td><td class="muted">${esc(entName(p.entityId))}</td><td class="n">${money(toUSD(p.salary,p.currency))}</td><td class="muted">${esc(p.equity||'—')}</td><td style="white-space:nowrap;text-align:right"><button class="btn sm pay" onclick="payPerson('${p.id}')">${t('Выплатить','Pay')}</button> <button class="ib" onclick="personModal('${p.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delPerson('${p.id}')" aria-label="delete">×</button></td></tr>`).join('')}
-  <tr class="tot"><td colspan="3">${t('Итого ФОТ / мес','Total payroll / mo')}</td><td class="n">${money(mo)}</td><td colspan="2"></td></tr></table></div>`
+  ${DB.payroll.people.length?`<div class="card"><table><tr><th>${t('Имя','Name')}</th><th>${t('Должность','Title')}</th><th>${t('Юр.лицо','Entity')}</th><th class="n">${t('Офиц.','Official')}</th><th class="n">${t('Неофиц.','Unofficial')}</th><th class="n">${t('Итого / мес','Total / mo')}</th><th>Equity</th><th></th></tr>
+  ${DB.payroll.people.map(p=>`<tr><td style="font-weight:500">${esc(p.name)}</td><td class="muted">${esc(p.title||'')}</td><td class="muted">${esc(entName(p.entityId))}</td><td class="n muted">${p.salary?money(toUSD(p.salary,p.currency)):'—'}</td><td class="n muted">${p.extra?money(toUSD(p.extra,p.extraCur||'USD')):'—'}</td><td class="n">${money(compUSD(p))}</td><td class="muted">${esc(p.equity||'—')}</td><td style="white-space:nowrap;text-align:right"><button class="btn sm pay" onclick="payPerson('${p.id}')">${t('Выплатить','Pay')}</button> <button class="ib" onclick="personModal('${p.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delPerson('${p.id}')" aria-label="delete">×</button></td></tr>`).join('')}
+  <tr class="tot"><td colspan="5">${t('Итого ФОТ / мес','Total payroll / mo')}</td><td class="n">${money(mo)}</td><td colspan="2"></td></tr></table></div>`
   :`<div class="empty"><b>${t('Команда пуста','Team empty')}</b>${t('Добавь первого человека (P)','Add the first person (P)')}</div>`}`;
 }
 function personModal(id){
@@ -569,21 +570,32 @@ function personModal(id){
   modal(`<h3>${p?t('Человек','Person')+': '+esc(p.name):t('Новый человек','New person')}</h3><div class="field-stack">
   <div class="fs"><label>${t('Имя','Name')}</label><input id="t-name" value="${p?esc(p.name):''}"></div>
   <div class="fs"><label>${t('Должность','Title')}</label><input id="t-title" value="${p?esc(p.title||''):''}"></div>
-  <div class="f2"><div class="fs"><label>${t('ЗП / мес','Salary / mo')}</label><input id="t-sal" class="mono" type="number" value="${p?p.salary:''}"></div>
-  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-cur"><option ${p&&p.currency==='USD'?'selected':''}>USD</option><option ${p&&p.currency==='UZS'?'selected':''}>UZS</option></select></div></div>
+  <div class="f2"><div class="fs"><label>${t('Офиц. ЗП / мес','Official salary / mo')}</label><input id="t-sal" class="mono" type="number" value="${p?p.salary:''}" placeholder="1300000"></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-cur"><option ${p&&p.currency==='USD'?'selected':''}>USD</option><option ${!p||p.currency==='UZS'?'selected':''}>UZS</option></select></div></div>
+  <div class="f2"><div class="fs"><label>${t('Неофиц. часть / мес','Unofficial part / mo')}</label><input id="t-extra" class="mono" type="number" value="${p&&p.extra?p.extra:''}" placeholder="0"></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-xcur"><option ${!p||!p.extraCur||p.extraCur==='USD'?'selected':''}>USD</option><option ${p&&p.extraCur==='UZS'?'selected':''}>UZS</option></select></div></div>
   <div class="f2"><div class="fs"><label>Equity</label><input id="t-eq" value="${p?esc(p.equity||''):''}"></div>
   <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="t-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${p&&p.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
   </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="savePerson('${id||''}')">${p?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);
 }
 function savePerson(id){
   const g=k=>document.getElementById(k);
-  const data={name:g('t-name').value||'—',title:g('t-title').value||'',salary:parseFloat(g('t-sal').value)||0,currency:g('t-cur').value,equity:g('t-eq').value||'',entityId:g('t-ent').value};
+  const data={name:g('t-name').value||'—',title:g('t-title').value||'',salary:parseFloat(g('t-sal').value)||0,currency:g('t-cur').value,extra:parseFloat(g('t-extra').value)||0,extraCur:g('t-xcur').value,equity:g('t-eq').value||'',entityId:g('t-ent').value};
   if(id){const p=DB.payroll.people.find(x=>x.id===id);if(p)Object.assign(p,data);}
   else DB.payroll.people.push(Object.assign({id:uid('p'),role:'employee',bonusPerHour:0},data));
   save('payroll');closeModal();render();
 }
 function delPerson(id){const p=DB.payroll.people.find(x=>x.id===id);confirmModal(t('Удалить','Delete')+(p?` «${esc(p.name)}»`:'')+'?',()=>{DB.payroll.people=DB.payroll.people.filter(x=>x.id!==id);save('payroll');render();});}
-function payPerson(id){const p=DB.payroll.people.find(x=>x.id===id);if(!p)return;confirmModal(t('Выплатить ЗП','Pay salary')+' '+money(toUSD(p.salary,p.currency))+' ('+esc(p.name)+') '+t('с баланса','from')+' '+esc(entName(p.entityId))+'?',()=>{addTx({kind:'payout',entityId:p.entityId,amount:p.salary,currency:p.currency,memo:t('ЗП','Salary'),who:p.name});toast(t('Выплачено','Paid')+' · '+p.name);render();},false);}
+function payPerson(id){const p=DB.payroll.people.find(x=>x.id===id);if(!p)return;
+  const ym=new Date().toISOString().slice(0,7);
+  const parts=[];
+  if(p.salary>0)parts.push(t('офиц.','official')+' '+money(toUSD(p.salary,p.currency)));
+  if(p.extra>0)parts.push(t('неофиц.','unofficial')+' '+money(toUSD(p.extra,p.extraCur||'USD')));
+  confirmModal(t('Выплатить ЗП','Pay salary')+' '+money(compUSD(p))+' ('+esc(p.name)+(parts.length>1?': '+parts.join(' + '):'')+') '+t('с баланса','from')+' '+esc(entName(p.entityId))+'?',()=>{
+    if(p.salary>0)addTx({kind:'payout',entityId:p.entityId,amount:p.salary,currency:p.currency,memo:t('ЗП офиц.','Salary official')+' · '+ym,who:p.name});
+    if(p.extra>0)addTx({kind:'payout',entityId:p.entityId,amount:p.extra,currency:p.extraCur||'USD',memo:t('ЗП неофиц.','Salary unofficial')+' · '+ym,who:p.name});
+    toast(t('Выплачено','Paid')+' · '+p.name);render();
+  },false);}
 
 /* ── tasks ── */
 function nextTaskId(){let mx=0;DB.tasks.forEach(x=>{const m=/^WS-(\d+)$/.exec(x.id||'');if(m)mx=Math.max(mx,parseInt(m[1],10));});return 'WS-'+String(mx+1).padStart(2,'0');}
@@ -628,7 +640,7 @@ function taskModal(){modal(`<h3>${t('Новая задача','New task')}</h3><
   <div class="fs"><label>${t('Метка','Label')}</label><input id="tk-label" placeholder="BD / Legal / Ops"></div></div>
   ${DB.payroll.people.length?`<div class="fs"><label>${t('Исполнитель','Assignee')}</label><select id="tk-ass"><option value="">— ${t('не назначен','unassigned')} —</option>${DB.payroll.people.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>`:''}
   <div class="fs"><label>${t('Описание','Description')}</label><textarea id="tk-desc"></textarea></div>
-  </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveNewTask()">${t('Добавить','Add')}</button></div>`);
+  </div><div class="hint" style="margin-top:8px">${t('Файлы можно прикрепить после создания — открой задачу в списке','Attach files after creating — open the task from the list')}</div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveNewTask()">${t('Добавить','Add')}</button></div>`);
   setTimeout(()=>{const i=document.getElementById('tk-title');if(i)try{i.focus();}catch(e){}},40);}
 function saveNewTask(){const g=k=>document.getElementById(k);DB.tasks.unshift({id:nextTaskId(),title:g('tk-title').value||t('Задача','Task'),assigneeId:g('tk-ass')?g('tk-ass').value:'',status:g('tk-status').value,priority:g('tk-prio').value,label:g('tk-label').value||'',due:g('tk-due').value||'',desc:g('tk-desc').value||'',comments:[]});save('tasks');closeModal();render();}
 function toggleTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;x.status=x.status==='done'?'todo':'done';save('tasks');render();}
@@ -652,6 +664,36 @@ function saveTaskDetail(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;con
   if(g('td-status'))x.status=g('td-status').value;save('tasks');closeModal();render();}
 function addComment(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const ta=document.getElementById('cm-text');const txt=(ta.value||'').trim();if(!txt)return;x.comments=x.comments||[];x.comments.push({id:uid('cm'),author:(sbProfile&&sbProfile.name)||t('Владелец','Owner'),text:txt,ts:new Date().toISOString().slice(0,16).replace('T',' ')});save('tasks');openTask(id);}
 
+/* ── recurring monthly costs ── */
+function ymNow(){return new Date().toISOString().slice(0,7);}
+function costsMonthlyUSD(){return DB.costs.reduce((s,c)=>s+toUSD(c.amount||0,c.currency),0);}
+function costModal(id){
+  const c=id?DB.costs.find(x=>x.id===id):null;
+  modal(`<h3>${c?t('Регулярный расход','Recurring cost'):t('Новый регулярный расход','New recurring cost')}</h3><div class="field-stack">
+  <div class="fs"><label>${t('Название','Name')}</label><input id="rc-name" value="${c?esc(c.name):''}" placeholder="${t('Аренда офиса','Office rent')}"></div>
+  <div class="f2"><div class="fs"><label>${t('Сумма / мес','Amount / mo')}</label><input id="rc-amount" type="number" step="0.01" value="${c?c.amount:''}"></div>
+  <div class="fs"><label>${t('Валюта','Currency')}</label><select id="rc-cur"><option ${!c||c.currency==='USD'?'selected':''}>USD</option><option ${c&&c.currency==='UZS'?'selected':''}>UZS</option></select></div></div>
+  <div class="f2"><div class="fs"><label>${t('Категория','Category')}</label><input id="rc-cat" value="${c?esc(c.category||''):''}" placeholder="${t('Офис / Инфра / Софт…','Office / Infra / Software…')}"></div>
+  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="rc-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${c&&c.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
+  </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveCostItem('${id||''}')">${c?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);
+}
+function saveCostItem(id){const g=k=>document.getElementById(k);
+  const data={name:g('rc-name').value||t('Расход','Cost'),amount:parseFloat(g('rc-amount').value)||0,currency:g('rc-cur').value,category:g('rc-cat').value||t('Прочее','Other'),entityId:g('rc-ent')?g('rc-ent').value:((DB.settings.entities[0]||{}).id||''),recurring:true};
+  if(id){const c=DB.costs.find(x=>x.id===id);if(c)Object.assign(c,data);}
+  else DB.costs.push(Object.assign({id:uid('cst')},data));
+  save('costs');closeModal();render();}
+function delCost(id){const c=DB.costs.find(x=>x.id===id);if(!c)return;
+  confirmModal(t('Удалить регулярный расход','Delete recurring cost')+' «'+esc(c.name)+'»?',()=>{DB.costs=DB.costs.filter(x=>x.id!==id);save('costs');render();});}
+function postMonthlyCosts(){
+  const ym=ymNow();const due=DB.costs.filter(c=>c.lastPosted!==ym);
+  if(!due.length){toast(t('За этот месяц всё уже проведено','Everything already posted this month'));return;}
+  const sum=due.reduce((s,c)=>s+toUSD(c.amount||0,c.currency),0);
+  confirmModal(t('Провести','Post')+' '+due.length+' × '+ym+' ('+money(sum)+')?',()=>{
+    const today=new Date().toISOString().slice(0,10);
+    due.forEach(c=>{DB.tx.unshift({id:uid('tx'),kind:'out',date:today,amount:c.amount,currency:c.currency||'USD',entityId:c.entityId||'',category:c.category||t('Прочее','Other'),memo:c.name+' · '+ym,who:'',projectId:''});c.lastPosted=ym;});
+    save('tx');save('costs');toast(t('Проведено','Posted')+': '+money(sum));render();
+  },false);
+}
 /* ── finance: transaction ledger ── */
 function viewFin(){
   const f=flows30();
@@ -660,6 +702,11 @@ function viewFin(){
   <button class="btn pri" onclick="newTx()">+ ${t('Движение','Entry')} <kbd>T</kbd></button></div>
   <div class="grid g4" style="margin-bottom:14px">${stat(t('Доход · 30 дней','Income · 30d'),money(f.inn),'','pos')}${stat(t('Расход · 30 дней','Spend · 30d'),money(f.out),t('ФОТ','payroll')+' '+money(f.pay),'neg')}${stat('Net · 30'+t('д','d'),money(f.net),'',f.net>=0?'pos':'neg')}${stat(t('Касса','Cash'),money(totalBalance()),t('все юр.лица','all entities'))}</div>
   ${Object.keys(f.cats).length?`<div class="card" style="margin-bottom:12px"><h2>${t('Расходы по категориям','Spend by category')} · 30${t('д','d')}</h2>${shareBars(Object.entries(f.cats).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),f.out)}</div>`:''}
+  <div class="card" style="margin-bottom:12px"><h2>${t('Регулярные расходы','Recurring costs')} <span class="hint">${DB.costs.length?money(costsMonthlyUSD())+' / '+t('мес','mo'):''}</span></h2>
+  ${DB.costs.length?`<table><tr><th>${t('Название','Name')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Проведено за','Posted for')}</th><th class="n">${t('Сумма / мес','Amount / mo')}</th><th></th></tr>
+  ${DB.costs.map(c=>`<tr><td style="font-weight:500">${esc(c.name)}</td><td class="muted">${esc(c.category||'—')}</td><td class="muted">${esc(entName(c.entityId))}</td><td class="mono" style="font-size:11px">${c.lastPosted===ymNow()?`<span class="pos">${ymNow()} ✓</span>`:(c.lastPosted||'—')}</td><td class="n">${money(toUSD(c.amount||0,c.currency))}</td><td style="white-space:nowrap;text-align:right"><button class="ib" onclick="costModal('${c.id}')" aria-label="edit">✎</button> <button class="ib danger" onclick="delCost('${c.id}')" aria-label="delete">×</button></td></tr>`).join('')}</table>`
+  :`<div class="hint" style="padding:6px 0">${t('Аренда, подписки, связь — добавь и проводи в кассу одной кнопкой раз в месяц','Rent, subscriptions, telecom — add once, post to the ledger monthly with one click')}</div>`}
+  <div class="actions" style="margin-top:10px;justify-content:flex-start"><button class="btn sm" onclick="costModal()">+ ${t('Регулярный расход','Recurring cost')}</button>${DB.costs.length?`<button class="btn sm pri" onclick="postMonthlyCosts()">${t('Провести за','Post for')} ${ymNow()}</button>`:''}</div></div>
   <div class="card"><h2>${t('Реестр транзакций','Transaction ledger')} <span class="hint">${total}</span></h2>
   ${total?`<table><tr><th>${t('Дата','Date')}</th><th>${t('Тип','Type')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Назначение','Purpose')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
   ${DB.tx.map(x=>{const u=toUSD(x.amount,x.currency)*(x.kind==='in'?1:-1);const prj=x.projectId?(DB.orders.find(p=>p.id===x.projectId)||{}).name:'';return `<tr><td class="mono" style="font-size:11px;white-space:nowrap">${x.date}</td><td><span class="${x.kind==='in'?'pos':'neg'}">${x.kind==='in'?t('Доход','Income'):x.kind==='payout'?t('Выплата','Payout'):t('Расход','Expense')}</span></td><td class="muted">${x.kind==='payout'?t('ФОТ','Payroll'):(x.category?esc(catL(x.category)):'—')}</td><td class="muted">${esc(entName(x.entityId))}</td><td>${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}${prj?` <span class="tag" style="color:var(--purple)">${esc(prj)}</span>`:''}</td><td class="n ${u>=0?'pos':'neg'}">${money(u)}</td><td style="text-align:right"><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></td></tr>`;}).join('')}</table>`:`<div class="empty"><b>${t('Реестр пуст','Ledger empty')}</b>${t('Добавь первое движение (T). «Выплатить» в Команде тоже пишет сюда.','Add the first entry (T). Pay in Team writes here too.')}</div>`}</div>`;
