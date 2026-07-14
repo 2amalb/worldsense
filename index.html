@@ -920,7 +920,7 @@ function projectCard(p){
   <div class="row" style="padding:6px 0"><span class="muted">${t('Ставка','Rate')}</span><span class="n">${money(p.rate||0)} / ${esc(p.unit||t('ед','unit'))}</span></div>
   <div class="row" style="padding:6px 0"><span class="muted">${t('Заработано','Earned')}</span><span class="n pos">${money(s.earned)} <span class="hint">${t('из','of')} ${money(s.value)}</span></span></div>
   <div style="display:flex;gap:8px;margin:10px 0 8px"><input id="pl-${p.id}" class="mono" type="number" placeholder="+ ${esc(p.unit||t('ед','units'))}" style="flex:1"><button class="btn sm" onclick="logProgress('${p.id}')">${t('Записать','Log')}</button></div>
-  ${last.length?`<div class="hint" style="line-height:1.7">${last.map(l=>`<span class="mono">${l.date}</span> +${fmt0(l.qty)}`).join(' · ')}</div>`:''}
+  ${last.length?`<div class="hint" style="line-height:1.9">${last.map((l,i)=>`<span style="white-space:nowrap"><span class="mono">${l.date}</span> ${l.qty<0?'':'+'}${fmt0(l.qty)} <a href="#" onclick="delLogEntry('${p.id}',${(p.log||[]).length-1-i});return false" title="${t('Удалить запись','Delete entry')}" style="color:var(--red,#e5484d)">×</a></span>`).join(' · ')}${(p.log||[]).length>3?` <span class="muted">· ${t('всего','total')} ${(p.log||[]).length}</span>`:''}</div>`:''}
   </div>`;
 }
 function projectModal(id){
@@ -943,6 +943,9 @@ function saveProject(id){const g=k=>document.getElementById(k);
   else DB.orders.unshift(Object.assign({id:uid('ord'),log:[]},data));
   save('orders');closeModal();render();}
 function delProject(id){const p=DB.orders.find(x=>x.id===id);confirmModal(t('Удалить проект','Delete project')+(p?` «${esc(p.name)}»`:'')+'?',()=>{DB.orders=DB.orders.filter(x=>x.id!==id);save('orders');render();});}
+function delLogEntry(pid,idx){const p=DB.orders.find(x=>x.id===pid);if(!p||!p.log||!p.log[idx])return;
+  const l=p.log[idx];
+  confirmModal(t('Удалить запись','Delete entry')+` ${l.date} · ${l.qty<0?'':'+'}${fmt0(l.qty)}?`,()=>{p.log.splice(idx,1);save('orders');render();toast(t('Запись удалена','Entry deleted'));});}
 function logProgress(id){const p=DB.orders.find(x=>x.id===id);if(!p)return;const inp=document.getElementById('pl-'+id);const q=parseFloat(inp.value);if(!q)return;p.log=p.log||[];p.log.push({date:today(),qty:q});save('orders');render();toast('+'+fmt0(q)+' · '+p.name);}
 
 /* ── contracts ── */
