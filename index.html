@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="WorldSense">
+<meta name="apple-mobile-web-app-title" content="Worldsense">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>WorldSense OS</title>
+<title>Worldsense OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -110,7 +110,7 @@
   .grid.mini .stat{padding:12px 14px;}
   .grid.mini .stat .sv{font-size:17px;}
   .grid.mini .stat .sl{margin-bottom:6px;}
-  @media(max-width:900px){.bento,.bento.rev{grid-template-columns:1fr;}.bstack{grid-template-rows:none;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}}
+  @media(max-width:900px){.bento,.bento.rev{grid-template-columns:1fr;}.bstack{grid-template-rows:none;grid-template-columns:repeat(2,1fr);}.bstack>*:last-child:nth-child(odd){grid-column:1/-1;}.grid.mini>.stat:last-child:nth-child(odd),.grid.g3>.stat:last-child:nth-child(odd){grid-column:1/-1;}}
 
   .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1);}
   .row:last-child{border-bottom:none;} .n{font-family:var(--mono);font-variant-numeric:tabular-nums;}
