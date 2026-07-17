@@ -222,10 +222,29 @@
     .card{padding:13px;overflow-x:auto;} .card>table{min-width:max-content;}
     .btn{min-height:40px;} .btn.sm{min-height:32px;}
   }
+  /* ── boot loader ── */
+  #boot-loader{position:fixed;inset:0;z-index:9999;background:#0B0B0C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .45s ease;}
+  #boot-loader.off{opacity:0;pointer-events:none;}
+  #boot-loader .bl-mark{animation:blpulse 2.2s ease-in-out infinite;}
+  #boot-loader .bl-mark svg{display:block;height:auto;}
+  #boot-loader .bl-mark svg path{fill:#EDEDEF;}
+  @keyframes blpulse{0%,100%{opacity:.55;transform:scale(.97);}50%{opacity:1;transform:scale(1);}}
+  #boot-loader .bl-dots{display:flex;gap:8px;}
+  #boot-loader .bl-dots span{width:5px;height:5px;border-radius:50%;background:#4a4a52;animation:bldot 1.3s ease-in-out infinite;}
+  #boot-loader .bl-dots span:nth-child(2){animation-delay:.18s;}
+  #boot-loader .bl-dots span:nth-child(3){animation-delay:.36s;}
+  @keyframes bldot{0%,100%{opacity:.25;transform:translateY(0);}50%{opacity:1;transform:translateY(-4px);}}
+  @media(prefers-reduced-motion:reduce){#boot-loader .bl-mark,#boot-loader .bl-dots span{animation:none;}}
   @media(prefers-reduced-motion:reduce){*{transition:none !important;}}
 </style>
 </head>
 <body>
+<div id="boot-loader">
+  <div class="bl-mark"><svg width="132" xmlns="http://www.w3.org/2000/svg" viewBox="-24.55685 258.835 968.7378500000001 422.176">
+<path d="M157.424 282.597C63.7626 298.35 -4.55685 383.449 0.237499 478.48C4.34694 562.039 60.8518 630.872 143.726 653.474C156.225 656.898 161.876 657.412 189.614 657.241C207.079 657.241 223.004 656.556 225.229 655.529C228.825 653.988 228.312 653.474 217.695 645.426C191.327 625.393 167.526 587.038 156.054 545.772C148.691 519.232 146.294 499.883 146.294 469.063C146.294 426.941 152.458 395.435 167.697 360.847C180.197 332.081 202.799 302.801 222.661 289.617C226.257 287.22 228.312 284.823 227.455 284.309C224.202 282.254 201.771 279.857 187.046 280.028C178.656 280.199 165.3 281.227 157.424 282.597Z" fill="white"/><path d="M264.268 281.229C259.645 282.428 260.501 283.113 277.282 291.331C287.042 296.126 301.253 304.858 308.616 310.509C322.314 321.125 324.883 322.495 324.883 319.07C324.883 318.214 326.937 313.077 329.335 307.94C331.732 302.632 333.444 298.181 333.273 298.009C329.506 294.756 316.835 288.249 308.616 285.167C297.829 281.058 273.686 279.003 264.268 281.229Z" fill="white"/><path d="M361.703 282.602C358.963 283.972 355.196 286.54 353.484 288.081C346.635 294.245 346.806 295.786 357.422 307.087C382.592 333.97 399.03 368.387 408.961 415.131C414.269 439.446 414.783 496.978 409.989 519.58C404.681 544.921 398.516 564.27 390.126 582.249C380.195 603.138 370.949 617.008 357.08 631.905L346.635 643.034L351.6 648.171C358.278 655.191 364.442 658.273 371.976 658.273C385.161 658.273 401.256 636.528 412.043 604.166C446.974 499.889 429.509 315.991 381.565 283.801C374.716 279.177 368.894 278.835 361.703 282.602Z" fill="white"/><path d="M231.221 295.272C184.989 326.092 155.367 393.556 155.367 468.211C155.367 517.866 166.497 561.187 189.099 598.857C202.626 621.459 233.275 649.711 244.234 649.711C256.22 649.711 294.917 628.65 312.553 612.726L319.745 606.048L315.635 592.008C307.588 564.782 300.91 510.161 300.91 471.121C300.91 430.027 307.074 377.46 315.293 347.496L319.574 332.085L313.238 326.435C302.28 316.675 277.109 300.751 263.925 295.272C244.234 287.053 243.378 287.053 231.221 295.272Z" fill="white"/><path d="M336.178 315.99C333.781 321.64 331.727 326.948 331.727 327.804C331.727 328.66 336.692 335.509 342.685 343.043C403.813 418.897 403.128 524.201 340.973 597.658C335.836 603.651 331.727 609.472 331.727 610.5C331.727 613.582 340.63 632.588 342 632.588C344.569 632.588 361.006 613.582 368.54 601.767C419.052 523.859 415.628 395.61 361.178 326.092C353.644 316.503 343.37 305.545 341.829 305.545C341.315 305.545 338.747 310.168 336.178 315.99Z" fill="white"/><path d="M322.657 357.942C313.411 396.639 312.041 411.707 312.041 469.924C312.041 528.141 313.411 541.668 322.657 580.366L327.109 599.029L332.931 592.351C370.087 549.716 386.011 488.588 374.539 432.597C367.518 398.18 355.19 373.01 331.218 344.244L327.109 339.107L322.657 357.942Z" fill="white"/><path d="M317.176 621.628C307.759 629.676 283.958 644.743 271.63 650.394C261.185 655.36 259.987 656.216 263.411 657.072C277.281 660.839 303.992 656.901 319.402 649.024C334.642 641.148 334.299 641.833 328.477 628.648C325.566 622.313 323.169 617.176 322.827 617.176C322.484 617.347 320.087 619.231 317.176 621.628Z" fill="white"/><path d="M543.204 282.429C524.026 292.018 506.048 335.68 496.63 394.754C492.692 419.582 492.178 512.729 495.774 538.413C504.335 598.513 522.999 645.772 542.519 655.874C551.423 660.326 558.272 658.957 567.347 650.738L575.566 643.375L566.662 633.444C533.615 597.315 514.951 551.769 509.643 494.75C503.137 423.177 525.567 347.666 565.463 306.743C570.6 301.435 574.881 296.47 574.881 295.613C574.881 293.73 564.607 284.141 559.984 281.744C554.847 279.176 549.368 279.347 543.204 282.429Z" fill="white"/><path d="M623.674 282.257C613.401 284.825 600.559 290.304 593.71 295.27L588.744 298.866L593.71 309.139C596.449 314.961 598.847 319.926 599.36 320.269C599.703 320.783 606.723 315.988 614.942 309.824C623.161 303.831 637.201 295.099 646.448 290.647C662.029 282.941 662.714 282.428 657.92 281.4C649.53 279.517 632.921 280.031 623.674 282.257Z" fill="white"/><path d="M705.524 281.915C699.531 282.771 694.737 284.141 694.737 284.997C694.737 285.682 697.819 288.25 701.757 290.819C712.544 298.01 727.955 314.619 738.571 330.715C754.666 354.686 766.823 386.535 772.987 420.266C777.097 443.211 777.097 495.092 772.816 518.722C762.371 576.939 733.263 627.622 696.449 651.594C692.34 654.333 692.34 654.333 703.469 656.388C730.01 661.011 769.22 657.587 794.391 648.683C855.348 626.937 900.723 577.966 916.818 516.496C922.64 494.065 924.181 458.621 920.071 436.704C904.832 355.885 843.19 295.442 762.543 282.429C745.249 279.689 721.791 279.347 705.524 281.915Z" fill="white"/><path d="M665.452 292.36C644.391 301.093 619.905 316.332 606.378 329.174L602.783 332.598L606.892 346.981C626.069 412.904 625.556 531.564 605.865 596.288L602.611 606.904L613.912 615.979C632.918 631.047 647.13 639.094 667.849 646.971L678.807 651.08L687.882 645.772C701.238 638.067 718.703 620.944 729.662 604.506C746.271 579.679 757.4 549.714 764.078 511.873C767.331 493.38 767.845 452.628 764.934 432.423C758.085 382.425 738.394 338.762 710.313 310.51C699.354 299.552 682.917 288.422 677.609 288.422C676.239 288.422 670.76 290.305 665.452 292.36Z" fill="white"/><path d="M573.678 311.023C547.651 338.419 529.159 378.658 521.625 424.547C517.002 453.141 517.687 498.859 523.337 524.714C532.07 565.466 548.679 599.712 571.281 624.197C581.041 634.813 581.554 634.642 587.719 619.745L591.828 609.643L584.636 601.424C547.823 558.617 529.673 503.653 535.494 451.258C540.289 407.081 557.069 368.042 583.267 339.447L592.17 329.687L587.376 318.215C584.808 311.879 581.726 306.4 580.869 306.058C579.842 305.715 576.589 307.941 573.678 311.023Z" fill="white"/><path d="M591.476 343.899C567.333 373.007 554.491 399.205 547.47 433.793C539.08 475.059 546.614 523.173 567.161 559.816C572.812 569.918 593.017 598.342 594.558 598.342C596.27 598.342 601.064 578.479 604.831 556.22C615.276 495.606 613.906 423.348 601.407 364.446C596.441 340.646 595.585 338.933 591.476 343.899Z" fill="white"/><path d="M593.888 628.651C589.607 637.555 588.751 640.295 590.634 641.493C608.784 653.479 623.852 658.273 642.516 658.273C664.262 658.273 664.604 657.075 646.112 648C631.729 640.808 620.599 633.617 603.819 620.775L599.538 617.35L593.888 628.651Z" fill="white"/>
+</svg></div>
+  <div class="bl-dots"><span></span><span></span><span></span></div>
+</div>
 <div id="mobiletop">
   <div class="mtl">
     <button class="ib big" onclick="toggleDrawer()" aria-label="menu"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -1158,7 +1177,7 @@ function confirmModal(msg,onYes,danger){_confirmCb=onYes;modal(`<h3 style="margi
 function confirmYes(){const cb=_confirmCb;_confirmCb=null;closeModal();if(cb)cb();}
 
 /* ── auth / boot ── */
-function showLogin(){const root=document.getElementById('login-root');root.style.display='flex';
+function showLogin(){hideBootLoader();const root=document.getElementById('login-root');root.style.display='flex';
   const logo=(document.querySelector('#side .logofull svg')||{}).outerHTML||'worldsense';
   root.innerHTML=`<div class="loginbox"><div class="wordmark" style="display:flex;justify-content:center">${logo}</div><div class="sub">${t('Вход через Supabase · первый аккаунт становится владельцем','Supabase sign-in · first account becomes owner')}</div>
   <div class="fs"><label>Email</label><input id="sb-email" type="email" autocomplete="username" inputmode="email"></div>
@@ -1181,11 +1200,12 @@ async function afterLogin(){
   if(!sbProfile.email)sbProfile.email=session.user.email;
   await loadAll();
   view='dash';
-  hideLogin();render();
+  hideLogin();render();hideBootLoader();
   toast(t('Вход выполнен','Signed in')+' · '+(sbProfile.name||session.user.email||''));
 }
+function hideBootLoader(){const l=document.getElementById('boot-loader');if(!l)return;l.classList.add('off');setTimeout(()=>l.remove(),500);}
 async function boot(){
-  try{await loadSupabase();}catch(e){document.getElementById('app').innerHTML=`<div class="empty" style="margin-top:60px"><b>${t('Нет соединения','No connection')}</b>${t('Не удалось загрузить Supabase SDK. Проверь интернет и обнови страницу.','Could not load the Supabase SDK. Check your connection and reload.')}</div>`;return;}
+  try{await loadSupabase();}catch(e){hideBootLoader();document.getElementById('app').innerHTML=`<div class="empty" style="margin-top:60px"><b>${t('Нет соединения','No connection')}</b>${t('Не удалось загрузить Supabase SDK. Проверь интернет и обнови страницу.','Could not load the Supabase SDK. Check your connection and reload.')}</div>`;return;}
   sb=window.supabase.createClient(SB_URL,SB_ANON);
   let sess=null;try{const r=await sb.auth.getSession();sess=r.data&&r.data.session;}catch(e){}
   if(sess)await afterLogin();else showLogin();
