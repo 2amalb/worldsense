@@ -8,12 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Worldsense">
+<meta name="apple-mobile-web-app-title" content="WorldSense">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Worldsense OS</title>
-<link rel="preconnect" href="https://neqfafmddbojxlbstrhr.supabase.co" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin>
+<title>WorldSense OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -113,7 +110,7 @@
   .grid.mini .stat{padding:12px 14px;}
   .grid.mini .stat .sv{font-size:17px;}
   .grid.mini .stat .sl{margin-bottom:6px;}
-  @media(max-width:900px){.bento,.bento.rev{grid-template-columns:1fr;}.bstack{grid-template-rows:none;grid-template-columns:repeat(2,1fr);}.bstack>*:last-child:nth-child(odd){grid-column:1/-1;}.grid.mini>.stat:last-child:nth-child(odd),.grid.g3>.stat:last-child:nth-child(odd){grid-column:1/-1;}}
+  @media(max-width:900px){.bento,.bento.rev{grid-template-columns:1fr;}.bstack{grid-template-rows:none;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}}
 
   .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1);}
   .row:last-child{border-bottom:none;} .n{font-family:var(--mono);font-variant-numeric:tabular-nums;}
@@ -162,8 +159,21 @@
   .tghead .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
   .tghead .c{font-family:var(--mono);font-size:10px;color:var(--dim);font-weight:400;}
   .tlist{border:1px solid var(--b1);border-top:none;border-radius:0 0 10px 10px;background:var(--s1);overflow:hidden;}
-  .trow{display:flex;align-items:center;gap:9px;padding:7px 12px;border-bottom:1px solid var(--b1);cursor:pointer;min-height:38px;}
-  .trow:last-child{border-bottom:none;}
+  .tsw{position:relative;overflow:hidden;border-bottom:1px solid var(--b1);}
+  .tsw:last-child{border-bottom:none;}
+  .tsw .swa{position:absolute;top:0;right:0;bottom:0;display:flex;z-index:0;}
+  .tsw .swa button{width:78px;border:none;border-left:1px solid rgba(0,0,0,.25);color:#0B0B0C;font-size:10.5px;font-weight:600;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;letter-spacing:.2px;}
+  .tsw .swa button svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  .tsw .swa .nd{background:var(--amber);} .tsw .swa .as{background:var(--green);}
+  .trow{position:relative;z-index:1;background:var(--s1);display:flex;align-items:center;gap:9px;padding:7px 12px;cursor:pointer;min-height:38px;transition:transform .18s ease;will-change:transform;touch-action:pan-y;}
+  .tsw.open .trow{transform:translateX(-156px);}
+  .trow .hov{opacity:0;transition:opacity .12s;}
+  .trow:hover .hov{opacity:1;}
+  .avs{display:flex;flex:0 0 auto;} .avs .avc{margin-left:-6px;box-shadow:0 0 0 1.5px var(--s1);} .avs .avc:first-child{margin-left:0;}
+  .aschips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .aschip{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:999px;border:1px solid var(--b2);background:var(--s2);color:var(--mid);font-size:13px;cursor:pointer;font-family:inherit;min-height:36px;}
+  .aschip.on{border-color:var(--green);color:var(--w);background:rgba(61,220,132,.08);}
+  .aschip.on .avc{background:var(--green);color:#0B0B0C;border-color:var(--green);}
   .trow:hover{background:var(--s2);}
   .trow .sicon{width:16px;height:16px;flex:0 0 auto;display:flex;cursor:pointer;}
   .trow .sicon svg{width:16px;height:16px;}
@@ -201,7 +211,6 @@
   .mtl{display:flex;gap:8px;}
   .ib.big{width:36px;height:36px;border-radius:10px;}
   .mtlogo{display:flex;justify-content:center;}
-  .emeta{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;line-height:1.4;}
   .mtlogo svg{height:30px !important;width:auto !important;}
   .mtlogo svg{height:22px;width:auto;}
   #acct-btn-m{justify-self:end;width:34px;height:34px;font-size:13px;box-shadow:none;}
@@ -224,27 +233,12 @@
     input,select,textarea{font-size:16px;}
     .card{padding:13px;overflow-x:auto;} .card>table{min-width:max-content;}
     .btn{min-height:40px;} .btn.sm{min-height:32px;}
+    .trow .hov{display:none;} .trow{min-height:46px;}
   }
-  /* ── boot loader ── */
-  #boot-loader{position:fixed;inset:0;z-index:9999;background:#0B0B0C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .45s ease;}
-  #boot-loader.off{opacity:0;pointer-events:none;}
-  #boot-loader .bl-mark{animation:blpulse 2.2s ease-in-out infinite;}
-  #boot-loader .bl-mark img{display:block;height:auto;}
-  @keyframes blpulse{0%,100%{opacity:.55;transform:scale(.97);}50%{opacity:1;transform:scale(1);}}
-  #boot-loader .bl-dots{display:flex;gap:8px;}
-  #boot-loader .bl-dots span{width:5px;height:5px;border-radius:50%;background:#4a4a52;animation:bldot 1.3s ease-in-out infinite;}
-  #boot-loader .bl-dots span:nth-child(2){animation-delay:.18s;}
-  #boot-loader .bl-dots span:nth-child(3){animation-delay:.36s;}
-  @keyframes bldot{0%,100%{opacity:.25;transform:translateY(0);}50%{opacity:1;transform:translateY(-4px);}}
-  @media(prefers-reduced-motion:reduce){#boot-loader .bl-mark,#boot-loader .bl-dots span{animation:none;}}
   @media(prefers-reduced-motion:reduce){*{transition:none !important;}}
 </style>
 </head>
 <body>
-<div id="boot-loader">
-  <div class="bl-mark"><img src="data:image/png;base64,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" width="132" alt=""></div>
-  <div class="bl-dots"><span></span><span></span><span></span></div>
-</div>
 <div id="mobiletop">
   <div class="mtl">
     <button class="ib big" onclick="toggleDrawer()" aria-label="menu"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -299,32 +293,22 @@ async function sGet(k){try{const tbl=PRIVATE_KEYS.has(k)?'app_private':'app_shar
 async function sSet(k,v){try{const tbl=PRIVATE_KEYS.has(k)?'app_private':'app_shared';const r=await sb.from(tbl).upsert({key:k,value:v,updated_at:new Date().toISOString()});if(r.error)throw r.error;}catch(e){toast(t('Ошибка синхронизации','Sync error'));}}
 function save(p){if(KEY[p])sSet(KEY[p],DB[p]);}
 async function loadAll(){
-  /* 2 параллельных запроса вместо 11 последовательных — старт в разы быстрее */
-  let map={};
-  try{
-    const [sh,pr]=await Promise.all([
-      sb.from('app_shared').select('key,value'),
-      sb.from('app_private').select('key,value')
-    ]);
-    (sh.data||[]).forEach(r=>{map[r.key]=r.value;});
-    (pr.data||[]).forEach(r=>{map[r.key]=r.value;});
-  }catch(e){}
-  const g=k=>(map[k]!==undefined&&map[k]!==null)?map[k]:null;
-  DB.settings=g(KEY.settings)||{fx:12650,entities:[]};
+  const s=await sGet(KEY.settings);
+  DB.settings=s||{fx:12650,entities:[]};
   if(!DB.settings.fx)DB.settings.fx=12650;
   if(!Array.isArray(DB.settings.entities))DB.settings.entities=[];
   DB.settings.entities.forEach(e=>{if(!Array.isArray(e.shareholders))e.shareholders=[];});
-  DB.costs=g(KEY.costs)||[];
-  DB.income=g(KEY.income)||[];
-  DB.tasks=g(KEY.tasks)||[];
-  DB.debts=g(KEY.debts)||[];
-  DB.docs=g(KEY.docs)||[];
-  DB.invoices=g(KEY.invoices)||[];
-  DB.contracts=g(KEY.contracts)||[];
-  DB.orders=g(KEY.orders)||[];
-  DB.payroll=g(KEY.payroll)||{people:[]};
+  DB.costs=await sGet(KEY.costs)||[];
+  DB.income=await sGet(KEY.income)||[];
+  DB.tasks=await sGet(KEY.tasks)||[];
+  DB.debts=await sGet(KEY.debts)||[];
+  DB.docs=await sGet(KEY.docs)||[];
+  DB.invoices=await sGet(KEY.invoices)||[];
+  DB.contracts=await sGet(KEY.contracts)||[];
+  DB.orders=await sGet(KEY.orders)||[];
+  DB.payroll=await sGet(KEY.payroll)||{people:[]};
   if(!Array.isArray(DB.payroll.people))DB.payroll.people=[];
-  DB.tx=g(KEY.tx)||[];
+  DB.tx=await sGet(KEY.tx)||[];
 }
 
 /* ── helpers ── */
@@ -369,6 +353,8 @@ function addTx(x){DB.tx.unshift(Object.assign({id:uid('tx'),date:today()},x));sa
 const ICO={
   dash:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.6"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.6"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.6"/></svg>',
   team:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 20c.6-3.4 2.9-5.2 5.5-5.2s4.9 1.8 5.5 5.2"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.6c2.3.2 4 1.7 4.5 4.4"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
   tasks:'<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.2l2.6 2.6L16 9.4"/></svg>',
   fin:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>',
   contracts:'<svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>',
@@ -561,13 +547,12 @@ function viewDash(){
   <div class="grid mini m32" style="margin-bottom:12px">
     ${stat(t('Законтрактовано','Contracted'),money(contractSum||backlog),activeContracts.length+t(' активных контрактов',' active contracts')+(avgContract?' · '+t('средний','avg')+' '+money(avgContract):'')+' · '+t('бэклог проектов','projects backlog')+' '+money(backlog)+(projPct!==null?' ('+pct(projPct)+' '+t('выполнено','done')+')':''),'pos')}
 
-    ${stat(t('Задачи','Tasks'),String(active),(overdue?overdue+t(' просрочено',' overdue')+' · ':'')+doneCnt+' done'+(urgCnt?' · '+urgCnt+t(' срочных',' urgent'):''),overdue?'neg':'')}
-  </div>
     <div class="grid g3" style="margin-bottom:14px">
     ${stat(t('Регулярные обязательства','Recurring commitments'),money(costsMonthlyUSD())+' / '+t('мес','mo'),(()=>{const ym=ymNow();const done=DB.costs.filter(c=>c.lastPosted===ym).length;return ym+': '+t('проведено','posted')+' '+done+' / '+DB.costs.length+' · '+t('ФОТ план','payroll plan')+' '+money(payrollMo());})(),DB.costs.some(c=>c.lastPosted!==ymNow())&&new Date().getDate()>5?'neg':'')}
     ${stat(t('Нам должны','Owed to us'),money(debtsSum('in')),t('мы должны','we owe')+' '+money(debtsSum('out')),debtsSum('in')>0?'pos':'')}
     ${stat(t('Ближайший платёж','Next payment'),(()=>{const u=upcomingPayments();return u.length?fmtDM(u[0].d)+' · '+money(u[0].usd):'—';})(),(()=>{const u=upcomingPayments();return u.length?esc(u[0].label)+(u.length>1?' · '+t('дальше','then')+' '+fmtDM(u[1].d)+' '+esc(u[1].label):''):t('добавь дни платежей в регулярке и ЗП','set pay days on costs & salaries');})())}
-    </div>
+    </div>    ${stat(t('Задачи','Tasks'),String(active),(overdue?overdue+t(' просрочено',' overdue')+' · ':'')+doneCnt+' done'+(urgCnt?' · '+urgCnt+t(' срочных',' urgent'):''),overdue?'neg':'')}
+  </div>
 
   <div class="grid g2" style="margin-bottom:12px">
     <div class="card"><h2>${t('Доходы и расходы по месяцам','Monthly income & spend')} · 6${t('м','m')}</h2>${monthlyBarsSVG(monthlySeries(6))}</div>
@@ -625,7 +610,8 @@ function personModal(id){
   <div class="fs"><label>${t('Валюта','Currency')}</label><select id="t-xcur">${curOpts(p&&p.extraCur?p.extraCur:'USD')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('День выплаты (опц.)','Pay day (opt.)')}</label><input id="t-payday" type="number" min="1" max="28" value="${p&&p.payDay?p.payDay:''}"></div>
   <div class="fs"><label>Equity</label><input id="t-eq" value="${p?esc(p.equity||''):''}"></div></div>
-  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="t-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${p&&p.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div>
+  <div class="f2"><div class="fs" style="display:none"><label>-</label><input></div>
+  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="t-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${p&&p.entityId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
   </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="savePerson('${id||''}')">${p?t('Сохранить','Save'):t('Добавить','Add')}</button></div>`);
 }
 function savePerson(id){
@@ -648,16 +634,17 @@ function doPay(id){const p=DB.payroll.people.find(x=>x.id===id);if(!p)return;con
   const ym=g('pm-ym').value||ymNow();
   const wantOf=g('pm-of-on').checked,wantUn=g('pm-un-on').checked;
   const amOf=parseFloat(g('pm-of').value)||0,amUn=parseFloat(g('pm-un').value)||0;
-  const curOf=g('pm-of-cur').value,curUn=g('pm-un-cur').value;
   if((!wantOf||amOf<=0)&&(!wantUn||amUn<=0)){toast(t('Нечего проводить','Nothing to post'));return;}
   p.paid=p.paid||{};const rec=p.paid[ym]=p.paid[ym]||{};
   const already=[];if(wantOf&&rec.of)already.push(t('офиц.','official'));if(wantUn&&rec.un)already.push(t('неофиц.','unofficial'));
   const go=()=>{
-    if(wantOf&&amOf>0){addTx({kind:'payout',entityId:p.entityId,amount:amOf,currency:curOf,memo:t('ЗП офиц.','Salary official')+' · '+ym,who:p.name});rec.of=true;}
-    if(wantUn&&amUn>0){addTx({kind:'payout',entityId:p.entityId,amount:amUn,currency:curUn,memo:t('ЗП неофиц.','Salary unofficial')+' · '+ym,who:p.name});rec.un=true;}
-    save('payroll');closeModal();toast(t('Выплачено','Paid')+' · '+p.name);render();};
+    if(wantOf&&amOf>0){addTx({kind:'payout',entityId:p.entityId,amount:amOf,currency:g('pm-of-cur').value,memo:t('ЗП офиц.','Salary official')+' · '+ym,who:p.name});rec.of=true;}
+    if(wantUn&&amUn>0){addTx({kind:'payout',entityId:p.entityId,amount:amUn,currency:g('pm-un-cur').value,memo:t('ЗП неофиц.','Salary unofficial')+' · '+ym,who:p.name});rec.un=true;}
+    save('payroll');toast(t('Выплачено','Paid')+' · '+p.name);render();};
   if(already.length){confirmModal(t('За','For')+' '+ym+' '+t('уже проведено','already posted')+': '+already.join(', ')+'. '+t('Провести ещё раз?','Post again?'),go);}
-  else go();}
+  else{closeModal();go();}}
+
+/* ── tasks ── */
 function nextTaskId(){let mx=0;DB.tasks.forEach(x=>{const m=/^WS-(\d+)$/.exec(x.id||'');if(m)mx=Math.max(mx,parseInt(m[1],10));});return 'WS-'+String(mx+1).padStart(2,'0');}
 const TSTAT={progress:{lab:'In Progress',c:'var(--amber)'},todo:{lab:'Todo',c:'var(--mid)'},blocked:{lab:'Blocked',c:'var(--red)'},done:{lab:'Done',c:'var(--green)'}};
 function statusIcon(st){
@@ -674,21 +661,42 @@ function prioIcon(p){
 function cycleStatus(id,ev){if(ev)ev.stopPropagation();const x=DB.tasks.find(t=>t.id===id);if(!x)return;
   const next={todo:'progress',progress:'done',done:'todo',blocked:'todo'};
   x.status=next[x.status||'todo']||'todo';save('tasks');render();}
+/* assignees: x.assignees[] (multi); x.assigneeId kept in sync = first, for back-compat */
+function taskAssignees(x){if(Array.isArray(x.assignees))return x.assignees.filter(id=>DB.payroll.people.some(p=>p.id===id));return x.assigneeId?[x.assigneeId]:[];}
+function addDays(iso,n){const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);const z=k=>String(k).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+function nextDayLabel(x){const td=today();return (x.due&&x.due>td)?t('+1 день','+1 day'):t('Завтра','Tomorrow');}
+function taskNextDay(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const td=today();const base=(x.due&&x.due>=td)?x.due:td;x.due=addDays(base,1);if(x.status==='done')x.status='todo';save('tasks');render();toast(t('Перенесено → ','Moved → ')+x.due);}
+function assignChips(x){const cur=taskAssignees(x);return DB.payroll.people.map(p=>`<button class="aschip ${cur.includes(p.id)?'on':''}" onclick="toggleAssignee('${x.id}','${p.id}')"><span class="avc">${esc(p.name.trim().charAt(0).toUpperCase())}</span>${esc(p.name)}</button>`).join('');}
+function toggleAssignee(tid,pid){const x=DB.tasks.find(t=>t.id===tid);if(!x)return;let cur=taskAssignees(x);cur=cur.includes(pid)?cur.filter(i=>i!==pid):cur.concat(pid);x.assignees=cur;x.assigneeId=cur[0]||'';save('tasks');document.querySelectorAll('[data-aschips="'+tid+'"]').forEach(c=>{c.innerHTML=assignChips(x);});}
+function assignSheet(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;if(!DB.payroll.people.length){toast(t('Сначала добавь людей в «Команда»','Add people in Team first'));return;}
+  modal(`<h3>${t('Участники','Assignees')}</h3><div class="hint" style="margin-bottom:12px"><span class="mono">${esc(x.id)}</span> · ${esc(x.title)}</div><div class="aschips" data-aschips="${id}">${assignChips(x)}</div><div class="hint">${t('Тап — добавить/убрать. Сохраняется сразу.','Tap to toggle. Saved instantly.')}</div><div class="actions"><button class="btn pri" onclick="closeModal();render()">${t('Готово','Done')}</button></div>`);}
+function rowClick(ev,id){const sw=ev.target.closest('.tsw');if(sw&&(sw.classList.contains('open')||(sw._swiped&&Date.now()-sw._swiped<400))){closeSwipes();return;}openTask(id);}
+function closeSwipes(){document.querySelectorAll('.tsw.open').forEach(x=>x.classList.remove('open'));}
+/* swipe right→left on a task row reveals next-day / assign */
+const SWW=156;let SW=null;
+document.addEventListener('touchstart',e=>{const el=e.target.closest('.tsw');if(!el){closeSwipes();SW=null;return;}SW={el,x0:e.touches[0].clientX,y0:e.touches[0].clientY,x:0,dir:null,wasOpen:el.classList.contains('open')};},{passive:true});
+document.addEventListener('touchmove',e=>{if(!SW)return;const dx=e.touches[0].clientX-SW.x0,dy=e.touches[0].clientY-SW.y0;
+  if(!SW.dir){if(Math.abs(dx)<6&&Math.abs(dy)<6)return;SW.dir=Math.abs(dx)>Math.abs(dy)*1.2?'h':'v';if(SW.dir==='h'){SW.row=SW.el.querySelector('.trow');SW.row.style.transition='none';}}
+  if(SW.dir!=='h')return;e.preventDefault();const base=SW.wasOpen?-SWW:0;SW.x=Math.max(-SWW-24,Math.min(0,base+dx));SW.row.style.transform=`translateX(${SW.x}px)`;},{passive:false});
+document.addEventListener('touchend',()=>{if(!SW)return;if(SW.dir==='h'){SW.row.style.transition='';SW.row.style.transform='';const open=SW.x<-SWW/2;document.querySelectorAll('.tsw.open').forEach(x=>{if(x!==SW.el)x.classList.remove('open');});SW.el.classList.toggle('open',open);SW.el._swiped=Date.now();}SW=null;});
 function viewTasks(){
   const list=DB.tasks,td=today();
   const groups=['progress','todo','blocked','done'];
-  return `<div class="vhead"><div><h1 class="view">${t('Задачи','Tasks')}</h1><div class="vsub">${list.filter(x=>x.status!=='done').length} ${t('активных','active')} · ${t('клик по кружку — смена статуса','click the circle to cycle status')}</div></div><button class="btn pri" onclick="taskModal()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div>
+  return `<div class="vhead"><div><h1 class="view">${t('Задачи','Tasks')}</h1><div class="vsub">${list.filter(x=>x.status!=='done').length} ${t('активных','active')} · ${t('кружок — статус · свайп влево — перенос / участники','circle — status · swipe left — next day / assign')}</div></div><button class="btn pri" onclick="taskModal()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div>
   <div class="quickadd"><input id="qa-input" placeholder="${t('Быстрая задача — Enter для создания (Q)','Quick task — Enter to create (Q)')}"><button class="btn" onclick="quickAddTask()">＋</button></div>
   ${list.length===0?`<div class="empty"><b>${t('Задач нет','No tasks')}</b>${t('Напиши первую в строке выше','Type the first one above')}</div>`
   :groups.map(g=>{const gl=list.filter(x=>(x.status||'todo')===g);if(!gl.length)return '';const gc=TSTAT[g];
     return `<div class="tgroup"><div class="tghead"><span class="dot" style="background:${gc.c}"></span>${gc.lab}<span class="c">${gl.length}</span></div><div class="tlist">
-    ${gl.map(x=>{const done=g==='done';const an=personName(x.assigneeId);return `<div class="trow ${done?'tdone':''}" onclick="openTask('${x.id}')">
+    ${gl.map(x=>{const done=g==='done';const as=taskAssignees(x);return `<div class="tsw" data-tid="${x.id}"><div class="swa">
+      <button class="nd" onclick="event.stopPropagation();taskNextDay('${x.id}')">${ICO.arrow}<span>${nextDayLabel(x)}</span></button>
+      <button class="as" onclick="event.stopPropagation();assignSheet('${x.id}')">${ICO.user}<span>${t('Кому','Assign')}</span></button></div>
+    <div class="trow ${done?'tdone':''}" onclick="rowClick(event,'${x.id}')">
       <span class="sicon" onclick="cycleStatus('${x.id}',event)" title="${t('Сменить статус','Cycle status')}">${statusIcon(g)}</span>
       ${prioIcon(x.priority)}
       <span class="tid">${esc(x.id)}</span>
       <span class="tt">${esc(x.title)}</span>
-      <span class="meta">${x.label?`<span class="tag">${esc(x.label)}</span>`:''}${x.due?`<span class="tag ${(x.due<td&&!done)?'overdue':''}">${x.due.slice(5)}</span>`:''}${(x.comments||[]).length?`<span class="hint mono">💬${(x.comments||[]).length}</span>`:''}${an?`<span class="avc" title="${esc(an)}">${esc(an.trim().charAt(0).toUpperCase())}</span>`:''}<button class="ib danger del" onclick="event.stopPropagation();delTask('${x.id}')" aria-label="delete">×</button></span>
-    </div>`;}).join('')}
+      <span class="meta">${x.label?`<span class="tag">${esc(x.label)}</span>`:''}${x.due?`<span class="tag ${(x.due<td&&!done)?'overdue':''}">${x.due.slice(5)}</span>`:''}${(x.comments||[]).length?`<span class="hint mono">💬${(x.comments||[]).length}</span>`:''}${as.length?`<span class="avs">${as.map(id=>{const n=personName(id);return n?`<span class="avc" title="${esc(n)}">${esc(n.trim().charAt(0).toUpperCase())}</span>`:'';}).join('')}</span>`:''}<button class="ib hov" onclick="event.stopPropagation();taskNextDay('${x.id}')" title="${nextDayLabel(x)}" aria-label="next day">→</button><button class="ib hov" onclick="event.stopPropagation();assignSheet('${x.id}')" title="${t('Назначить','Assign')}" aria-label="assign">@</button><button class="ib danger hov" onclick="event.stopPropagation();delTask('${x.id}')" aria-label="delete">×</button></span>
+    </div></div>`;}).join('')}
     </div></div>`;}).join('')}`;
 }
 function quickAddTask(){const inp=document.getElementById('qa-input');const v=(inp.value||'').trim();if(!v)return;DB.tasks.unshift({id:nextTaskId(),title:v,assigneeId:'',status:'todo',priority:'med',label:'',due:'',desc:'',comments:[]});save('tasks');render();const n=document.getElementById('qa-input');if(n){n.focus();}}
@@ -702,7 +710,7 @@ function taskModal(){modal(`<h3>${t('Новая задача','New task')}</h3><
   <div class="fs"><label>${t('Описание','Description')}</label><textarea id="tk-desc"></textarea></div>
   </div><div class="hint" style="margin-top:8px">${t('Файлы можно прикрепить после создания — открой задачу в списке','Attach files after creating — open the task from the list')}</div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveNewTask()">${t('Добавить','Add')}</button></div>`);
   setTimeout(()=>{const i=document.getElementById('tk-title');if(i)try{i.focus();}catch(e){}},40);}
-function saveNewTask(){const g=k=>document.getElementById(k);DB.tasks.unshift({id:nextTaskId(),title:g('tk-title').value||t('Задача','Task'),assigneeId:g('tk-ass')?g('tk-ass').value:'',status:g('tk-status').value,priority:g('tk-prio').value,label:g('tk-label').value||'',due:g('tk-due').value||'',desc:g('tk-desc').value||'',comments:[]});save('tasks');closeModal();render();}
+function saveNewTask(){const g=k=>document.getElementById(k);DB.tasks.unshift({id:nextTaskId(),title:g('tk-title').value||t('Задача','Task'),assigneeId:g('tk-ass')?g('tk-ass').value:'',assignees:(g('tk-ass')&&g('tk-ass').value)?[g('tk-ass').value]:[],status:g('tk-status').value,priority:g('tk-prio').value,label:g('tk-label').value||'',due:g('tk-due').value||'',desc:g('tk-desc').value||'',comments:[]});save('tasks');closeModal();render();}
 function toggleTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;x.status=x.status==='done'?'todo':'done';save('tasks');render();}
 function delTask(id){const x=DB.tasks.find(t=>t.id===id);confirmModal(t('Удалить задачу','Delete task')+(x?` «${esc(x.title)}»`:'')+'?',()=>{DB.tasks=DB.tasks.filter(t=>t.id!==id);save('tasks');render();});}
 function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const comments=x.comments||[];
@@ -712,7 +720,7 @@ function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const com
   <div class="fs"><label>${t('Приоритет','Priority')}</label><select id="td-prio">${['urgent','high','med'].map(k=>`<option value="${k}" ${x.priority===k?'selected':''}>${pL(k)}</option>`).join('')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('Дедлайн','Due date')}</label><input id="td-due" type="date" value="${x.due||''}"></div>
   <div class="fs"><label>${t('Метка','Label')}</label><input id="td-label" value="${esc(x.label||'')}"></div></div>
-  ${DB.payroll.people.length?`<div class="fs"><label>${t('Исполнитель','Assignee')}</label><select id="td-ass"><option value="">— ${t('не назначен','unassigned')} —</option>${DB.payroll.people.map(p=>`<option value="${p.id}" ${x.assigneeId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>`:''}
+  ${DB.payroll.people.length?`<div class="fs"><label>${t('Участники','Assignees')}</label><div class="aschips" data-aschips="${id}" style="margin-bottom:0">${assignChips(x)}</div></div>`:''}
   <div class="fs"><label>${t('Описание','Description')}</label><textarea id="td-desc">${esc(x.desc||'')}</textarea></div>
   ${filesBlock('task',id)}
   </div><div class="lbl" style="margin:6px 0 8px">${t('Комментарии','Comments')}</div><div style="max-height:220px;overflow:auto;margin-bottom:10px">${comments.length?comments.map(c=>`<div class="comment"><div class="meta"><b>${esc(c.author)}</b> · ${esc(c.ts)}</div><div>${esc(c.text)}</div></div>`).join(''):`<div class="hint">${t('Пока нет комментариев','No comments yet')}</div>`}</div>
@@ -720,7 +728,7 @@ function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const com
   <div class="actions" style="margin-top:12px"><button class="btn" onclick="closeModal()">${t('Закрыть','Close')}</button><button class="btn" onclick="addComment('${id}')">${t('Комментировать','Comment')}</button><button class="btn pri" onclick="saveTaskDetail('${id}')">${t('Сохранить','Save')}</button></div>`);
 }
 function saveTaskDetail(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const g=k=>document.getElementById(k);
-  if(g('td-title'))x.title=g('td-title').value||x.title;if(g('td-prio'))x.priority=g('td-prio').value;if(g('td-due'))x.due=g('td-due').value;if(g('td-label'))x.label=g('td-label').value;if(g('td-ass'))x.assigneeId=g('td-ass').value;if(g('td-desc'))x.desc=g('td-desc').value;
+  if(g('td-title'))x.title=g('td-title').value||x.title;if(g('td-prio'))x.priority=g('td-prio').value;if(g('td-due'))x.due=g('td-due').value;if(g('td-label'))x.label=g('td-label').value;if(g('td-desc'))x.desc=g('td-desc').value;
   if(g('td-status'))x.status=g('td-status').value;save('tasks');closeModal();render();}
 function addComment(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const ta=document.getElementById('cm-text');const txt=(ta.value||'').trim();if(!txt)return;x.comments=x.comments||[];x.comments.push({id:uid('cm'),author:(sbProfile&&sbProfile.name)||t('Владелец','Owner'),text:txt,ts:new Date().toISOString().slice(0,16).replace('T',' ')});save('tasks');openTask(id);}
 
@@ -785,7 +793,7 @@ function settleDebt(id){const d=DB.debts.find(x=>x.id===id);if(!d)return;
 /* ── upcoming payments ── */
 function upcomingPayments(){
   const out=[];const now=new Date();now.setHours(0,0,0,0);
-  const push=(day,label,usd)=>{if(!day||!(usd>0))return;let d=new Date(now.getFullYear(),now.getMonth(),day);if(d<now)d=new Date(now.getFullYear(),now.getMonth()+1,day);out.push({d,label,usd});};
+  const push=(day,label,usd)=>{if(!day)return;let d=new Date(now.getFullYear(),now.getMonth(),day);if(d<now)d=new Date(now.getFullYear(),now.getMonth()+1,day);out.push({d,label,usd});};
   DB.costs.forEach(c=>push(c.dueDay,c.name,toUSD(c.amount||0,c.currency)));
   DB.payroll.people.forEach(p=>push(p.payDay,t('ЗП','Pay')+' · '+p.name,compUSD(p)));
   DB.debts.filter(d=>d.status!=='done'&&d.dir==='out'&&d.due).forEach(d=>{const dd=new Date(d.due);if(dd>=now)out.push({d:dd,label:d.who,usd:toUSD(d.amount,d.currency)});});
@@ -949,7 +957,7 @@ function projectCard(p){
   <div class="row" style="padding:6px 0"><span class="muted">${t('Ставка','Rate')}</span><span class="n">${money(p.rate||0)} / ${esc(p.unit||t('ед','unit'))}</span></div>
   <div class="row" style="padding:6px 0"><span class="muted">${t('Заработано','Earned')}</span><span class="n pos">${money(s.earned)} <span class="hint">${t('из','of')} ${money(s.value)}</span></span></div>
   <div style="display:flex;gap:8px;margin:10px 0 8px"><input id="pl-${p.id}" class="mono" type="number" placeholder="+ ${esc(p.unit||t('ед','units'))}" style="flex:1"><button class="btn sm" onclick="logProgress('${p.id}')">${t('Записать','Log')}</button></div>
-  ${last.length?`<div class="hint" style="line-height:1.9">${last.map((l,i)=>`<span style="white-space:nowrap"><span class="mono">${l.date}</span> ${l.qty<0?'':'+'}${fmt0(l.qty)} <a href="#" onclick="delLogEntry('${p.id}',${(p.log||[]).length-1-i});return false" title="${t('Удалить запись','Delete entry')}" style="color:var(--red,#e5484d)">×</a></span>`).join(' · ')}${(p.log||[]).length>3?` <span class="muted">· ${t('всего','total')} ${(p.log||[]).length}</span>`:''}</div>`:''}
+  ${last.length?`<div class="hint" style="line-height:1.7">${last.map(l=>`<span class="mono">${l.date}</span> +${fmt0(l.qty)}`).join(' · ')}</div>`:''}
   </div>`;
 }
 function projectModal(id){
@@ -972,9 +980,6 @@ function saveProject(id){const g=k=>document.getElementById(k);
   else DB.orders.unshift(Object.assign({id:uid('ord'),log:[]},data));
   save('orders');closeModal();render();}
 function delProject(id){const p=DB.orders.find(x=>x.id===id);confirmModal(t('Удалить проект','Delete project')+(p?` «${esc(p.name)}»`:'')+'?',()=>{DB.orders=DB.orders.filter(x=>x.id!==id);save('orders');render();});}
-function delLogEntry(pid,idx){const p=DB.orders.find(x=>x.id===pid);if(!p||!p.log||!p.log[idx])return;
-  const l=p.log[idx];
-  confirmModal(t('Удалить запись','Delete entry')+` ${l.date} · ${l.qty<0?'':'+'}${fmt0(l.qty)}?`,()=>{p.log.splice(idx,1);save('orders');render();toast(t('Запись удалена','Entry deleted'));});}
 function logProgress(id){const p=DB.orders.find(x=>x.id===id);if(!p)return;const inp=document.getElementById('pl-'+id);const q=parseFloat(inp.value);if(!q)return;p.log=p.log||[];p.log.push({date:today(),qty:q});save('orders');render();toast('+'+fmt0(q)+' · '+p.name);}
 
 /* ── contracts ── */
@@ -1073,7 +1078,7 @@ function entityCard(e,isRoot){
   ${logo?`<div class="entlogo" style="height:${isRoot?'56px':'42px'};margin-bottom:12px">${logo}</div>`:''}
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px">
     <div style="min-width:0"><div style="font-family:var(--disp);font-weight:600;font-size:${isRoot?'17px':'15px'}">${esc(e.name)}${isRoot?` <span class="tag" style="color:var(--cyan)">${t('Холдинг','Holding')}</span>`:''}</div>
-    <div class="hint emeta" style="margin-top:4px">${e.status?`<span class="pill" style="color:${(ESTAT[e.status]||{}).c||'var(--dim)'}">${esL(e.status)}</span>`:''}${e.kind?`<span class="tag">${ekL(e.kind)}</span>`:''}${e.type?`<span>${esc(e.type)}</span>`:''}${e.country?`<span class="tag">${esc(e.country)}</span>`:''}${e.site?`<a href="${esc(/^https?:/.test(e.site)?e.site:'https://'+e.site)}" target="_blank" rel="noopener">${esc(e.site.replace(/^https?:\/\//,''))} ↗</a>`:''}</div></div>
+    <div class="hint" style="margin-top:2px">${e.status?`<span class="pill" style="color:${(ESTAT[e.status]||{}).c||'var(--dim)'}">${esL(e.status)}</span> · `:''}${e.kind?`<span class="tag">${ekL(e.kind)}</span> · `:''}${esc(e.type||'')}${e.country?` · <span class="tag">${esc(e.country)}</span>`:''}${e.site?` · <a href="${esc(/^https?:/.test(e.site)?e.site:'https://'+e.site)}" target="_blank" rel="noopener">${esc(e.site.replace(/^https?:\/\//,''))} ↗</a>`:''}</div></div>
     <div style="display:flex;gap:6px;flex:0 0 auto"><button class="ib" onclick="entityModal('${e.id}')" aria-label="edit">✎</button><button class="ib danger" onclick="delEntity('${e.id}')" aria-label="delete">×</button></div>
   </div>
   ${e.desc?`<div style="font-size:12.5px;color:var(--mid);line-height:1.5;margin:6px 0 4px">${esc(e.desc)}</div>`:''}
@@ -1147,7 +1152,6 @@ function helpModal(){
 function contextNew(){
   if(view==='tasks'){const q=document.getElementById('qa-input');if(q){q.focus();return;}taskModal();}
   else if(view==='team')personModal();
-  else if(view==='docs')docModal();
   else if(view==='fin')newTx();
   else if(view==='projects')projectModal();
   else if(view==='contracts')contractModal();
@@ -1163,12 +1167,11 @@ document.addEventListener('keydown',e=>{
   if(document.querySelector('.modal-bg'))return;
   const code=e.code;
   const secs=tabsFor().map(x=>x[0]);
-  if(/^Digit[1-8]$/.test(code)){const i=parseInt(code.slice(5),10)-1;if(secs[i])go(secs[i]);e.preventDefault();return;}
+  if(/^Digit[1-7]$/.test(code)){const i=parseInt(code.slice(5),10)-1;if(secs[i])go(secs[i]);e.preventDefault();return;}
   if(code==='KeyN'){contextNew();e.preventDefault();}
   else if(code==='KeyT'){newTx();e.preventDefault();}
   else if(code==='KeyP'){personModal();e.preventDefault();}
   else if(code==='KeyC'){contractModal();e.preventDefault();}
-  else if(code==='KeyD'){docModal();e.preventDefault();}
   else if(code==='KeyU'){entityModal();e.preventDefault();}
   else if(code==='KeyO'){projectModal();e.preventDefault();}
   else if(code==='KeyQ'){view='tasks';render();const q=document.getElementById('qa-input');if(q)q.focus();e.preventDefault();}
@@ -1187,7 +1190,7 @@ function confirmModal(msg,onYes,danger){_confirmCb=onYes;modal(`<h3 style="margi
 function confirmYes(){const cb=_confirmCb;_confirmCb=null;closeModal();if(cb)cb();}
 
 /* ── auth / boot ── */
-function showLogin(){hideBootLoader();const root=document.getElementById('login-root');root.style.display='flex';
+function showLogin(){const root=document.getElementById('login-root');root.style.display='flex';
   const logo=(document.querySelector('#side .logofull svg')||{}).outerHTML||'worldsense';
   root.innerHTML=`<div class="loginbox"><div class="wordmark" style="display:flex;justify-content:center">${logo}</div><div class="sub">${t('Вход через Supabase · первый аккаунт становится владельцем','Supabase sign-in · first account becomes owner')}</div>
   <div class="fs"><label>Email</label><input id="sb-email" type="email" autocomplete="username" inputmode="email"></div>
@@ -1205,18 +1208,16 @@ async function logout(){try{await sb.auth.signOut();}catch(e){}sbProfile=null;do
 async function afterLogin(){
   let session=null;try{const r=await sb.auth.getSession();session=r.data&&r.data.session;}catch(e){}
   if(!session){showLogin();return;}
-  let prof=null;
-  const profQ=sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();
-  await Promise.all([loadAll(),profQ.then(r=>{prof=r.data;}).catch(()=>{})]);
+  let prof=null;try{const r=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();prof=r.data;}catch(e){}
   sbProfile=prof||{name:session.user.email};
   if(!sbProfile.email)sbProfile.email=session.user.email;
+  await loadAll();
   view='dash';
-  hideLogin();render();hideBootLoader();
+  hideLogin();render();
   toast(t('Вход выполнен','Signed in')+' · '+(sbProfile.name||session.user.email||''));
 }
-function hideBootLoader(){const l=document.getElementById('boot-loader');if(!l)return;l.classList.add('off');setTimeout(()=>l.remove(),500);}
 async function boot(){
-  try{await loadSupabase();}catch(e){hideBootLoader();document.getElementById('app').innerHTML=`<div class="empty" style="margin-top:60px"><b>${t('Нет соединения','No connection')}</b>${t('Не удалось загрузить Supabase SDK. Проверь интернет и обнови страницу.','Could not load the Supabase SDK. Check your connection and reload.')}</div>`;return;}
+  try{await loadSupabase();}catch(e){document.getElementById('app').innerHTML=`<div class="empty" style="margin-top:60px"><b>${t('Нет соединения','No connection')}</b>${t('Не удалось загрузить Supabase SDK. Проверь интернет и обнови страницу.','Could not load the Supabase SDK. Check your connection and reload.')}</div>`;return;}
   sb=window.supabase.createClient(SB_URL,SB_ANON);
   let sess=null;try{const r=await sb.auth.getSession();sess=r.data&&r.data.session;}catch(e){}
   if(sess)await afterLogin();else showLogin();
