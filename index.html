@@ -165,8 +165,9 @@
   .tsw .swa button{width:78px;border:none;border-left:1px solid rgba(0,0,0,.25);color:#0B0B0C;font-size:10.5px;font-weight:600;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;letter-spacing:.2px;}
   .tsw .swa button svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
   .tsw .swa .nd{background:var(--amber);} .tsw .swa .as{background:var(--green);}
-  .trow{position:relative;z-index:1;background:var(--s1);display:flex;align-items:center;gap:9px;padding:7px 12px;cursor:pointer;min-height:38px;transition:transform .18s ease;will-change:transform;touch-action:pan-y;}
-  .tsw.open .trow{transform:translateX(-156px);}
+  .swb{position:relative;z-index:1;transition:transform .18s ease;will-change:transform;touch-action:pan-y;}
+  .tsw.open .swb{transform:translateX(-156px);}
+  .trow{background:var(--s1);display:flex;align-items:center;gap:9px;padding:7px 12px;cursor:pointer;min-height:38px;}
   .trow .hov{opacity:0;transition:opacity .12s;}
   .trow:hover .hov{opacity:1;}
   .avs{display:flex;flex:0 0 auto;} .avs .avc{margin-left:-6px;box-shadow:0 0 0 1.5px var(--s1);} .avs .avc:first-child{margin-left:0;}
@@ -197,6 +198,47 @@
   .avc.me{background:var(--w);color:#0B0B0C;border-color:var(--w);}
   .trow.tdone .tt{text-decoration:line-through;} .trow.tdone .sub{opacity:.6;}
   .trow .pico{margin-top:2px;}
+  /* plan (day) view */
+  .plan{max-width:680px;}
+  .dayhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:2px 0 0;}
+  .dayhead h2{font-family:var(--disp);font-size:26px;font-weight:600;margin:0;line-height:1.1;letter-spacing:-.01em;}
+  .dayhead .ds{font-size:12.5px;color:var(--mid);margin-top:4px;}
+  .dayhead .dr{display:flex;align-items:center;gap:6px;}
+  .dayhead .est{font-family:var(--mono);font-size:11.5px;padding:5px 9px;border-radius:7px;background:var(--s3);color:var(--w);}
+  .weekstrip{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:14px 0 4px;}
+  .weekstrip button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 0 6px;border-radius:10px;font-family:inherit;border:1px solid transparent;color:var(--mid);}
+  .weekstrip .wl{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;}
+  .weekstrip .wn{font-size:14px;font-weight:500;color:var(--w);}
+  .weekstrip .wc{width:5px;height:5px;border-radius:50%;background:transparent;} .weekstrip .wc.has{background:var(--mid);} .weekstrip .wc.over{background:var(--red);} .weekstrip .wc.ok{background:var(--green);}
+  .weekstrip button.on{background:var(--s2);border-color:var(--b2);} .weekstrip button.today .wn{color:var(--green);}
+  .pbar{height:4px;background:var(--s3);border-radius:4px;overflow:hidden;margin:10px 0 6px;} .pbar i{display:block;height:100%;background:var(--green);border-radius:4px;transition:width .3s;}
+  .plist .tsw{border-bottom:1px solid var(--b1);}
+  .prow{background:var(--bg);display:flex;gap:12px;padding:12px 0;align-items:flex-start;cursor:pointer;}
+  .prow .chk{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--b3);flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .prow .chk svg{width:12px;height:12px;stroke:var(--dim);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.6;}
+  .prow:hover .chk{border-color:var(--mid);}
+  .prow.done .chk{background:var(--green);border-color:var(--green);} .prow.done .chk svg{stroke:#0B0B0C;opacity:1;}
+  .prow .pb{flex:1;min-width:0;}
+  .prow .pt{font-size:15px;line-height:1.35;}
+  .prow .pm{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--mid);margin-top:4px;}
+  .prow .pm .lb{color:var(--amber);} .prow .pm .lb i{font-style:normal;opacity:.55;margin-right:1px;}
+  .prow .pm .ov{color:var(--red);} .prow .pm .avc{width:18px;height:18px;font-size:8px;}
+  .prow .pe{font-family:var(--mono);font-size:10.5px;padding:3px 7px;border-radius:5px;background:var(--s3);color:var(--mid);flex:0 0 auto;margin-top:3px;white-space:nowrap;}
+  .prow.done .pt{color:var(--dim);} .prow.done .pm{opacity:.6;}
+  .prow .pri{width:6px;height:6px;border-radius:50%;flex:0 0 auto;margin-top:8px;}
+  .psec{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:18px 0 2px;cursor:pointer;}
+  .psec .c{color:var(--ghost);} .psec .chev{margin-left:auto;}
+  .fab{display:none;}
+  .sheet-bg{position:fixed;inset:0;background:rgba(5,7,9,.7);display:flex;align-items:flex-end;justify-content:center;z-index:100;backdrop-filter:blur(3px);}
+  .sheet{width:100%;max-width:560px;background:var(--s2);border:1px solid var(--b2);border-radius:16px 16px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));}
+  .sheet input.big{width:100%;border:none;background:transparent;font-size:17px;padding:6px 0 10px;outline:none;color:var(--w);}
+  .sheet .srow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--b1);padding-top:10px;}
+  .sheet .sc{position:relative;display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--mid);padding:6px 10px;border-radius:8px;border:1px solid var(--b2);background:var(--s1);cursor:pointer;font-family:inherit;min-height:32px;}
+  .sheet .sc.set{color:var(--w);border-color:var(--b3);} .sheet .sc.lbl{color:var(--amber);}
+  .sheet .sc input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;}
+  .sheet .sc .avc{width:18px;height:18px;font-size:8px;} .sheet .sc.on{background:var(--w);color:#0B0B0C;border-color:var(--w);} .sheet .sc.on .avc{background:#0B0B0C;color:var(--w);border-color:#0B0B0C;}
+  .sheet .add{margin-left:auto;}
+  @media(min-width:761px){.sheet-bg{align-items:flex-start;padding-top:80px;} .sheet{border-radius:16px;}}
   .aschips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
   .aschip{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:999px;border:1px solid var(--b2);background:var(--s2);color:var(--mid);font-size:13px;cursor:pointer;font-family:inherit;min-height:36px;}
   .aschip.on{border-color:var(--green);color:var(--w);background:rgba(61,220,132,.08);}
@@ -261,6 +303,8 @@
     .card{padding:13px;overflow-x:auto;} .card>table{min-width:max-content;}
     .btn{min-height:40px;} .btn.sm{min-height:32px;}
     .trow .hov{display:none;} .trow{min-height:48px;padding:9px 12px;} .trow .tid{display:none;} .todaybar{grid-template-columns:1fr;} .todaybar .who{justify-content:flex-start;} .tbar{gap:8px;}
+    .fab{display:flex;position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;background:var(--w);color:#0B0B0C;font-size:28px;line-height:1;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:58;border:none;}
+    .plan .quickadd{display:none;} .dayhead h2{font-size:24px;}
   }
   @media(prefers-reduced-motion:reduce){*{transition:none !important;}}
 </style>
@@ -701,11 +745,12 @@ function rowClick(ev,id){const sw=ev.target.closest('.tsw');if(sw&&(sw.classList
 function closeSwipes(){document.querySelectorAll('.tsw.open').forEach(x=>x.classList.remove('open'));}
 /* swipe right→left on a task row reveals next-day / assign */
 const SWW=156;let SW=null;
-document.addEventListener('touchstart',e=>{const el=e.target.closest('.tsw');if(!el){closeSwipes();SW=null;return;}SW={el,x0:e.touches[0].clientX,y0:e.touches[0].clientY,x:0,dir:null,wasOpen:el.classList.contains('open')};},{passive:true});
+document.addEventListener('touchstart',e=>{const el=e.target.closest('.tsw');if(!el){closeSwipes();const pl=e.target.closest('.plan');SW=pl&&!e.target.closest('.fchips,.seg,button,input,a')?{day:true,x0:e.touches[0].clientX,y0:e.touches[0].clientY,dir:null}:null;return;}SW={el,x0:e.touches[0].clientX,y0:e.touches[0].clientY,x:0,dir:null,wasOpen:el.classList.contains('open')};},{passive:true});
 document.addEventListener('touchmove',e=>{if(!SW)return;const dx=e.touches[0].clientX-SW.x0,dy=e.touches[0].clientY-SW.y0;
-  if(!SW.dir){if(Math.abs(dx)<6&&Math.abs(dy)<6)return;SW.dir=Math.abs(dx)>Math.abs(dy)*1.2?'h':'v';if(SW.dir==='h'){SW.row=SW.el.querySelector('.trow');SW.row.style.transition='none';}}
+  if(SW.day){if(!SW.dir&&(Math.abs(dx)>8||Math.abs(dy)>8))SW.dir=Math.abs(dx)>Math.abs(dy)*1.5?'h':'v';SW.dx=dx;return;}
+  if(!SW.dir){if(Math.abs(dx)<6&&Math.abs(dy)<6)return;SW.dir=Math.abs(dx)>Math.abs(dy)*1.2?'h':'v';if(SW.dir==='h'){SW.row=SW.el.querySelector('.swb');SW.row.style.transition='none';}}
   if(SW.dir!=='h')return;e.preventDefault();const base=SW.wasOpen?-SWW:0;SW.x=Math.max(-SWW-24,Math.min(0,base+dx));SW.row.style.transform=`translateX(${SW.x}px)`;},{passive:false});
-document.addEventListener('touchend',()=>{if(!SW)return;if(SW.dir==='h'){SW.row.style.transition='';SW.row.style.transform='';const open=SW.x<-SWW/2;document.querySelectorAll('.tsw.open').forEach(x=>{if(x!==SW.el)x.classList.remove('open');});SW.el.classList.toggle('open',open);SW.el._swiped=Date.now();}SW=null;});
+document.addEventListener('touchend',()=>{if(!SW)return;if(SW.day){if(SW.dir==='h'&&Math.abs(SW.dx)>60)shiftDay(SW.dx<0?1:-1);SW=null;return;}if(SW.dir==='h'){SW.row.style.transition='';SW.row.style.transform='';const open=SW.x<-SWW/2;document.querySelectorAll('.tsw.open').forEach(x=>{if(x!==SW.el)x.classList.remove('open');});SW.el.classList.toggle('open',open);SW.el._swiped=Date.now();}SW=null;});
 /* filter state */
 let TF=(()=>{try{return JSON.parse(localStorage.getItem('ws3:tf'))||{};}catch(e){return {};}})();
 TF.person=TF.person||'';TF.role=TF.role||'assignee';TF.group=TF.group||'date';TF.showDone=!!TF.showDone;
@@ -724,7 +769,7 @@ function taskRow(x,gkey){const done=x.status==='done';const as=taskAssignees(x);
   return `<div class="tsw" data-tid="${x.id}"><div class="swa">
       <button class="nd" onclick="event.stopPropagation();taskNextDay('${x.id}')">${ICO.arrow}<span>${nextDayLabel(x)}</span></button>
       <button class="as" onclick="event.stopPropagation();assignSheet('${x.id}')">${ICO.user}<span>${t('Кому','Assign')}</span></button></div>
-    <div class="trow ${done?'tdone':''}" onclick="rowClick(event,'${x.id}')">
+    <div class="trow swb ${done?'tdone':''}" onclick="rowClick(event,'${x.id}')">
       <span class="sicon" onclick="cycleStatus('${x.id}',event)" title="${t('Сменить статус','Cycle status')}">${statusIcon(x.status||'todo')}</span>
       ${prioIcon(x.priority)}
       <div class="tbody"><span class="tt">${esc(x.title)}</span>
@@ -733,7 +778,79 @@ function taskRow(x,gkey){const done=x.status==='done';const as=taskAssignees(x);
     </div></div>`;}
 function tGroup(title,cls,color,list,gkey,collapsible,open){const id='tg-'+cls;const head=`<div class="tghead ${cls} ${collapsible?'cl':''}" ${collapsible?`onclick="setTF('showDone',${!open})"`:''}><span class="dot" style="background:${color}"></span>${title}<span class="c">${list.length}</span>${collapsible?`<span class="chev">${open?'▲':'▼'}</span>`:''}</div>`;
   if(collapsible&&!open)return `<div class="tgroup">${head}</div>`;return `<div class="tgroup">${head}<div class="tlist">${list.map(x=>taskRow(x,gkey)).join('')}</div></div>`;}
+TF.mode=TF.mode||'plan';TF.day=TF.day||'';TF.showBacklog=!!TF.showBacklog;
+function fmtEst(m){m=+m||0;if(!m)return '';return Math.floor(m/60)+':'+String(m%60).padStart(2,'0');}
+function fmtTime(tm){return tm||'';}
+function dayName(iso){const d=new Date(iso+'T00:00:00');const wd=t('Воскресенье,Понедельник,Вторник,Среда,Четверг,Пятница,Суббота','Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday').split(',');const mo=t('января,февраля,марта,апреля,мая,июня,июля,августа,сентября,октября,ноября,декабря','Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',');return {wd:wd[d.getDay()],sub:d.getDate()+' '+mo[d.getMonth()]};}
+function planDay(){return TF.day||today();}
+function setDay(iso){TF.day=iso===today()?'':iso;localStorage.setItem('ws3:tf',JSON.stringify(TF));render();}
+function shiftDay(n){setDay(addDays(planDay(),n));}
+function toggleDone(id,ev){if(ev)ev.stopPropagation();const x=DB.tasks.find(t=>t.id===id);if(!x)return;if(x.status==='done'){x.status='todo';}else{x.status='done';x.doneAt=new Date().toISOString();}save('tasks');render();}
+function planRow(x,opts){opts=opts||{};const done=x.status==='done';const as=taskAssignees(x);const an=taskAuthor(x);const ap=authorPid(x);const pc=(PRIO[x.priority]||{}).c;
+  const flow=(()=>{const rhs=as.map(id=>av(personName(id))).join('');if(!as.length&&!an)return '';if(!as.length)return `<span class="flow">${av(an)}<span class="arr">→</span><span class="avc" style="border-style:dashed;color:var(--dim)">?</span></span>`;if(!an||(as.length===1&&ap===as[0]))return `<span class="flow"><span class="avs">${rhs}</span></span>`;return `<span class="flow">${av(an)}<span class="arr">→</span><span class="avs">${rhs}</span></span>`;})();
+  const meta=[x.time?`<span>${esc(x.time)}</span>`:'',opts.showDate&&x.due?`<span class="${x.due<today()&&!done?'ov':''}">${x.due<today()&&!done?t('просрочено ','overdue '):''}${x.due.slice(5).replace('-','.')}</span>`:'',x.label?`<span class="lb"><i>#</i>${esc(x.label)}</span>`:'',x.status==='progress'?`<span style="color:var(--amber)">In Progress</span>`:x.status==='blocked'?`<span style="color:var(--red)">Blocked</span>`:'',(x.comments||[]).length?`<span>💬${(x.comments||[]).length}</span>`:'',(x.files||[]).length?`<span>📎${(x.files||[]).length}</span>`:'',flow].filter(Boolean).join('');
+  return `<div class="tsw" data-tid="${x.id}"><div class="swa">
+      <button class="nd" onclick="event.stopPropagation();taskNextDay('${x.id}')">${ICO.arrow}<span>${nextDayLabel(x)}</span></button>
+      <button class="as" onclick="event.stopPropagation();assignSheet('${x.id}')">${ICO.user}<span>${t('Кому','Assign')}</span></button></div>
+    <div class="prow swb ${done?'done':''}" onclick="rowClick(event,'${x.id}')">
+      <span class="chk" onclick="toggleDone('${x.id}',event)"><svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg></span>
+      <div class="pb"><div class="pt">${esc(x.title)}</div>${meta?`<div class="pm">${meta}</div>`:''}</div>
+      ${x.priority&&x.priority!=='med'&&!done?`<span class="pri" style="background:${pc}" title="${pL(x.priority)}"></span>`:''}
+      ${x.est?`<span class="pe">${fmtEst(x.est)}</span>`:''}
+    </div></div>`;}
+function viewPlan(){
+  const all=DB.tasks.filter(taskMatches),td=today(),day=planDay(),isToday=day===td;
+  const dn=dayName(day);const ord={urgent:0,high:1,med:2};
+  const srt=(a,b)=>{const at=a.time||'99',bt=b.time||'99';if(at!==bt)return at<bt?-1:1;return (ord[a.priority]??3)-(ord[b.priority]??3);};
+  const overdue=isToday?all.filter(x=>x.status!=='done'&&x.due&&x.due<td).sort(srt):[];
+  const dayT=all.filter(x=>x.due===day);const open=dayT.filter(x=>x.status!=='done').sort(srt),done=dayT.filter(x=>x.status==='done').sort(srt);
+  const backlog=all.filter(x=>!x.due&&x.status!=='done').sort((a,b)=>(ord[a.priority]??3)-(ord[b.priority]??3));
+  const estOpen=open.reduce((s,x)=>s+(+x.est||0),0)+overdue.reduce((s,x)=>s+(+x.est||0),0),estAll=estOpen+done.reduce((s,x)=>s+(+x.est||0),0);
+  const tot=dayT.length+overdue.length;const pct=tot?Math.round(done.length/tot*100):0;
+  /* week strip: Mon..Sun around selected day */
+  const d0=new Date(day+'T00:00:00');const mon=addDays(day,-((d0.getDay()+6)%7));
+  const wl=t('пн,вт,ср,чт,пт,сб,вс','Mo,Tu,We,Th,Fr,Sa,Su').split(',');
+  const strip=Array.from({length:7},(_,i)=>{const iso=addDays(mon,i);const ts=DB.tasks.filter(x=>x.due===iso);const op=ts.filter(x=>x.status!=='done').length;const cls=!ts.length?'':(op?(iso<td?'over':'has'):'ok');return `<button class="${iso===day?'on':''} ${iso===td?'today':''}" onclick="setDay('${iso}')"><span class="wl">${wl[i]}</span><span class="wn">${+iso.slice(8)}</span><span class="wc ${cls}"></span></button>`;}).join('');
+  const people=DB.payroll.people;const cnt=pid=>DB.tasks.filter(x=>x.status!=='done'&&(TF.role==='author'?authorPid(x)===pid:taskAssignees(x).includes(pid))).length;
+  const chips=people.length?`<div class="tbar" style="margin:10px 0 0"><div class="fchips"><button class="fchip all ${!TF.person?'on':''}" onclick="setTF('person','')">${t('Все','All')}</button>${people.map(p=>`<button class="fchip ${TF.person===p.id?'on':''}" onclick="setTF('person','${p.id}')">${av(p.name)}${esc(p.name.split(/\s+/)[0])}<span class="cn">${cnt(p.id)}</span></button>`).join('')}</div><span class="sp"></span><div class="seg mini"><button class="${TF.role==='assignee'?'on':''}" onclick="setTF('role','assignee')">${t('делает','doing')}</button><button class="${TF.role==='author'?'on':''}" onclick="setTF('role','author')">${t('поставил','set by')}</button></div></div>`:'';
+  const empty=!open.length&&!done.length&&!overdue.length;
+  return `<div class="plan">
+  <div class="vhead" style="margin-bottom:6px"><div class="seg mini"><button class="on">${t('План','Plan')}</button><button onclick="setTF('mode','list')">${t('Список','List')}</button></div><button class="btn pri" onclick="addSheet()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div>
+  <div class="dayhead"><div><h2>${isToday?t('Сегодня','Today'):dn.wd}</h2><div class="ds">${isToday?dn.wd+', ':''}${dn.sub}${!isToday?` · <a href="#" onclick="setDay('${td}');return false" style="color:var(--w)">${t('к сегодня','to today')}</a>`:''}</div></div>
+    <div class="dr"><button class="ib" onclick="shiftDay(-1)">‹</button>${estAll?`<span class="est" title="${t('Осталось / всего','Left / total')}">${fmtEst(estOpen)||'0:00'} / ${fmtEst(estAll)}</span>`:''}<button class="ib" onclick="shiftDay(1)">›</button></div></div>
+  <div class="pbar"><i style="width:${pct}%"></i></div>
+  <div class="weekstrip">${strip}</div>
+  ${chips}
+  <div class="plist">
+    ${overdue.length?`<div class="psec" style="color:var(--red)">${t('Просрочено','Overdue')}<span class="c">${overdue.length}</span></div>${overdue.map(x=>planRow(x,{showDate:true})).join('')}`:''}
+    ${overdue.length&&(open.length||done.length)?`<div class="psec">${isToday?t('Сегодня','Today'):dn.wd}<span class="c">${dayT.length}</span></div>`:''}
+    ${open.map(x=>planRow(x)).join('')}${done.map(x=>planRow(x)).join('')}
+    ${empty?`<div class="empty" style="margin-top:10px"><b>${t('На этот день пусто','Nothing planned')}</b>${t('Добавь задачу или перетащи из «Без даты»','Add a task or pull one from backlog')}</div>`:''}
+    ${backlog.length?`<div class="psec" onclick="setTF('showBacklog',${!TF.showBacklog})">${t('Без даты','No date')}<span class="c">${backlog.length}</span><span class="chev">${TF.showBacklog?'▲':'▼'}</span></div>${TF.showBacklog?backlog.map(x=>planRow(x)).join(''):''}`:''}
+  </div>
+  <button class="fab" onclick="addSheet()" aria-label="add">+</button></div>`;
+}
+/* quick-add bottom sheet (Sunsama-style) */
+let AS=null;
+function addSheet(){AS={title:'',due:planDay(),time:'',est:0,label:'',assignees:[]};renderSheet();setTimeout(()=>{const i=document.getElementById('as-in');if(i)try{i.focus();}catch(e){}},40);}
+function renderSheet(){const td=today();const dl=AS.due===td?t('Сегодня','Today'):AS.due===addDays(td,1)?t('Завтра','Tomorrow'):AS.due?AS.due.slice(5).replace('-','.'):t('Без даты','No date');
+  const ests=[0,15,30,45,60,90,120,180];
+  document.getElementById('modal-root').innerHTML=`<div class="sheet-bg" onclick="if(event.target===this)closeModal()"><div class="sheet">
+  <input id="as-in" class="big" placeholder="${t('Что нужно сделать?','What needs to be done?')}" value="${esc(AS.title)}" oninput="AS.title=this.value" onkeydown="if(event.key==='Enter'){sheetAdd();}">
+  <div class="srow">
+    <label class="sc ${AS.due?'set':''}">${dl}<input type="date" value="${AS.due}" onchange="AS.due=this.value;renderSheet()"></label>
+    <label class="sc ${AS.time?'set':''}">${AS.time||t('время','time')}<input type="time" value="${AS.time}" onchange="AS.time=this.value;renderSheet()"></label>
+    <button class="sc ${AS.est?'set':''}" onclick="AS.est=[0,15,30,45,60,90,120,180][( [0,15,30,45,60,90,120,180].indexOf(AS.est)+1)%8];renderSheet()">${AS.est?fmtEst(AS.est):t('оценка','estimate')}</button>
+    <label class="sc ${AS.label?'lbl':''}"><i style="opacity:.6;font-style:normal">#</i>${AS.label?esc(AS.label):t('метка','label')}<input list="as-labels" value="${esc(AS.label)}" onchange="AS.label=this.value;renderSheet()" style="opacity:0"></label>
+    <datalist id="as-labels">${[...new Set(DB.tasks.map(x=>x.label).filter(Boolean))].map(l=>`<option value="${esc(l)}">`).join('')}</datalist>
+    ${DB.payroll.people.map(p=>`<button class="sc ${AS.assignees.includes(p.id)?'on':''}" onclick="AS.assignees=AS.assignees.includes('${p.id}')?AS.assignees.filter(i=>i!=='${p.id}'):AS.assignees.concat('${p.id}');renderSheet()">${av(p.name)}${esc(p.name.split(/\s+/)[0])}</button>`).join('')}
+    <button class="btn pri add" onclick="sheetAdd()">${t('Добавить','Add')}</button>
+  </div></div></div>`;}
+function sheetAdd(){const raw=(AS.title||'').trim();if(!raw)return;const o=parseQuick(raw);if(!o.title)return;
+  DB.tasks.unshift({id:nextTaskId(),title:o.title,assigneeId:(AS.assignees[0]||o.assignees[0]||''),assignees:[...new Set(AS.assignees.concat(o.assignees))],status:'todo',priority:o.priority,label:AS.label||o.label,due:o.due||AS.due,time:AS.time,est:AS.est,desc:'',comments:[],by:meName(),createdAt:new Date().toISOString()});
+  save('tasks');closeModal();render();toast(t('Добавлено','Added'));}
 function viewTasks(){
+  if(TF.mode!=='list')return viewPlan();
   const all=DB.tasks,td=today(),tm=addDays(td,1),wk=addDays(td,7);const ord={urgent:0,high:1,med:2};
   const list=all.filter(taskMatches);const active=list.filter(x=>x.status!=='done'),done=list.filter(x=>x.status==='done');
   const sortA=(a,b)=>{const ad=a.due||'9999',bd=b.due||'9999';if(ad!==bd)return ad<bd?-1:1;return (ord[a.priority]??3)-(ord[b.priority]??3);};
@@ -757,7 +874,7 @@ function viewTasks(){
     body=[['over',t('Просрочено','Overdue'),'due-over','var(--red)'],['today',t('Сегодня','Today'),'due-today','var(--amber)'],['tmr',t('Завтра','Tomorrow'),'due-tmr','var(--w)'],['week',t('На этой неделе','This week'),'due-week','var(--mid)'],['later',t('Позже','Later'),'due-later','var(--dim)'],['none',t('Без даты','No date'),'due-none','var(--ghost)']].map(([k,lab,cls,c])=>g[k].length?tGroup(lab,cls,c,g[k],'date'):'').join('');
     if(!active.length)body=`<div class="empty"><b>${t('Всё сделано','All clear')}</b>${t('Активных задач нет','No active tasks')}</div>`;}
   if(done.length)body+=tGroup('Done','done','var(--green)',done,'done',true,TF.showDone);
-  return `<div class="vhead"><div><h1 class="view">${t('Задачи','Tasks')}</h1><div class="vsub" style="margin-bottom:14px">${active.length} ${t('активных','active')} · ${sub}</div></div><button class="btn pri" onclick="taskModal()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div>
+  return `<div class="vhead"><div><h1 class="view">${t('Задачи','Tasks')}</h1><div class="vsub" style="margin-bottom:14px">${active.length} ${t('активных','active')} · ${sub}</div></div><div style="display:flex;gap:8px;align-items:center"><div class="seg mini"><button onclick="setTF('mode','plan')">${t('План','Plan')}</button><button class="on">${t('Список','List')}</button></div><button class="btn pri" onclick="addSheet()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div></div>
   <div class="quickadd"><input id="qa-input" placeholder="${t('Быстрая задача · @имя  #метка  !срочно  завтра / пн  (Q)','Quick task · @name  #label  !urgent  tomorrow / mon  (Q)')}"><button class="btn" onclick="quickAddTask()">＋</button></div>
   ${tdAll.length||ovr?`<div class="todaybar"><div><div class="tt1">${t('Сегодня','Today')} · ${tdDone}/${tdAll.length}</div><div class="tt2">${tdOpen?tdOpen+t(' осталось',' left'):t('всё сделано','all done')}${ovr?` · <span class="neg">${ovr} ${t('просрочено','overdue')}</span>`:''}</div></div><div class="who">${whoStats.map(w=>`<span class="wp" onclick="setTF('person','${w.p.id}')">${av(w.p.name)}<b>${w.mine}</b>${t('делает','doing')}${w.set?` · <b>${w.set}</b>${t('поставил','set')}`:''}</span>`).join('')}</div><div class="pb"><i style="width:${pct}%"></i></div></div>`:''}
   <div class="tbar"><div class="fchips"><button class="fchip all ${!TF.person?'on':''}" onclick="setTF('person','')">${t('Все','All')}<span class="cn">${active.length===list.length&&!TF.person?active.length:all.filter(x=>x.status!=='done').length}</span></button>${people.map(p=>`<button class="fchip ${TF.person===p.id?'on':''}" onclick="setTF('person','${p.id}')">${av(p.name)}${esc(p.name.split(/\s+/)[0])}<span class="cn">${cnt(p.id)}</span></button>`).join('')}</div><span class="sp"></span>
@@ -800,6 +917,8 @@ function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const com
   <div class="fs"><label>${t('Приоритет','Priority')}</label><select id="td-prio">${['urgent','high','med'].map(k=>`<option value="${k}" ${x.priority===k?'selected':''}>${pL(k)}</option>`).join('')}</select></div></div>
   <div class="f2"><div class="fs"><label>${t('Дедлайн','Due date')}</label><input id="td-due" type="date" value="${x.due||''}"></div>
   <div class="fs"><label>${t('Метка','Label')}</label><input id="td-label" value="${esc(x.label||'')}"></div></div>
+  <div class="f2"><div class="fs"><label>${t('Время','Time')}</label><input id="td-time" type="time" value="${esc(x.time||'')}"></div>
+  <div class="fs"><label>${t('Оценка, мин','Estimate, min')}</label><input id="td-est" type="number" min="0" step="5" value="${x.est||''}"></div></div>
   ${DB.payroll.people.length?`<div class="fs"><label>${t('Участники','Assignees')}</label><div class="aschips" data-aschips="${id}" style="margin-bottom:0">${assignChips(x)}</div></div>`:''}
   <div class="fs"><label>${t('Описание','Description')}</label><textarea id="td-desc">${esc(x.desc||'')}</textarea></div>
   ${filesBlock('task',id)}
@@ -808,7 +927,7 @@ function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const com
   <div class="actions" style="margin-top:12px"><button class="btn" onclick="closeModal()">${t('Закрыть','Close')}</button><button class="btn" onclick="addComment('${id}')">${t('Комментировать','Comment')}</button><button class="btn pri" onclick="saveTaskDetail('${id}')">${t('Сохранить','Save')}</button></div>`);
 }
 function saveTaskDetail(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const g=k=>document.getElementById(k);
-  if(g('td-title'))x.title=g('td-title').value||x.title;if(g('td-prio'))x.priority=g('td-prio').value;if(g('td-due'))x.due=g('td-due').value;if(g('td-label'))x.label=g('td-label').value;if(g('td-desc'))x.desc=g('td-desc').value;
+  if(g('td-title'))x.title=g('td-title').value||x.title;if(g('td-prio'))x.priority=g('td-prio').value;if(g('td-due'))x.due=g('td-due').value;if(g('td-label'))x.label=g('td-label').value;if(g('td-time'))x.time=g('td-time').value;if(g('td-est'))x.est=+g('td-est').value||0;if(g('td-desc'))x.desc=g('td-desc').value;
   if(g('td-status')){const ns=g('td-status').value;if(ns==='done'&&x.status!=='done')x.doneAt=new Date().toISOString();x.status=ns;}save('tasks');closeModal();render();}
 function addComment(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const ta=document.getElementById('cm-text');const txt=(ta.value||'').trim();if(!txt)return;x.comments=x.comments||[];x.comments.push({id:uid('cm'),author:(sbProfile&&sbProfile.name)||t('Владелец','Owner'),text:txt,ts:new Date().toISOString().slice(0,16).replace('T',' ')});save('tasks');openTask(id);}
 
@@ -1230,7 +1349,7 @@ function helpModal(){
   <div class="actions" style="margin-top:14px"><button class="btn pri" onclick="closeModal()">OK</button></div>`);
 }
 function contextNew(){
-  if(view==='tasks'){const q=document.getElementById('qa-input');if(q){q.focus();return;}taskModal();}
+  if(view==='tasks'){if(TF.mode!=='list'){addSheet();return;}const q=document.getElementById('qa-input');if(q){q.focus();return;}taskModal();}
   else if(view==='team')personModal();
   else if(view==='fin')newTx();
   else if(view==='projects')projectModal();
@@ -1254,7 +1373,7 @@ document.addEventListener('keydown',e=>{
   else if(code==='KeyC'){contractModal();e.preventDefault();}
   else if(code==='KeyU'){entityModal();e.preventDefault();}
   else if(code==='KeyO'){projectModal();e.preventDefault();}
-  else if(code==='KeyQ'){view='tasks';render();const q=document.getElementById('qa-input');if(q)q.focus();e.preventDefault();}
+  else if(code==='KeyQ'){view='tasks';render();const q=document.getElementById('qa-input');if(q)q.focus();else addSheet();e.preventDefault();}
   else if(code==='Slash'||code==='F1'){helpModal();e.preventDefault();}
 });
 
