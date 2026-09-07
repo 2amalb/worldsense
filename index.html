@@ -170,6 +170,33 @@
   .trow .hov{opacity:0;transition:opacity .12s;}
   .trow:hover .hov{opacity:1;}
   .avs{display:flex;flex:0 0 auto;} .avs .avc{margin-left:-6px;box-shadow:0 0 0 1.5px var(--s1);} .avs .avc:first-child{margin-left:0;}
+  /* tasks v2 */
+  .tbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px;}
+  .tbar .sp{flex:1;}
+  .fchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
+  .fchips::-webkit-scrollbar{display:none;}
+  .fchip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px 6px 6px;border-radius:999px;border:1px solid var(--b2);background:var(--s1);color:var(--mid);font-size:12px;white-space:nowrap;cursor:pointer;font-family:inherit;flex:0 0 auto;min-height:32px;}
+  .fchip.all{padding-left:11px;}
+  .fchip .cn{font-family:var(--mono);font-size:10px;color:var(--dim);}
+  .fchip.on{background:var(--w);border-color:var(--w);color:#0B0B0C;} .fchip.on .cn{color:#0B0B0C;opacity:.6;} .fchip.on .avc{background:#0B0B0C;color:var(--w);border-color:#0B0B0C;}
+  .seg.mini{width:auto;} .seg.mini button{padding:7px 10px;flex:0 0 auto;}
+  .todaybar{display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center;padding:12px 14px;background:var(--s1);border:1px solid var(--b1);border-radius:12px;margin-bottom:14px;}
+  .todaybar .tt1{font-family:var(--disp);font-weight:600;font-size:14px;} .todaybar .tt2{font-size:12px;color:var(--mid);margin-top:2px;}
+  .todaybar .pb{grid-column:1/-1;height:4px;border-radius:4px;background:var(--s3);overflow:hidden;} .todaybar .pb i{display:block;height:100%;background:var(--green);border-radius:4px;transition:width .3s;}
+  .todaybar .who{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+  .who .wp{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--mid);padding:3px 8px 3px 3px;border-radius:999px;border:1px solid var(--b1);background:var(--s2);cursor:pointer;} .who .wp b{font-family:var(--mono);font-weight:500;color:var(--w);font-size:10.5px;}
+  .tghead.cl{border-radius:10px;cursor:pointer;} .tghead .chev{margin-left:auto;color:var(--dim);font-size:10px;}
+  .tghead.due-over{color:var(--red);} .tghead.due-today{color:var(--amber);}
+  .trow .tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  .trow .tt{font-size:13.5px;line-height:1.3;white-space:normal;overflow:visible;}
+  .trow .sub{display:flex;gap:5px;align-items:center;flex-wrap:wrap;font-size:10.5px;color:var(--dim);font-family:var(--mono);}
+  .trow .sub .tag{font-size:8.5px;padding:2px 6px;}
+  .dtag{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:6px;border:1px solid var(--b2);color:var(--mid);white-space:nowrap;}
+  .dtag.over{color:var(--red);border-color:rgba(255,93,82,.35);background:rgba(255,93,82,.08);} .dtag.today{color:var(--amber);border-color:rgba(255,194,75,.35);background:rgba(255,194,75,.08);} .dtag.tmr{color:var(--w);}
+  .flow{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto;} .flow .arr{color:var(--ghost);font-size:11px;}
+  .avc.me{background:var(--w);color:#0B0B0C;border-color:var(--w);}
+  .trow.tdone .tt{text-decoration:line-through;} .trow.tdone .sub{opacity:.6;}
+  .trow .pico{margin-top:2px;}
   .aschips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
   .aschip{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:999px;border:1px solid var(--b2);background:var(--s2);color:var(--mid);font-size:13px;cursor:pointer;font-family:inherit;min-height:36px;}
   .aschip.on{border-color:var(--green);color:var(--w);background:rgba(61,220,132,.08);}
@@ -233,7 +260,7 @@
     input,select,textarea{font-size:16px;}
     .card{padding:13px;overflow-x:auto;} .card>table{min-width:max-content;}
     .btn{min-height:40px;} .btn.sm{min-height:32px;}
-    .trow .hov{display:none;} .trow{min-height:46px;}
+    .trow .hov{display:none;} .trow{min-height:48px;padding:9px 12px;} .trow .tid{display:none;} .todaybar{grid-template-columns:1fr;} .todaybar .who{justify-content:flex-start;} .tbar{gap:8px;}
   }
   @media(prefers-reduced-motion:reduce){*{transition:none !important;}}
 </style>
@@ -660,7 +687,7 @@ function prioIcon(p){
 }
 function cycleStatus(id,ev){if(ev)ev.stopPropagation();const x=DB.tasks.find(t=>t.id===id);if(!x)return;
   const next={todo:'progress',progress:'done',done:'todo',blocked:'todo'};
-  x.status=next[x.status||'todo']||'todo';save('tasks');render();}
+  x.status=next[x.status||'todo']||'todo';if(x.status==='done')x.doneAt=new Date().toISOString();save('tasks');render();}
 /* assignees: x.assignees[] (multi); x.assigneeId kept in sync = first, for back-compat */
 function taskAssignees(x){if(Array.isArray(x.assignees))return x.assignees.filter(id=>DB.payroll.people.some(p=>p.id===id));return x.assigneeId?[x.assigneeId]:[];}
 function addDays(iso,n){const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);const z=k=>String(k).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
@@ -679,27 +706,80 @@ document.addEventListener('touchmove',e=>{if(!SW)return;const dx=e.touches[0].cl
   if(!SW.dir){if(Math.abs(dx)<6&&Math.abs(dy)<6)return;SW.dir=Math.abs(dx)>Math.abs(dy)*1.2?'h':'v';if(SW.dir==='h'){SW.row=SW.el.querySelector('.trow');SW.row.style.transition='none';}}
   if(SW.dir!=='h')return;e.preventDefault();const base=SW.wasOpen?-SWW:0;SW.x=Math.max(-SWW-24,Math.min(0,base+dx));SW.row.style.transform=`translateX(${SW.x}px)`;},{passive:false});
 document.addEventListener('touchend',()=>{if(!SW)return;if(SW.dir==='h'){SW.row.style.transition='';SW.row.style.transform='';const open=SW.x<-SWW/2;document.querySelectorAll('.tsw.open').forEach(x=>{if(x!==SW.el)x.classList.remove('open');});SW.el.classList.toggle('open',open);SW.el._swiped=Date.now();}SW=null;});
-function viewTasks(){
-  const list=DB.tasks,td=today();
-  const groups=['progress','todo','blocked','done'];
-  return `<div class="vhead"><div><h1 class="view">${t('Задачи','Tasks')}</h1><div class="vsub">${list.filter(x=>x.status!=='done').length} ${t('активных','active')} · ${t('кружок — статус · свайп влево — перенос / участники','circle — status · swipe left — next day / assign')}</div></div><button class="btn pri" onclick="taskModal()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div>
-  <div class="quickadd"><input id="qa-input" placeholder="${t('Быстрая задача — Enter для создания (Q)','Quick task — Enter to create (Q)')}"><button class="btn" onclick="quickAddTask()">＋</button></div>
-  ${list.length===0?`<div class="empty"><b>${t('Задач нет','No tasks')}</b>${t('Напиши первую в строке выше','Type the first one above')}</div>`
-  :groups.map(g=>{const gl=list.filter(x=>(x.status||'todo')===g);if(!gl.length)return '';const gc=TSTAT[g];
-    return `<div class="tgroup"><div class="tghead"><span class="dot" style="background:${gc.c}"></span>${gc.lab}<span class="c">${gl.length}</span></div><div class="tlist">
-    ${gl.map(x=>{const done=g==='done';const as=taskAssignees(x);return `<div class="tsw" data-tid="${x.id}"><div class="swa">
+/* filter state */
+let TF=(()=>{try{return JSON.parse(localStorage.getItem('ws3:tf'))||{};}catch(e){return {};}})();
+TF.person=TF.person||'';TF.role=TF.role||'assignee';TF.group=TF.group||'date';TF.showDone=!!TF.showDone;
+function setTF(k,v){TF[k]=v;localStorage.setItem('ws3:tf',JSON.stringify(TF));render();}
+function meName(){return ((sbProfile&&(sbProfile.name||sbProfile.email))||'').trim();}
+function findPersonByName(n){n=(n||'').trim().toLowerCase();if(!n)return null;return DB.payroll.people.find(p=>(p.name||'').trim().toLowerCase()===n)||DB.payroll.people.find(p=>{const a=(p.name||'').toLowerCase().split(/\s+/)[0];return a&&a.length>2&&n.split(/\s+/)[0]===a;})||DB.payroll.people.find(p=>p.email&&sbProfile&&p.email.toLowerCase()===(sbProfile.email||'').toLowerCase())||null;}
+function mePerson(){return findPersonByName(meName());}
+function taskAuthor(x){return x.by||'';}
+function authorPid(x){const p=findPersonByName(taskAuthor(x));return p?p.id:'';}
+function av(name,cls){name=(name||'').trim();if(!name)return '';const me=meName()&&name.toLowerCase()===meName().toLowerCase();return `<span class="avc ${me?'me':''} ${cls||''}" title="${esc(name)}">${esc(name.charAt(0).toUpperCase())}</span>`;}
+function dueTag(x){if(!x.due)return '';const td=today(),tm=addDays(td,1);const done=x.status==='done';const d=new Date(x.due+'T00:00:00');const wd=t('вс,пн,вт,ср,чт,пт,сб','Sun,Mon,Tue,Wed,Thu,Fri,Sat').split(',')[d.getDay()];
+  let lab,cls='';if(x.due<td){lab=x.due.slice(5).replace('-','.');cls=done?'':'over';}else if(x.due===td){lab=t('Сегодня','Today');cls='today';}else if(x.due===tm){lab=t('Завтра','Tomorrow');cls='tmr';}else if(x.due<addDays(td,7)){lab=wd;}else lab=x.due.slice(5).replace('-','.');return `<span class="dtag ${cls}">${lab}</span>`;}
+function taskMatches(x){if(!TF.person)return true;if(TF.role==='author')return authorPid(x)===TF.person;return taskAssignees(x).includes(TF.person);}
+function taskRow(x,gkey){const done=x.status==='done';const as=taskAssignees(x);const an=taskAuthor(x);const ap=authorPid(x);
+  const flow=(()=>{const rhs=as.map(id=>av(personName(id))).join('');if(!an&&!as.length)return '';if(!as.length)return `<span class="flow">${av(an)}<span class="arr">→</span><span class="avc" style="border-style:dashed;color:var(--dim)">?</span></span>`;if(!an||(as.length===1&&ap===as[0]))return `<span class="flow"><span class="avs">${rhs}</span></span>`;return `<span class="flow">${av(an)}<span class="arr">→</span><span class="avs">${rhs}</span></span>`;})();
+  return `<div class="tsw" data-tid="${x.id}"><div class="swa">
       <button class="nd" onclick="event.stopPropagation();taskNextDay('${x.id}')">${ICO.arrow}<span>${nextDayLabel(x)}</span></button>
       <button class="as" onclick="event.stopPropagation();assignSheet('${x.id}')">${ICO.user}<span>${t('Кому','Assign')}</span></button></div>
     <div class="trow ${done?'tdone':''}" onclick="rowClick(event,'${x.id}')">
-      <span class="sicon" onclick="cycleStatus('${x.id}',event)" title="${t('Сменить статус','Cycle status')}">${statusIcon(g)}</span>
+      <span class="sicon" onclick="cycleStatus('${x.id}',event)" title="${t('Сменить статус','Cycle status')}">${statusIcon(x.status||'todo')}</span>
       ${prioIcon(x.priority)}
-      <span class="tid">${esc(x.id)}</span>
-      <span class="tt">${esc(x.title)}</span>
-      <span class="meta">${x.label?`<span class="tag">${esc(x.label)}</span>`:''}${x.due?`<span class="tag ${(x.due<td&&!done)?'overdue':''}">${x.due.slice(5)}</span>`:''}${(x.comments||[]).length?`<span class="hint mono">💬${(x.comments||[]).length}</span>`:''}${as.length?`<span class="avs">${as.map(id=>{const n=personName(id);return n?`<span class="avc" title="${esc(n)}">${esc(n.trim().charAt(0).toUpperCase())}</span>`:'';}).join('')}</span>`:''}<button class="ib hov" onclick="event.stopPropagation();taskNextDay('${x.id}')" title="${nextDayLabel(x)}" aria-label="next day">→</button><button class="ib hov" onclick="event.stopPropagation();assignSheet('${x.id}')" title="${t('Назначить','Assign')}" aria-label="assign">@</button><button class="ib danger hov" onclick="event.stopPropagation();delTask('${x.id}')" aria-label="delete">×</button></span>
-    </div></div>`;}).join('')}
-    </div></div>`;}).join('')}`;
+      <div class="tbody"><span class="tt">${esc(x.title)}</span>
+        <span class="sub"><span class="tid">${esc(x.id)}</span>${x.label?`<span class="tag">${esc(x.label)}</span>`:''}${gkey!=='status'&&x.status!=='done'&&x.status!=='todo'?`<span style="color:${TSTAT[x.status].c}">${TSTAT[x.status].lab}</span>`:''}${(x.comments||[]).length?`<span>💬${(x.comments||[]).length}</span>`:''}${(x.files||[]).length?`<span>📎${(x.files||[]).length}</span>`:''}</span></div>
+      <span class="meta">${dueTag(x)}${flow}<button class="ib hov" onclick="event.stopPropagation();taskNextDay('${x.id}')" title="${nextDayLabel(x)}" aria-label="next day">→</button><button class="ib hov" onclick="event.stopPropagation();assignSheet('${x.id}')" title="${t('Назначить','Assign')}" aria-label="assign">@</button><button class="ib danger hov" onclick="event.stopPropagation();delTask('${x.id}')" aria-label="delete">×</button></span>
+    </div></div>`;}
+function tGroup(title,cls,color,list,gkey,collapsible,open){const id='tg-'+cls;const head=`<div class="tghead ${cls} ${collapsible?'cl':''}" ${collapsible?`onclick="setTF('showDone',${!open})"`:''}><span class="dot" style="background:${color}"></span>${title}<span class="c">${list.length}</span>${collapsible?`<span class="chev">${open?'▲':'▼'}</span>`:''}</div>`;
+  if(collapsible&&!open)return `<div class="tgroup">${head}</div>`;return `<div class="tgroup">${head}<div class="tlist">${list.map(x=>taskRow(x,gkey)).join('')}</div></div>`;}
+function viewTasks(){
+  const all=DB.tasks,td=today(),tm=addDays(td,1),wk=addDays(td,7);const ord={urgent:0,high:1,med:2};
+  const list=all.filter(taskMatches);const active=list.filter(x=>x.status!=='done'),done=list.filter(x=>x.status==='done');
+  const sortA=(a,b)=>{const ad=a.due||'9999',bd=b.due||'9999';if(ad!==bd)return ad<bd?-1:1;return (ord[a.priority]??3)-(ord[b.priority]??3);};
+  active.sort(sortA);done.sort((a,b)=>(b.doneAt||'')<(a.doneAt||'')?-1:1);
+  /* today strip */
+  const tdAll=all.filter(x=>x.due&&x.due<=td),tdDone=tdAll.filter(x=>x.status==='done').length,tdOpen=tdAll.length-tdDone,ovr=all.filter(x=>x.status!=='done'&&x.due&&x.due<td).length;
+  const pct=tdAll.length?Math.round(tdDone/tdAll.length*100):0;
+  const whoStats=DB.payroll.people.map(p=>{const mine=all.filter(x=>x.status!=='done'&&taskAssignees(x).includes(p.id));const set=all.filter(x=>x.status!=='done'&&authorPid(x)===p.id);return {p,mine:mine.length,set:set.length};}).filter(w=>w.mine||w.set);
+  const noMe=!mePerson()&&DB.payroll.people.length;
+  const people=DB.payroll.people;
+  const cnt=pid=>all.filter(x=>x.status!=='done'&&(TF.role==='author'?authorPid(x)===pid:taskAssignees(x).includes(pid))).length;
+  const sel=TF.person&&people.find(p=>p.id===TF.person);
+  const sub=sel?(TF.role==='author'?t('поставил(а) ','set by ')+esc(sel.name):esc(sel.name)+t(' делает',' is doing')):t('все задачи','all tasks');
+  let body='';
+  if(!all.length)body=`<div class="empty"><b>${t('Задач нет','No tasks')}</b>${t('Напиши первую в строке выше','Type the first one above')}</div>`;
+  else if(!list.length)body=`<div class="empty">${t('По этому фильтру задач нет','Nothing matches this filter')}</div>`;
+  else if(TF.group==='status'){body=['progress','todo','blocked'].map(g=>{const gl=active.filter(x=>(x.status||'todo')===g);return gl.length?tGroup(TSTAT[g].lab,g,TSTAT[g].c,gl,'status'):'';}).join('');}
+  else if(TF.group==='person'){const byP={};active.forEach(x=>{const as=taskAssignees(x);(as.length?as:['']).forEach(id=>{(byP[id]=byP[id]||[]).push(x);});});
+    body=people.filter(p=>byP[p.id]).map(p=>tGroup(av(p.name)+' '+esc(p.name),'p-'+p.id,'var(--b3)',byP[p.id],'person')).join('')+(byP['']?tGroup(t('Не назначено','Unassigned'),'p-none','var(--dim)',byP[''],'person'):'');}
+  else {const g={over:[],today:[],tmr:[],week:[],later:[],none:[]};active.forEach(x=>{if(!x.due)g.none.push(x);else if(x.due<td)g.over.push(x);else if(x.due===td)g.today.push(x);else if(x.due===tm)g.tmr.push(x);else if(x.due<wk)g.week.push(x);else g.later.push(x);});
+    body=[['over',t('Просрочено','Overdue'),'due-over','var(--red)'],['today',t('Сегодня','Today'),'due-today','var(--amber)'],['tmr',t('Завтра','Tomorrow'),'due-tmr','var(--w)'],['week',t('На этой неделе','This week'),'due-week','var(--mid)'],['later',t('Позже','Later'),'due-later','var(--dim)'],['none',t('Без даты','No date'),'due-none','var(--ghost)']].map(([k,lab,cls,c])=>g[k].length?tGroup(lab,cls,c,g[k],'date'):'').join('');
+    if(!active.length)body=`<div class="empty"><b>${t('Всё сделано','All clear')}</b>${t('Активных задач нет','No active tasks')}</div>`;}
+  if(done.length)body+=tGroup('Done','done','var(--green)',done,'done',true,TF.showDone);
+  return `<div class="vhead"><div><h1 class="view">${t('Задачи','Tasks')}</h1><div class="vsub" style="margin-bottom:14px">${active.length} ${t('активных','active')} · ${sub}</div></div><button class="btn pri" onclick="taskModal()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div>
+  <div class="quickadd"><input id="qa-input" placeholder="${t('Быстрая задача · @имя  #метка  !срочно  завтра / пн  (Q)','Quick task · @name  #label  !urgent  tomorrow / mon  (Q)')}"><button class="btn" onclick="quickAddTask()">＋</button></div>
+  ${tdAll.length||ovr?`<div class="todaybar"><div><div class="tt1">${t('Сегодня','Today')} · ${tdDone}/${tdAll.length}</div><div class="tt2">${tdOpen?tdOpen+t(' осталось',' left'):t('всё сделано','all done')}${ovr?` · <span class="neg">${ovr} ${t('просрочено','overdue')}</span>`:''}</div></div><div class="who">${whoStats.map(w=>`<span class="wp" onclick="setTF('person','${w.p.id}')">${av(w.p.name)}<b>${w.mine}</b>${t('делает','doing')}${w.set?` · <b>${w.set}</b>${t('поставил','set')}`:''}</span>`).join('')}</div><div class="pb"><i style="width:${pct}%"></i></div></div>`:''}
+  <div class="tbar"><div class="fchips"><button class="fchip all ${!TF.person?'on':''}" onclick="setTF('person','')">${t('Все','All')}<span class="cn">${active.length===list.length&&!TF.person?active.length:all.filter(x=>x.status!=='done').length}</span></button>${people.map(p=>`<button class="fchip ${TF.person===p.id?'on':''}" onclick="setTF('person','${p.id}')">${av(p.name)}${esc(p.name.split(/\s+/)[0])}<span class="cn">${cnt(p.id)}</span></button>`).join('')}</div><span class="sp"></span>
+    <div class="seg mini" title="${t('Чьи задачи показывать','Which tasks to show')}"><button class="${TF.role==='assignee'?'on':''}" onclick="setTF('role','assignee')">${t('делает','doing')}</button><button class="${TF.role==='author'?'on':''}" onclick="setTF('role','author')">${t('поставил','set by')}</button></div>
+    <div class="seg mini"><button class="${TF.group==='date'?'on':''}" onclick="setTF('group','date')">${t('дата','date')}</button><button class="${TF.group==='status'?'on':''}" onclick="setTF('group','status')">${t('статус','status')}</button><button class="${TF.group==='person'?'on':''}" onclick="setTF('group','person')">${t('люди','people')}</button></div></div>
+  ${noMe?`<div class="hint" style="margin:-6px 0 12px">${t('Чтобы «→» показывал тебя, имя в «Команде» должно совпадать с именем профиля','To map you to a person, your Team name must match your profile name')} (${esc(meName())})</div>`:''}
+  ${body}`;
 }
-function quickAddTask(){const inp=document.getElementById('qa-input');const v=(inp.value||'').trim();if(!v)return;DB.tasks.unshift({id:nextTaskId(),title:v,assigneeId:'',status:'todo',priority:'med',label:'',due:'',desc:'',comments:[]});save('tasks');render();const n=document.getElementById('qa-input');if(n){n.focus();}}
+function parseQuick(v){const o={title:v,assignees:[],label:'',priority:'med',due:''};const td=today();
+  o.title=o.title.replace(/(^|\s)@(\S+)/g,(m,sp,n)=>{const p=findPersonByName(n)||DB.payroll.people.find(q=>(q.name||'').toLowerCase().startsWith(n.toLowerCase()));if(p){o.assignees.push(p.id);return sp;}return m;});
+  o.title=o.title.replace(/(^|\s)#(\S+)/g,(m,sp,l)=>{o.label=l;return sp;});
+  o.title=o.title.replace(/(^|\s)!(срочно|urgent)?(?=\s|$)/gi,(m,sp)=>{o.priority='urgent';return sp;});
+  o.title=o.title.replace(/(^|\s)!!(?=\s|$)/g,(m,sp)=>{o.priority='high';return sp;});
+  const wd={'вс':0,'пн':1,'вт':2,'ср':3,'чт':4,'пт':5,'сб':6,'sun':0,'mon':1,'tue':2,'wed':3,'thu':4,'fri':5,'sat':6};
+  o.title=o.title.replace(/(^|\s)(сегодня|today|завтра|tomorrow|tmr|послезавтра|вс|пн|вт|ср|чт|пт|сб|sun|mon|tue|wed|thu|fri|sat|\d{4}-\d{2}-\d{2}|\d{1,2}\.\d{1,2})(?=\s|$)/gi,(m,sp,w)=>{const l=w.toLowerCase();
+    if(l==='сегодня'||l==='today')o.due=td;else if(l==='завтра'||l==='tomorrow'||l==='tmr')o.due=addDays(td,1);else if(l==='послезавтра')o.due=addDays(td,2);
+    else if(wd[l]!==undefined){const cur=new Date(td+'T00:00:00').getDay();let n=(wd[l]-cur+7)%7;if(n===0)n=7;o.due=addDays(td,n);}
+    else if(/^\d{4}-/.test(l))o.due=l;else{const [d,mo]=l.split('.');const y=td.slice(0,4);let iso=y+'-'+mo.padStart(2,'0')+'-'+d.padStart(2,'0');if(iso<td)iso=(+y+1)+iso.slice(4);o.due=iso;}
+    return sp;});
+  o.title=o.title.replace(/\s+/g,' ').trim();return o;}
+function quickAddTask(){const inp=document.getElementById('qa-input');const v=(inp.value||'').trim();if(!v)return;const o=parseQuick(v);if(!o.title)return;
+  DB.tasks.unshift({id:nextTaskId(),title:o.title,assigneeId:o.assignees[0]||'',assignees:o.assignees,status:'todo',priority:o.priority,label:o.label,due:o.due,desc:'',comments:[],by:meName(),createdAt:new Date().toISOString()});save('tasks');render();const n=document.getElementById('qa-input');if(n){n.focus();}}
 function taskModal(){modal(`<h3>${t('Новая задача','New task')}</h3><div class="field-stack">
   <div class="fs"><label>${t('Название','Title')}</label><input id="tk-title"></div>
   <div class="f2"><div class="fs"><label>${t('Приоритет','Priority')}</label><select id="tk-prio"><option value="urgent">${pL('urgent')}</option><option value="high">${pL('high')}</option><option value="med" selected>${pL('med')}</option></select></div>
@@ -710,11 +790,11 @@ function taskModal(){modal(`<h3>${t('Новая задача','New task')}</h3><
   <div class="fs"><label>${t('Описание','Description')}</label><textarea id="tk-desc"></textarea></div>
   </div><div class="hint" style="margin-top:8px">${t('Файлы можно прикрепить после создания — открой задачу в списке','Attach files after creating — open the task from the list')}</div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveNewTask()">${t('Добавить','Add')}</button></div>`);
   setTimeout(()=>{const i=document.getElementById('tk-title');if(i)try{i.focus();}catch(e){}},40);}
-function saveNewTask(){const g=k=>document.getElementById(k);DB.tasks.unshift({id:nextTaskId(),title:g('tk-title').value||t('Задача','Task'),assigneeId:g('tk-ass')?g('tk-ass').value:'',assignees:(g('tk-ass')&&g('tk-ass').value)?[g('tk-ass').value]:[],status:g('tk-status').value,priority:g('tk-prio').value,label:g('tk-label').value||'',due:g('tk-due').value||'',desc:g('tk-desc').value||'',comments:[]});save('tasks');closeModal();render();}
+function saveNewTask(){const g=k=>document.getElementById(k);DB.tasks.unshift({id:nextTaskId(),title:g('tk-title').value||t('Задача','Task'),assigneeId:g('tk-ass')?g('tk-ass').value:'',assignees:(g('tk-ass')&&g('tk-ass').value)?[g('tk-ass').value]:[],status:g('tk-status').value,priority:g('tk-prio').value,label:g('tk-label').value||'',due:g('tk-due').value||'',desc:g('tk-desc').value||'',comments:[],by:meName(),createdAt:new Date().toISOString()});save('tasks');closeModal();render();}
 function toggleTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;x.status=x.status==='done'?'todo':'done';save('tasks');render();}
 function delTask(id){const x=DB.tasks.find(t=>t.id===id);confirmModal(t('Удалить задачу','Delete task')+(x?` «${esc(x.title)}»`:'')+'?',()=>{DB.tasks=DB.tasks.filter(t=>t.id!==id);save('tasks');render();});}
 function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const comments=x.comments||[];
-  modal(`<h3>${esc(x.id)}</h3><div class="field-stack">
+  modal(`<h3>${esc(x.id)} ${x.by?`<span class="hint" style="font-weight:400">· ${t('поставил(а)','set by')} ${esc(x.by)}${x.createdAt?' · '+esc(x.createdAt.slice(0,10)):''}</span>`:''}</h3><div class="field-stack">
   <div class="fs"><label>${t('Название','Title')}</label><input id="td-title" value="${esc(x.title)}"></div>
   <div class="f2"><div class="fs"><label>${t('Статус','Status')}</label><select id="td-status"><option value="todo" ${x.status==='todo'?'selected':''}>Todo</option><option value="progress" ${x.status==='progress'?'selected':''}>In Progress</option><option value="blocked" ${x.status==='blocked'?'selected':''}>Blocked</option><option value="done" ${x.status==='done'?'selected':''}>Done</option></select></div>
   <div class="fs"><label>${t('Приоритет','Priority')}</label><select id="td-prio">${['urgent','high','med'].map(k=>`<option value="${k}" ${x.priority===k?'selected':''}>${pL(k)}</option>`).join('')}</select></div></div>
@@ -729,7 +809,7 @@ function openTask(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const com
 }
 function saveTaskDetail(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const g=k=>document.getElementById(k);
   if(g('td-title'))x.title=g('td-title').value||x.title;if(g('td-prio'))x.priority=g('td-prio').value;if(g('td-due'))x.due=g('td-due').value;if(g('td-label'))x.label=g('td-label').value;if(g('td-desc'))x.desc=g('td-desc').value;
-  if(g('td-status'))x.status=g('td-status').value;save('tasks');closeModal();render();}
+  if(g('td-status')){const ns=g('td-status').value;if(ns==='done'&&x.status!=='done')x.doneAt=new Date().toISOString();x.status=ns;}save('tasks');closeModal();render();}
 function addComment(id){const x=DB.tasks.find(t=>t.id===id);if(!x)return;const ta=document.getElementById('cm-text');const txt=(ta.value||'').trim();if(!txt)return;x.comments=x.comments||[];x.comments.push({id:uid('cm'),author:(sbProfile&&sbProfile.name)||t('Владелец','Owner'),text:txt,ts:new Date().toISOString().slice(0,16).replace('T',' ')});save('tasks');openTask(id);}
 
 /* ── recurring monthly costs ── */
