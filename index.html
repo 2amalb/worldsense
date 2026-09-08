@@ -799,7 +799,7 @@ function planRow(x,opts){opts=opts||{};const done=x.status==='done';const as=tas
       ${x.est?`<span class="pe">${fmtEst(x.est)}</span>`:''}
     </div></div>`;}
 function viewPlan(){
-  const all=DB.tasks.filter(taskMatches),td=today(),day=planDay(),isToday=day===td;
+  const all=DB.tasks,td=today(),day=planDay(),isToday=day===td;
   const dn=dayName(day);const ord={urgent:0,high:1,med:2};
   const srt=(a,b)=>{const at=a.time||'99',bt=b.time||'99';if(at!==bt)return at<bt?-1:1;return (ord[a.priority]??3)-(ord[b.priority]??3);};
   const overdue=isToday?all.filter(x=>x.status!=='done'&&x.due&&x.due<td).sort(srt):[];
@@ -807,20 +807,12 @@ function viewPlan(){
   const backlog=all.filter(x=>!x.due&&x.status!=='done').sort((a,b)=>(ord[a.priority]??3)-(ord[b.priority]??3));
   const estOpen=open.reduce((s,x)=>s+(+x.est||0),0)+overdue.reduce((s,x)=>s+(+x.est||0),0),estAll=estOpen+done.reduce((s,x)=>s+(+x.est||0),0);
   const tot=dayT.length+overdue.length;const pct=tot?Math.round(done.length/tot*100):0;
-  /* week strip: Mon..Sun around selected day */
-  const d0=new Date(day+'T00:00:00');const mon=addDays(day,-((d0.getDay()+6)%7));
-  const wl=t('пн,вт,ср,чт,пт,сб,вс','Mo,Tu,We,Th,Fr,Sa,Su').split(',');
-  const strip=Array.from({length:7},(_,i)=>{const iso=addDays(mon,i);const ts=DB.tasks.filter(x=>x.due===iso);const op=ts.filter(x=>x.status!=='done').length;const cls=!ts.length?'':(op?(iso<td?'over':'has'):'ok');return `<button class="${iso===day?'on':''} ${iso===td?'today':''}" onclick="setDay('${iso}')"><span class="wl">${wl[i]}</span><span class="wn">${+iso.slice(8)}</span><span class="wc ${cls}"></span></button>`;}).join('');
-  const people=DB.payroll.people;const cnt=pid=>DB.tasks.filter(x=>x.status!=='done'&&(TF.role==='author'?authorPid(x)===pid:taskAssignees(x).includes(pid))).length;
-  const chips=people.length?`<div class="tbar" style="margin:10px 0 0"><div class="fchips"><button class="fchip all ${!TF.person?'on':''}" onclick="setTF('person','')">${t('Все','All')}</button>${people.map(p=>`<button class="fchip ${TF.person===p.id?'on':''}" onclick="setTF('person','${p.id}')">${av(p.name)}${esc(p.name.split(/\s+/)[0])}<span class="cn">${cnt(p.id)}</span></button>`).join('')}</div><span class="sp"></span><div class="seg mini"><button class="${TF.role==='assignee'?'on':''}" onclick="setTF('role','assignee')">${t('делает','doing')}</button><button class="${TF.role==='author'?'on':''}" onclick="setTF('role','author')">${t('поставил','set by')}</button></div></div>`:'';
   const empty=!open.length&&!done.length&&!overdue.length;
   return `<div class="plan">
   <div class="vhead" style="margin-bottom:6px"><div class="seg mini"><button class="on">${t('План','Plan')}</button><button onclick="setTF('mode','list')">${t('Список','List')}</button></div><button class="btn pri" onclick="addSheet()">+ ${t('Задача','Task')} <kbd>N</kbd></button></div>
   <div class="dayhead"><div><h2>${isToday?t('Сегодня','Today'):dn.wd}</h2><div class="ds">${isToday?dn.wd+', ':''}${dn.sub}${!isToday?` · <a href="#" onclick="setDay('${td}');return false" style="color:var(--w)">${t('к сегодня','to today')}</a>`:''}</div></div>
     <div class="dr"><button class="ib" onclick="shiftDay(-1)">‹</button>${estAll?`<span class="est" title="${t('Осталось / всего','Left / total')}">${fmtEst(estOpen)||'0:00'} / ${fmtEst(estAll)}</span>`:''}<button class="ib" onclick="shiftDay(1)">›</button></div></div>
   <div class="pbar"><i style="width:${pct}%"></i></div>
-  <div class="weekstrip">${strip}</div>
-  ${chips}
   <div class="plist">
     ${overdue.length?`<div class="psec" style="color:var(--red)">${t('Просрочено','Overdue')}<span class="c">${overdue.length}</span></div>${overdue.map(x=>planRow(x,{showDate:true})).join('')}`:''}
     ${overdue.length&&(open.length||done.length)?`<div class="psec">${isToday?t('Сегодня','Today'):dn.wd}<span class="c">${dayT.length}</span></div>`:''}
