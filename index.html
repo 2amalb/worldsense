@@ -13,7 +13,13 @@
 <title>WorldSense OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://neqfafmddbojxlbstrhr.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<!-- SDK Supabase начинает качаться сразу, параллельно с разбором страницы -->
+<link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" crossorigin>
+<!-- шрифты не блокируют первый рендер: сначала системный шрифт, потом подменяется -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
   :root{
     --bg:#0B0B0C;--s1:#121213;--s2:#171718;--s3:#1D1D1F;--s4:#242427;
@@ -307,6 +313,27 @@
     .plan .quickadd{display:none;} .dayhead h2{font-size:24px;}
   }
   @media(prefers-reduced-motion:reduce){*{transition:none !important;}}
+  /* ── производительность и тач ── */
+  html{-webkit-tap-highlight-color:transparent;}
+  button,a,.trow,.nbtn,input,select,label{touch-action:manipulation;} /* без задержки 300мс и двойного тапа-зума */
+  .txlist .row:last-child{border-bottom:none;}
+  /* индикатор синхронизации: жёлтая точка — сохраняю, красная — нет связи */
+  .acctbtn{position:relative;}
+  html[data-sync=busy] .acctbtn::after,html[data-sync=off] .acctbtn::after{content:'';position:absolute;top:-1px;right:-1px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg);background:var(--amber);}
+  html[data-sync=off] .acctbtn::after{background:var(--red);}
+  @media(max-width:760px){
+    /* blur на фиксированных панелях — главный источник рывков при скролле на Android */
+    #mobiletop{background:var(--s1);backdrop-filter:none;-webkit-backdrop-filter:none;}
+    #tabbar{background:var(--s1);backdrop-filter:none;-webkit-backdrop-filter:none;}
+    .modal-bg,.sheet-bg{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(5,7,9,.8);}
+    #side{display:none;}
+    body{overscroll-behavior-y:none;}
+    .modal-bg{padding:calc(16px + env(safe-area-inset-top)) 10px 24px;}
+    .modal{padding:16px;}
+    .modal .actions .btn{flex:1;}
+    .ib{min-width:34px;min-height:34px;}
+    #toast{bottom:calc(84px + env(safe-area-inset-bottom));}
+  }
 </style>
 </head>
 <body>
@@ -359,28 +386,107 @@ let sb=null,sbProfile=null;
 let DB={settings:null,costs:[],income:[],tasks:[],payroll:{people:[]},tx:[],contracts:[],orders:[],debts:[],docs:[],invoices:[]};
 let DISPLAY='USD',view='dash';
 
-function loadSupabase(){return new Promise((res,rej)=>{if(window.supabase)return res();const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';let done=false;const to=setTimeout(()=>{if(!done){done=true;rej(new Error('timeout'));}},9000);sc.onload=()=>{if(!done){done=true;clearTimeout(to);res();}};sc.onerror=()=>{if(!done){done=true;clearTimeout(to);rej(new Error('CDN'));}};document.head.appendChild(sc);});}
-async function sGet(k){try{const tbl=PRIVATE_KEYS.has(k)?'app_private':'app_shared';const r=await sb.from(tbl).select('value').eq('key',k).maybeSingle();if(r.error)throw r.error;return r.data?r.data.value:null;}catch(e){return null;}}
-async function sSet(k,v){try{const tbl=PRIVATE_KEYS.has(k)?'app_private':'app_shared';const r=await sb.from(tbl).upsert({key:k,value:v,updated_at:new Date().toISOString()});if(r.error)throw r.error;}catch(e){toast(t('Ошибка синхронизации','Sync error'));}}
-function save(p){if(KEY[p])sSet(KEY[p],DB[p]);}
-async function loadAll(){
-  const s=await sGet(KEY.settings);
-  DB.settings=s||{fx:12650,entities:[]};
+const SDK_URL='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+function loadSupabase(){return new Promise((res,rej)=>{if(window.supabase)return res();const sc=document.createElement('script');sc.src=SDK_URL;sc.crossOrigin='anonymous';let done=false;const to=setTimeout(()=>{if(!done){done=true;rej(new Error('timeout'));}},15000);sc.onload=()=>{if(!done){done=true;clearTimeout(to);res();}};sc.onerror=()=>{if(!done){done=true;clearTimeout(to);rej(new Error('CDN'));}};document.head.appendChild(sc);});}
+
+/* ── синхронизация ──
+   1) Все ключи грузятся ДВУМЯ параллельными запросами (раньше — 11 последовательных).
+   2) Снимок базы лежит в localStorage → при открытии экран рисуется мгновенно, свежие данные подтягиваются фоном.
+   3) Сохранения склеиваются (debounce) и не идут параллельно по одному ключу.
+   4) Ключ, который не удалось получить с сервера, НИКОГДА не перезаписывается — раньше сбой сети
+      превращал реестр в [] и следующая правка затирала его в базе. */
+const LOADED=new Set(),DIRTY=new Set(),INFLIGHT=new Set();
+let sbUid=null,SYNCED=false,lastSync=0,saveTimer=null,retryTimer=null,cacheTimer=null,lastCacheStr='',syncing=null,offlineToastAt=0;
+const DEF={settings:()=>null,payroll:()=>({people:[]})};
+const defOf=p=>DEF[p]?DEF[p]():[];
+const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]);
+function normalizeDB(){
+  if(!DB.settings||typeof DB.settings!=='object')DB.settings={fx:12650,entities:[]};
   if(!DB.settings.fx)DB.settings.fx=12650;
   if(!Array.isArray(DB.settings.entities))DB.settings.entities=[];
   DB.settings.entities.forEach(e=>{if(!Array.isArray(e.shareholders))e.shareholders=[];});
-  DB.costs=await sGet(KEY.costs)||[];
-  DB.income=await sGet(KEY.income)||[];
-  DB.tasks=await sGet(KEY.tasks)||[];
-  DB.debts=await sGet(KEY.debts)||[];
-  DB.docs=await sGet(KEY.docs)||[];
-  DB.invoices=await sGet(KEY.invoices)||[];
-  DB.contracts=await sGet(KEY.contracts)||[];
-  DB.orders=await sGet(KEY.orders)||[];
-  DB.payroll=await sGet(KEY.payroll)||{people:[]};
+  Object.keys(KEY).forEach(p=>{if(p!=='settings'&&p!=='payroll'&&!Array.isArray(DB[p]))DB[p]=[];});
+  if(!DB.payroll||typeof DB.payroll!=='object')DB.payroll={people:[]};
   if(!Array.isArray(DB.payroll.people))DB.payroll.people=[];
-  DB.tx=await sGet(KEY.tx)||[];
 }
+/* локальный кэш (на пользователя) */
+const cacheKey=uid=>'ws3:cache:'+uid;
+function storedUid(){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k));const u=v&&(v.user||(v.currentSession&&v.currentSession.user));if(u&&u.id)return u.id;}}}catch(e){}return null;}
+function readCache(uid){try{const c=JSON.parse(localStorage.getItem(cacheKey(uid))||'null');return c&&c.db?c:null;}catch(e){return null;}}
+function writeCache(){if(!sbUid)return false;try{const s=JSON.stringify({db:DB,dirty:[...DIRTY,...INFLIGHT],profile:sbProfile,at:Date.now()});const changed=s.slice(0,s.lastIndexOf(',"at"'))!==lastCacheStr.slice(0,lastCacheStr.lastIndexOf(',"at"'));lastCacheStr=s;localStorage.setItem(cacheKey(sbUid),s);return changed;}catch(e){return false;}}
+function writeCacheSoon(){clearTimeout(cacheTimer);cacheTimer=setTimeout(writeCache,250);}
+function clearCache(){try{Object.keys(localStorage).filter(k=>k.startsWith('ws3:cache:')).forEach(k=>localStorage.removeItem(k));}catch(e){}}
+function hydrateFromCache(uid){const c=readCache(uid);if(!c)return false;sbUid=uid;
+  Object.keys(KEY).forEach(p=>{if(p in c.db)DB[p]=c.db[p];});normalizeDB();
+  (c.dirty||[]).forEach(p=>{if(KEY[p])DIRTY.add(p);});
+  if(c.profile)sbProfile=c.profile;lastCacheStr=JSON.stringify(c);return true;}
+/* загрузка с сервера */
+async function fetchAll(){
+  const shared=[],priv=[];Object.values(KEY).forEach(k=>(PRIVATE_KEYS.has(k)?priv:shared).push(k));
+  const q=(tbl,keys)=>withTimeout(sb.from(tbl).select('key,value').in('key',keys),20000).then(r=>{if(r.error)throw r.error;const m={};keys.forEach(k=>m[k]=null);(r.data||[]).forEach(row=>{m[row.key]=row.value;});return m;});
+  const res=await Promise.allSettled([q('app_shared',shared),q('app_private',priv)]);
+  const map={};let ok=0;res.forEach(r=>{if(r.status==='fulfilled'){Object.assign(map,r.value);ok++;}});
+  return {map,ok:ok===res.length};
+}
+async function loadAll(){
+  if(syncing)return syncing;
+  syncing=(async()=>{
+    setSync('busy');
+    const {map,ok}=await fetchAll();
+    Object.entries(KEY).forEach(([p,k])=>{
+      if(!(k in map))return;               /* таблица не ответила — оставляем то, что есть */
+      if(!DIRTY.has(p)&&!INFLIGHT.has(p))DB[p]=map[k]==null?defOf(p):map[k];
+      LOADED.add(p);                       /* локальная несохранённая правка победит и уйдёт на сервер */
+    });
+    normalizeDB();
+    if(ok){SYNCED=true;lastSync=Date.now();}
+    const changed=writeCache();
+    flushSaves();
+    setSync(ok?(DIRTY.size?'busy':'ok'):'off');
+    return changed;
+  })();
+  try{return await syncing;}finally{syncing=null;}
+}
+/* сохранение */
+function save(p){if(!KEY[p])return;DIRTY.add(p);writeCacheSoon();setSync('busy');clearTimeout(saveTimer);saveTimer=setTimeout(flushSaves,350);}
+function flushSaves(){
+  if(!sb)return;
+  [...DIRTY].forEach(p=>{
+    if(!LOADED.has(p)||INFLIGHT.has(p))return;   /* ждём серверную версию / предыдущую запись */
+    DIRTY.delete(p);INFLIGHT.add(p);
+    const k=KEY[p],tbl=PRIVATE_KEYS.has(k)?'app_private':'app_shared';
+    withTimeout(sb.from(tbl).upsert({key:k,value:DB[p],updated_at:new Date().toISOString()}),20000)
+      .then(r=>{if(r.error)throw r.error;},e=>{throw e;})
+      .then(()=>{INFLIGHT.delete(p);afterSave(true);},()=>{INFLIGHT.delete(p);DIRTY.add(p);afterSave(false);});
+  });
+  if(DIRTY.size&&!INFLIGHT.size&&![...DIRTY].some(p=>LOADED.has(p)))setSync('off');
+}
+function afterSave(ok){
+  writeCacheSoon();
+  if(ok){if(DIRTY.size)flushSaves();else if(!INFLIGHT.size)setSync('ok');return;}
+  setSync('off');
+  if(Date.now()-offlineToastAt>15000){offlineToastAt=Date.now();toast(t('Нет связи — сохраню, как появится сеть','Offline — will save when back online'));}
+  clearTimeout(retryTimer);retryTimer=setTimeout(()=>{if(SYNCED)flushSaves();else refreshData();},8000);
+}
+/* индикатор синхронизации (точка у аватара) */
+function setSync(s){document.documentElement.dataset.sync=s;}
+/* фоновое обновление: при возврате в приложение и при появлении сети */
+async function refreshData(force){
+  if(!sb){if(sbUid)boot();return;}
+  if(!sbUid)return;
+  if(!force&&Date.now()-lastSync<20000)return;
+  const changed=await loadAll();
+  if(changed&&safeToRerender())render();
+}
+function safeToRerender(){
+  if(document.getElementById('modal-root').innerHTML)return false;
+  if(document.querySelector('.sheet-bg'))return false;
+  const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return false;
+  return true;
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshData();else{writeCache();}});
+window.addEventListener('online',()=>refreshData(true));
+window.addEventListener('pagehide',()=>writeCache());
 
 /* ── helpers ── */
 const uid=p=>p+'-'+Math.random().toString(36).slice(2,8);
@@ -477,6 +583,8 @@ function renderChrome(){
   document.getElementById('nav').innerHTML=tabs.map(([id,label,ic,key])=>`<button class="nbtn ${view===id?'active':''}" onclick="go('${id}')">${ICO[ic]}<span class="lab">${label}</span><span class="nend">${id==='tasks'&&activeTasks?`<span class="cnt">${activeTasks}</span>`:''}<kbd>${key}</kbd></span></button>`).join('');
   /* мобильный таб-бар: только Дашборд · Финансы · Команда */
   document.getElementById('tabbar').innerHTML=tabs.filter(([id])=>MOBILE_TABS.includes(id)).map(([id,label,ic])=>`<button class="${view===id?'active':''}" onclick="go('${id}')">${ICO[ic]}<span>${label}</span></button>`).join('');
+  /* «Ещё» внизу — до бургера не надо тянуться большим пальцем */
+  document.getElementById('tabbar').insertAdjacentHTML('beforeend',`<button class="${MOBILE_TABS.includes(view)?'':'active'}" onclick="toggleDrawer()"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>${t('Ещё','More')}</span></button>`);
   /* бургер: всё остальное */
   const dn=document.getElementById('drawer-nav');
   if(dn)dn.innerHTML=tabs.filter(([id])=>!MOBILE_TABS.includes(id)).map(([id,label,ic])=>`<button class="nbtn ${view===id?'active':''}" onclick="goM('${id}')">${ICO[ic]}<span class="lab" style="opacity:1">${label}</span>${id==='tasks'&&activeTasks?`<span class="nend" style="opacity:1"><span class="cnt">${activeTasks}</span></span>`:''}</button>`).join('');
@@ -498,7 +606,7 @@ function renderChrome(){
 function toggleAcct(){document.getElementById('acct').classList.toggle('open');}
 function toggleGear(){document.getElementById('gearc').classList.toggle('open');}
 document.addEventListener('click',e=>{['acct','gearc'].forEach(id=>{const a=document.getElementById(id);if(a&&a.classList.contains('open')&&!a.contains(e.target))a.classList.remove('open');});});
-function go(v){view=v;render();}
+function go(v){const ch=v!==view;view=v;if(ch){TXN=40;closeDrawer();}render();if(ch)window.scrollTo(0,0);}
 function setCur(c){DISPLAY=c;document.querySelectorAll('[data-cur]').forEach(b=>b.classList.toggle('on',b.dataset.cur===c));renderChrome();render();}
 function stat(label,value,note,cls){return `<div class="card stat"><span class="sl">${label}</span><div class="sv ${cls||''}">${value}</div>${note?`<div class="sn">${note}</div>`:''}</div>`;}
 
@@ -1092,6 +1200,10 @@ function printInvoice(id){
   const w=window.open('','_blank');if(!w){toast(t('Разреши всплывающие окна','Allow pop-ups'));return;}
   w.document.write(html);w.document.close();}
 /* ── finance: transaction ledger ── */
+/* реестр рисуем порциями: сотни строк разом — главный тормоз на телефоне */
+let TXN=40;
+const isMobile=()=>window.matchMedia('(max-width:760px)').matches;
+function moreTx(total){return total>TXN?`<button class="btn sm" style="width:100%;margin-top:10px" onclick="TXN+=100;render()">${t('Показать ещё','Show more')} · ${Math.min(100,total-TXN)} ${t('из','of')} ${total-TXN}</button>`:'';}
 function viewFin(){
   const f=flows30();
   const total=DB.tx.length;
@@ -1110,8 +1222,8 @@ function viewFin(){
   :`<div class="hint" style="padding:6px 0">${t('Ожидаемые поступления и долги — чтобы деньги в пути не терялись из виду','Money in flight — expected receipts and dues')}</div>`}
   <div class="actions" style="margin-top:10px;justify-content:flex-start"><button class="btn sm" onclick="debtModal()">+ ${t('Обязательство','Obligation')}</button></div></div>
   <div class="card"><h2>${t('Реестр транзакций','Transaction ledger')} <span class="hint">${total}</span></h2>
-  ${total?`<table><tr><th>${t('Дата','Date')}</th><th>${t('Тип','Type')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Назначение','Purpose')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
-  ${DB.tx.map(x=>{const u=toUSD(x.amount,x.currency)*(x.kind==='in'?1:-1);const prj=x.projectId?(DB.orders.find(p=>p.id===x.projectId)||{}).name:'';return `<tr><td class="mono" style="font-size:11px;white-space:nowrap">${x.date}</td><td><span class="${x.kind==='in'?'pos':'neg'}">${x.kind==='in'?t('Доход','Income'):x.kind==='payout'?t('Выплата','Payout'):t('Расход','Expense')}</span></td><td class="muted">${x.kind==='payout'?t('ФОТ','Payroll'):(x.category?esc(catL(x.category)):'—')}</td><td class="muted">${esc(entName(x.entityId))}</td><td>${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}${prj?` <span class="tag" style="color:var(--purple)">${esc(prj)}</span>`:''}</td><td class="n ${u>=0?'pos':'neg'}">${money(u)}</td><td style="text-align:right"><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></td></tr>`;}).join('')}</table>`:`<div class="empty"><b>${t('Реестр пуст','Ledger empty')}</b>${t('Добавь первое движение (T). «Выплатить» в Команде тоже пишет сюда.','Add the first entry (T). Pay in Team writes here too.')}</div>`}</div>`;
+  ${total&&isMobile()?`<div class="txlist">${DB.tx.slice(0,TXN).map(txRow).join('')}</div>${moreTx(total)}`:total?`<table><tr><th>${t('Дата','Date')}</th><th>${t('Тип','Type')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Назначение','Purpose')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
+  ${DB.tx.slice(0,TXN).map(x=>{const u=toUSD(x.amount,x.currency)*(x.kind==='in'?1:-1);const prj=x.projectId?(DB.orders.find(p=>p.id===x.projectId)||{}).name:'';return `<tr><td class="mono" style="font-size:11px;white-space:nowrap">${x.date}</td><td><span class="${x.kind==='in'?'pos':'neg'}">${x.kind==='in'?t('Доход','Income'):x.kind==='payout'?t('Выплата','Payout'):t('Расход','Expense')}</span></td><td class="muted">${x.kind==='payout'?t('ФОТ','Payroll'):(x.category?esc(catL(x.category)):'—')}</td><td class="muted">${esc(entName(x.entityId))}</td><td>${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}${prj?` <span class="tag" style="color:var(--purple)">${esc(prj)}</span>`:''}</td><td class="n ${u>=0?'pos':'neg'}">${money(u)}</td><td style="text-align:right"><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></td></tr>`;}).join('')}</table>${moreTx(total)}`:`<div class="empty"><b>${t('Реестр пуст','Ledger empty')}</b>${t('Добавь первое движение (T). «Выплатить» в Команде тоже пишет сюда.','Add the first entry (T). Pay in Team writes here too.')}</div>`}</div>`;
 }
 
 /* ── projects: data collection orders + monitoring ── */
@@ -1392,26 +1504,46 @@ function showLogin(){const root=document.getElementById('login-root');root.style
   setTimeout(()=>{const e=document.getElementById('sb-email');if(e){e.onkeydown=ev=>{if(ev.key==='Enter')sbSignIn();};try{e.focus();}catch(_){}}const p=document.getElementById('sb-pass');if(p)p.onkeydown=ev=>{if(ev.key==='Enter')sbSignIn();};},40);
 }
 function hideLogin(){const root=document.getElementById('login-root');root.style.display='none';root.innerHTML='';}
-async function sbSignIn(){const email=(document.getElementById('sb-email')||{}).value||'';const pass=(document.getElementById('sb-pass')||{}).value||'';const err=document.getElementById('lg-err');try{const r=await sb.auth.signInWithPassword({email,password:pass});if(r.error)throw r.error;await afterLogin();}catch(e){if(err)err.textContent=t('Не удалось войти','Sign-in failed')+': '+(e.message||'');}}
+async function sbSignIn(){const email=(document.getElementById('sb-email')||{}).value||'';const pass=(document.getElementById('sb-pass')||{}).value||'';const err=document.getElementById('lg-err');try{const r=await sb.auth.signInWithPassword({email,password:pass});if(r.error)throw r.error;await afterLogin(true);}catch(e){if(err)err.textContent=t('Не удалось войти','Sign-in failed')+': '+(e.message||'');}}
 async function sbSignUp(){const email=(document.getElementById('sb-email')||{}).value||'';const pass=(document.getElementById('sb-pass')||{}).value||'';const err=document.getElementById('lg-err');try{const r=await sb.auth.signUp({email,password:pass});if(r.error)throw r.error;if(err)err.textContent=t('Аккаунт создан. Подтверди почту (если включено) и войди.','Account created. Confirm email if required, then sign in.');}catch(e){if(err)err.textContent=e.message||'';}}
 async function sbMagicLink(){const email=(document.getElementById('sb-email')||{}).value||'';const err=document.getElementById('lg-err');try{const r=await sb.auth.signInWithOtp({email});if(r.error)throw r.error;if(err)err.textContent=t('Ссылка для входа отправлена на почту','Magic link sent to your email');}catch(e){if(err)err.textContent=e.message||'';}}
-async function logout(){try{await sb.auth.signOut();}catch(e){}sbProfile=null;document.getElementById('acct').classList.remove('open');showLogin();}
-async function afterLogin(){
-  let session=null;try{const r=await sb.auth.getSession();session=r.data&&r.data.session;}catch(e){}
-  if(!session){showLogin();return;}
-  let prof=null;try{const r=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();prof=r.data;}catch(e){}
-  sbProfile=prof||{name:session.user.email};
+async function logout(){try{await sb.auth.signOut();}catch(e){}sbProfile=null;sbUid=null;clearCache();LOADED.clear();DIRTY.clear();SYNCED=false;lastSync=0;lastCacheStr='';setSync('');document.getElementById('acct').classList.remove('open');showLogin();}
+async function afterLogin(interactive){
+  let session=null,authErr=null;try{const r=await sb.auth.getSession();session=r.data&&r.data.session;authErr=r.error;}catch(e){authErr=e;}
+  if(!session){if(authErr&&sbUid){setSync('off');return;}clearCache();showLogin();return;}
+  const uid=session.user.id;
+  if(sbUid!==uid){LOADED.clear();DIRTY.clear();if(!hydrateFromCache(uid))sbUid=uid;}
+  const shown=!!DB.settings&&document.getElementById('app').innerHTML!=='';
+  /* профиль и данные — параллельно */
+  const profP=withTimeout(sb.from('profiles').select('*').eq('id',uid).maybeSingle(),15000).then(r=>r&&r.data).catch(()=>null);
+  const dataP=loadAll();
+  const prof=await profP;
+  if(prof)sbProfile=prof;else if(!sbProfile)sbProfile={name:session.user.email};
   if(!sbProfile.email)sbProfile.email=session.user.email;
-  await loadAll();
-  view='dash';
-  hideLogin();render();
-  toast(t('Вход выполнен','Signed in')+' · '+(sbProfile.name||session.user.email||''));
+  const changed=await dataP;
+  hideLogin();
+  if(!shown){view='dash';render();}
+  else if(changed&&safeToRerender())render();
+  else renderChrome();
+  writeCache();
+  if(!SYNCED)toast(t('Нет связи с сервером — показаны сохранённые данные','No server connection — showing saved data'));
+  else if(interactive)toast(t('Вход выполнен','Signed in')+' · '+(sbProfile.name||session.user.email||''));
 }
+let booting=false;
 async function boot(){
-  try{await loadSupabase();}catch(e){document.getElementById('app').innerHTML=`<div class="empty" style="margin-top:60px"><b>${t('Нет соединения','No connection')}</b>${t('Не удалось загрузить Supabase SDK. Проверь интернет и обнови страницу.','Could not load the Supabase SDK. Check your connection and reload.')}</div>`;return;}
-  sb=window.supabase.createClient(SB_URL,SB_ANON);
-  let sess=null;try{const r=await sb.auth.getSession();sess=r.data&&r.data.session;}catch(e){}
-  if(sess)await afterLogin();else showLogin();
+  if(booting)return;booting=true;
+  try{
+    /* мгновенный экран из локального снимка, пока грузится SDK и свежие данные */
+    if(!DB.settings){const uid=storedUid();if(uid&&hydrateFromCache(uid)){view='dash';render();setSync('busy');}}
+    try{await loadSupabase();}catch(e){
+      if(DB.settings&&sbUid){setSync('off');toast(t('Нет связи — показаны сохранённые данные','Offline — showing saved data'));return;}
+      document.getElementById('app').innerHTML=`<div class="empty" style="margin-top:60px"><b>${t('Нет соединения','No connection')}</b>${t('Не удалось загрузить Supabase SDK. Проверь интернет и обнови страницу.','Could not load the Supabase SDK. Check your connection and reload.')}</div>`;return;}
+    sb=window.supabase.createClient(SB_URL,SB_ANON);
+    let sess=null,err=null;try{const r=await sb.auth.getSession();sess=r.data&&r.data.session;err=r.error;}catch(e){err=e;}
+    if(sess)await afterLogin(false);
+    else if(err&&sbUid)setSync('off');          /* офлайн с протухшим токеном — остаёмся на кэше */
+    else{clearCache();showLogin();}
+  }finally{booting=false;}
 }
 boot();
 /* PWA: service worker (работает только на https-хостинге, не с file://) */
