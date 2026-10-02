@@ -387,7 +387,9 @@ let DB={settings:null,costs:[],income:[],tasks:[],payroll:{people:[]},tx:[],cont
 let DISPLAY='USD',view='dash';
 
 const SDK_URL='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-function loadSupabase(){return new Promise((res,rej)=>{if(window.supabase)return res();const sc=document.createElement('script');sc.src=SDK_URL;sc.crossOrigin='anonymous';let done=false;const to=setTimeout(()=>{if(!done){done=true;rej(new Error('timeout'));}},15000);sc.onload=()=>{if(!done){done=true;clearTimeout(to);res();}};sc.onerror=()=>{if(!done){done=true;clearTimeout(to);rej(new Error('CDN'));}};document.head.appendChild(sc);});}
+function loadSDKOnce(src){return new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=src;sc.crossOrigin='anonymous';let done=false;const fin=(ok,e)=>{if(done)return;done=true;clearTimeout(to);ok?res():rej(e);};const to=setTimeout(()=>fin(false,new Error('timeout')),15000);sc.onload=()=>window.supabase&&window.supabase.createClient?fin(true):fin(false,new Error('SDK loaded but window.supabase is missing'));sc.onerror=()=>fin(false,new Error('CDN'));document.head.appendChild(sc);});}
+/* вторая попытка — в обход кэша, если закэшированная копия битая */
+async function loadSupabase(){if(window.supabase&&window.supabase.createClient)return;try{await loadSDKOnce(SDK_URL);}catch(e){console.warn('[ws] SDK retry',e);await loadSDKOnce(SDK_URL+'?r='+Date.now());}}
 
 /* ── синхронизация ──
    1) Все ключи грузятся ДВУМЯ параллельными запросами (раньше — 11 последовательных).
@@ -404,8 +406,9 @@ function normalizeDB(){
   if(!DB.settings||typeof DB.settings!=='object')DB.settings={fx:12650,entities:[]};
   if(!DB.settings.fx)DB.settings.fx=12650;
   if(!Array.isArray(DB.settings.entities))DB.settings.entities=[];
+  DB.settings.entities=DB.settings.entities.filter(e=>e&&typeof e==='object');
   DB.settings.entities.forEach(e=>{if(!Array.isArray(e.shareholders))e.shareholders=[];});
-  Object.keys(KEY).forEach(p=>{if(p!=='settings'&&p!=='payroll'&&!Array.isArray(DB[p]))DB[p]=[];});
+  Object.keys(KEY).forEach(p=>{if(p!=='settings'&&p!=='payroll'&&DB[p]==null)DB[p]=[];});
   if(!DB.payroll||typeof DB.payroll!=='object')DB.payroll={people:[]};
   if(!Array.isArray(DB.payroll.people))DB.payroll.people=[];
 }
@@ -1509,7 +1512,7 @@ async function sbSignUp(){const email=(document.getElementById('sb-email')||{}).
 async function sbMagicLink(){const email=(document.getElementById('sb-email')||{}).value||'';const err=document.getElementById('lg-err');try{const r=await sb.auth.signInWithOtp({email});if(r.error)throw r.error;if(err)err.textContent=t('Ссылка для входа отправлена на почту','Magic link sent to your email');}catch(e){if(err)err.textContent=e.message||'';}}
 async function logout(){try{await sb.auth.signOut();}catch(e){}sbProfile=null;sbUid=null;clearCache();LOADED.clear();DIRTY.clear();SYNCED=false;lastSync=0;lastCacheStr='';setSync('');document.getElementById('acct').classList.remove('open');showLogin();}
 async function afterLogin(interactive){
-  let session=null,authErr=null;try{const r=await sb.auth.getSession();session=r.data&&r.data.session;authErr=r.error;}catch(e){authErr=e;}
+  let session=null,authErr=null;try{const r=await withTimeout(sb.auth.getSession(),10000);session=r.data&&r.data.session;authErr=r.error;}catch(e){authErr=e;}
   if(!session){if(authErr&&sbUid){setSync('off');return;}clearCache();showLogin();return;}
   const uid=session.user.id;
   if(sbUid!==uid){LOADED.clear();DIRTY.clear();if(!hydrateFromCache(uid))sbUid=uid;}
@@ -1534,17 +1537,47 @@ async function boot(){
   if(booting)return;booting=true;
   try{
     /* мгновенный экран из локального снимка, пока грузится SDK и свежие данные */
-    if(!DB.settings){const uid=storedUid();if(uid&&hydrateFromCache(uid)){view='dash';render();setSync('busy');}}
+    BOOT_STEP='cache';
+    if(!DB.settings){const uid=storedUid();try{if(uid&&hydrateFromCache(uid)){view='dash';render();setSync('busy');}}catch(e){
+      /* битый снимок не должен блокировать запуск */
+      console.error('[ws] cache render failed',e);clearCache();sbUid=null;DIRTY.clear();DB={settings:null,costs:[],income:[],tasks:[],payroll:{people:[]},tx:[],contracts:[],orders:[],debts:[],docs:[],invoices:[]};sbProfile=null;}}
+    BOOT_STEP='sdk';
     try{await loadSupabase();}catch(e){
       if(DB.settings&&sbUid){setSync('off');toast(t('Нет связи — показаны сохранённые данные','Offline — showing saved data'));return;}
       document.getElementById('app').innerHTML=`<div class="empty" style="margin-top:60px"><b>${t('Нет соединения','No connection')}</b>${t('Не удалось загрузить Supabase SDK. Проверь интернет и обнови страницу.','Could not load the Supabase SDK. Check your connection and reload.')}</div>`;return;}
     sb=window.supabase.createClient(SB_URL,SB_ANON);
-    let sess=null,err=null;try{const r=await sb.auth.getSession();sess=r.data&&r.data.session;err=r.error;}catch(e){err=e;}
+    BOOT_STEP='session';let sess=null,err=null;try{const r=await withTimeout(sb.auth.getSession(),10000);sess=r.data&&r.data.session;err=r.error;}catch(e){err=e;}
+    BOOT_STEP='data';
     if(sess)await afterLogin(false);
     else if(err&&sbUid)setSync('off');          /* офлайн с протухшим токеном — остаёмся на кэше */
     else{clearCache();showLogin();}
-  }finally{booting=false;}
+  }catch(e){showFatal(e);}
+  finally{booting=false;BOOT_STEP='done';}
 }
+/* ── аварийный экран: вместо чёрного экрана — причина и кнопка сброса ── */
+let BOOT_STEP='start';
+const BOOT_STEPS={start:'запуск',cache:'локальный снимок',sdk:'загрузка SDK Supabase',session:'проверка сессии',data:'загрузка данных',done:'отрисовка'};
+function booted(){return document.getElementById('app').innerHTML!==''||document.getElementById('login-root').style.display==='flex';}
+function showFatal(err){
+  console.error('[ws] fatal',err);
+  const msg=esc((err&&(err.stack||err.message))||String(err)).slice(0,600);
+  const root=document.getElementById('login-root');root.style.display='flex';
+  root.innerHTML=`<div class="loginbox" style="max-width:520px"><div class="sub" style="font-size:14px;color:var(--w);margin-bottom:8px">${t('Приложение не загрузилось','App failed to load')}</div>
+  <div class="hint" style="margin-bottom:10px">${t('Этап','Step')}: ${esc(BOOT_STEPS[BOOT_STEP]||BOOT_STEP)}</div>
+  <pre style="white-space:pre-wrap;font-family:var(--mono);font-size:11px;color:var(--amber);background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:10px;max-height:220px;overflow:auto;margin-bottom:12px">${msg}</pre>
+  <div style="display:flex;gap:8px"><button class="btn" style="flex:1" onclick="location.reload()">${t('Обновить','Reload')}</button><button class="btn pri" style="flex:1" onclick="hardReset()">${t('Сбросить кэш','Reset cache')}</button></div>
+  <div class="hint" style="margin-top:8px">${t('Сброс не трогает данные в базе — только локальный кэш и сервис-воркер.','Reset keeps server data — clears only local cache and service worker.')}</div></div>`;
+}
+async function hardReset(){
+  try{clearCache();}catch(e){}
+  try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.unregister()));}catch(e){}
+  try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)));}catch(e){}
+  location.reload();
+}
+window.addEventListener('error',e=>{if(!booted())showFatal(e.error||e.message);});
+window.addEventListener('unhandledrejection',e=>{if(!booted())showFatal(e.reason);});
+/* сторож: если за 25 секунд ничего не появилось — показать, на каком этапе застряли */
+setTimeout(()=>{if(!booted())showFatal(new Error(t('Загрузка зависла','Loading stalled')+' ('+(BOOT_STEPS[BOOT_STEP]||BOOT_STEP)+')'));},25000);
 boot();
 /* PWA: service worker (работает только на https-хостинге, не с file://) */
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}

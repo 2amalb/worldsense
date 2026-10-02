@@ -5,7 +5,7 @@
    SDK Supabase (jsdelivr) и Google Fonts: из кэша мгновенно, фоном обновляются.
    Запросы к Supabase API не трогаем.
    При изменении файлов повышай версию CACHE — старый кэш удалится сам. */
-const CACHE = 'ws-os-v13';
+const CACHE = 'ws-os-v14';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png'];
 const SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 const NET_TIMEOUT = 2500;
@@ -27,7 +27,8 @@ self.addEventListener('activate', (e) => {
 });
 
 function put(req, res) {
-  if (res && (res.ok || res.type === 'opaque')) {
+  /* только нормальные ответы; opaque (no-cors) в кэш не кладём — их нельзя отдать на CORS-запрос */
+  if (res && res.ok && res.type !== 'opaque') {
     const copy = res.clone();
     caches.open(CACHE).then((c) => c.put(req, copy));
   }
