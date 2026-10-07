@@ -500,7 +500,12 @@ const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 function toUSD(a,c){return c==='UZS'?(a/(DB.settings.fx||1)):c==='EUR'?(a*(DB.settings.fxEur||1.08)):a;}
 function curOpts(sel){return ['USD','EUR','UZS'].map(c=>`<option ${sel===c?'selected':''}>${c}</option>`).join('');}
 function fmtRaw(v){return Math.round(v).toLocaleString('en-US');}
-function balByCur(){const b={USD:0,EUR:0,UZS:0};DB.settings.entities.forEach(e=>{b.USD+=e.opening||0;});DB.tx.forEach(x=>{const c=x.currency||'USD';b[c]=(b[c]||0)+(x.kind==='in'?1:-1)*x.amount;});return b;}
+/* перевод/конвертация/корректировка (kind:'xfer', dir:'in'|'out') меняет остатки, но не доходы и расходы */
+const txSign=x=>(x.kind==='in'||(x.kind==='xfer'&&x.dir==='in'))?1:-1;
+const isFlow=x=>x.kind!=='xfer';
+const txByDate=()=>DB.tx.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+function txKindLabel(x){return x.kind==='in'?t('Доход','Income'):x.kind==='payout'?t('Выплата','Payout'):x.kind==='xfer'?(x.dir==='in'?t('Перевод +','Transfer +'):t('Перевод −','Transfer −')):t('Расход','Expense');}
+function balByCur(){const b={USD:0,EUR:0,UZS:0};DB.settings.entities.forEach(e=>{b.USD+=e.opening||0;});DB.tx.forEach(x=>{const c=x.currency||'USD';b[c]=(b[c]||0)+txSign(x)*x.amount;});return b;}
 function balLine(){const b=balByCur();const s=[];if(Math.round(b.USD))s.push('$'+fmtRaw(b.USD));if(Math.round(b.EUR))s.push('€'+fmtRaw(b.EUR));if(Math.round(b.UZS))s.push(fmtRaw(b.UZS)+' '+t('сум','UZS'));return s.join(' · ')||'$0';}
 function money(v){if(DISPLAY==='UZS'){const x=v*(DB.settings.fx||1);return (x<0?'−':'')+fmt0(Math.abs(x))+t(' сум',' UZS');}return (v<0?'−$':'$')+fmt0(Math.abs(v));}
 const entName=id=>{const e=DB.settings.entities.find(e=>e.id===id);return e?e.name:'—';};
@@ -523,7 +528,7 @@ const CATS=[['Офис и аренда','Office & rent'],['ИТ и инфрас�
 const catL=ru=>{const c=CATS.find(x=>x[0]===ru);return c?t(c[0],c[1]):ru;};
 
 /* ── money math ── */
-function entityBalance(id){let b=(DB.settings.entities.find(e=>e.id===id)||{}).opening||0;DB.tx.forEach(x=>{if(x.entityId===id){const u=toUSD(x.amount,x.currency);b+=(x.kind==='in'?u:-u);}});return b;}
+function entityBalance(id){let b=(DB.settings.entities.find(e=>e.id===id)||{}).opening||0;DB.tx.forEach(x=>{if(x.entityId===id){b+=txSign(x)*toUSD(x.amount,x.currency);}});return b;}
 function totalBalance(){return DB.settings.entities.reduce((s,e)=>s+entityBalance(e.id),0);}
 function payrollMo(){return DB.payroll.people.reduce((s,p)=>s+toUSD(p.salary||0,p.currency)+toUSD(p.extra||0,p.extraCur||'USD'),0);}
 function compUSD(p){return toUSD(p.salary||0,p.currency)+toUSD(p.extra||0,p.extraCur||'USD');}
@@ -637,7 +642,7 @@ function last30(){const d=new Date();d.setDate(d.getDate()-30);return d.toISOStr
 function flows30(){const d30=last30();
   const d60=(()=>{const d=new Date();d.setDate(d.getDate()-60);return d.toISOString().slice(0,10);})();
   let inn=0,out=0,pay=0,uzsOut=0,inCnt=0,pInn=0,pOut=0;const cats={},srcs={};
-  DB.tx.forEach(x=>{const u=toUSD(x.amount,x.currency);
+  DB.tx.forEach(x=>{if(!isFlow(x))return;const u=toUSD(x.amount,x.currency);
     if(x.date>=d30){
       if(x.kind==='in'){inn+=u;inCnt++;const k=x.who||x.memo||t('Прочее','Other');srcs[k]=(srcs[k]||0)+u;}
       else{out+=u;if(x.currency==='UZS')uzsOut+=u;const k=x.kind==='payout'?t('ФОТ','Payroll'):(x.category?catL(x.category):t('Прочее','Other'));cats[k]=(cats[k]||0)+u;if(x.kind==='payout')pay+=u;}
@@ -646,7 +651,7 @@ function flows30(){const d30=last30();
 function monthlySeries(n){const arr=[];const now=new Date();
   for(let i=n-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const key=d.toISOString().slice(0,7);arr.push({key,inn:0,out:0});}
   const map={};arr.forEach(a=>map[a.key]=a);
-  DB.tx.forEach(x=>{const k=(x.date||'').slice(0,7);if(map[k]){const u=toUSD(x.amount,x.currency);if(x.kind==='in')map[k].inn+=u;else map[k].out+=u;}});
+  DB.tx.forEach(x=>{if(!isFlow(x))return;const k=(x.date||'').slice(0,7);if(map[k]){const u=toUSD(x.amount,x.currency);if(x.kind==='in')map[k].inn+=u;else map[k].out+=u;}});
   return arr;}
 function monthlyBarsSVG(arr){
   const W=560,H=180,pl=8,pr=8,pt=14,pb=26;
@@ -745,17 +750,17 @@ function viewDash(){
     <div class="card"><h2>${t('Задачи в фокусе','Tasks in focus')}</h2>${focusTasks(DB.tasks).map(taskRowMini).join('')||`<div class="empty">${t('Нет активных задач','No active tasks')}</div>`}</div>
   </div>
   <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h2 style="margin:0">${t('Последние движения','Recent entries')}</h2><button class="btn sm" onclick="newTx()">+ <kbd>T</kbd></button></div>
-    ${DB.tx.slice(0,7).map(txRow).join('')||`<div class="empty">${t('Пусто — добавь движение (T)','Empty — add an entry (T)')}</div>`}
+    ${txByDate().slice(0,7).map(txRow).join('')||`<div class="empty">${t('Пусто — добавь движение (T)','Empty — add an entry (T)')}</div>`}
   </div>`;
 }
 function taskRowMini(x){const td=today();return `<div class="row"><div style="min-width:0"><span class="mono" style="color:var(--ghost);font-size:11px">${esc(x.id)}</span> <span class="ttitle" onclick="openTask('${x.id}')">${esc(x.title)}</span></div><div style="display:flex;gap:6px;align-items:center;flex:0 0 auto">${x.due?`<span class="tag ${x.due<td?'overdue':''}">${x.due}</span>`:''}<span class="pill" style="color:${(PRIO[x.priority]||{}).c||'var(--dim)'}">${pL(x.priority)}</span></div></div>`;}
-function txRow(x){const u=toUSD(x.amount,x.currency)*(x.kind==='in'?1:-1);return `<div class="row"><div><div style="font-size:13px">${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}</div><div class="hint mono">${x.date} · ${esc(entName(x.entityId))}${x.category&&x.kind!=='in'?' · '+esc(catL(x.category)):''}</div></div><div style="display:flex;gap:8px;align-items:center"><span class="n ${u>=0?'pos':'neg'}">${money(u)}</span><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></div></div>`;}
+function txRow(x){const u=toUSD(x.amount,x.currency)*txSign(x);return `<div class="row"><div><div style="font-size:13px">${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}</div><div class="hint mono">${x.date} · ${esc(entName(x.entityId))}${x.kind==='xfer'?' · '+t('перевод','transfer'):x.category&&x.kind!=='in'?' · '+esc(catL(x.category)):''}</div></div><div style="display:flex;gap:8px;align-items:center"><span class="n ${x.kind==='xfer'?'muted':u>=0?'pos':'neg'}">${money(u)}</span><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></div></div>`;}
 
 /* ── transactions ── */
 function newTx(kind){
   const orders=DB.orders||[];
   modal(`<h3>${t('Движение по кассе','Cash entry')}</h3><div class="field-stack">
-  <div class="f2"><div class="fs"><label>${t('Тип','Type')}</label><select id="x-kind" onchange="txKindUI()"><option value="in" ${kind==='in'?'selected':''}>${t('Доход','Income')}</option><option value="out" ${kind!=='in'?'selected':''}>${t('Расход','Expense')}</option></select></div>
+  <div class="f2"><div class="fs"><label>${t('Тип','Type')}</label><select id="x-kind" onchange="txKindUI()"><option value="in" ${kind==='in'?'selected':''}>${t('Доход','Income')}</option><option value="out" ${kind!=='in'?'selected':''}>${t('Расход','Expense')}</option><option value="xin">${t('Перевод / корректировка +','Transfer / adjustment +')}</option><option value="xout">${t('Перевод / корректировка −','Transfer / adjustment −')}</option></select></div>
   <div class="fs"><label>${t('Дата','Date')}</label><input id="x-date" type="date" value="${today()}"></div></div>
   <div class="f2"><div class="fs"><label>${t('Сумма','Amount')}</label><input id="x-amt" class="mono" type="number"></div>
   <div class="fs"><label>${t('Валюта','Currency')}</label><select id="x-cur">${curOpts('USD')}</select></div></div>
@@ -767,9 +772,9 @@ function newTx(kind){
   </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveTx()">${t('Добавить','Add')}</button></div>`);
   txKindUI();
   setTimeout(()=>{const a=document.getElementById('x-amt');if(a)try{a.focus();}catch(e){}},40);}
-function txKindUI(){const k=document.getElementById('x-kind');const w=document.getElementById('x-cat-wrap');if(k&&w)w.style.visibility=k.value==='in'?'hidden':'visible';}
-function saveTx(){const g=k=>document.getElementById(k);const kind=g('x-kind').value;
-  addTx({kind,entityId:g('x-ent').value,amount:parseFloat(g('x-amt').value)||0,currency:g('x-cur').value,memo:g('x-memo').value||'',who:g('x-who').value||'',category:kind==='in'?'':g('x-cat').value,projectId:g('x-prj').value||'',date:g('x-date').value||today()});closeModal();render();}
+function txKindUI(){const k=document.getElementById('x-kind');const w=document.getElementById('x-cat-wrap');if(k&&w)w.style.visibility=(k.value==='out')?'visible':'hidden';}
+function saveTx(){const g=k=>document.getElementById(k);const kv=g('x-kind').value;const xf=kv==='xin'||kv==='xout';const kind=xf?'xfer':kv;
+  addTx({kind,...(xf?{dir:kv==='xin'?'in':'out'}:{}),entityId:g('x-ent').value,amount:parseFloat(g('x-amt').value)||0,currency:g('x-cur').value,memo:g('x-memo').value||'',who:g('x-who').value||'',category:kind==='out'?g('x-cat').value:(xf?t('Перевод','Transfer'):''),projectId:g('x-prj').value||'',date:g('x-date').value||today()});closeModal();render();}
 function delTx(id){confirmModal(t('Удалить движение?','Delete entry?'),()=>{DB.tx=DB.tx.filter(y=>y.id!==id);save('tx');render();});}
 
 /* ── team ── */
@@ -1211,7 +1216,7 @@ function viewFin(){
   const f=flows30();
   const total=DB.tx.length;
   return `<div class="vhead"><div><h1 class="view">${t('Финансы','Finance')}</h1><div class="vsub">${t('Единый реестр движений — доходы и расходы в одном месте','One ledger — income and spend in one place')}</div></div>
-  <button class="btn pri" onclick="newTx()">+ ${t('Движение','Entry')} <kbd>T</kbd></button></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="reconcileModal()">${t('Сверить с банком','Reconcile')}</button><button class="btn pri" onclick="newTx()">+ ${t('Движение','Entry')} <kbd>T</kbd></button></div></div>
   <div class="grid g4" style="margin-bottom:14px">${stat(t('Доход · 30 дней','Income · 30d'),money(f.inn),'','pos')}${stat(t('Расход · 30 дней','Spend · 30d'),money(f.out),t('ФОТ','payroll')+' '+money(f.pay),'neg')}${stat('Net · 30'+t('д','d'),money(f.net),'',f.net>=0?'pos':'neg')}${stat(t('Касса','Cash'),money(totalBalance()),balLine())}</div>
   ${Object.keys(f.cats).length?`<div class="card" style="margin-bottom:12px"><h2>${t('Расходы по категориям','Spend by category')} · 30${t('д','d')}</h2>${shareBars(Object.entries(f.cats).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),f.out)}</div>`:''}
   <div class="card" style="margin-bottom:12px"><h2>${t('Регулярные расходы','Recurring costs')} <span class="hint">${DB.costs.length?money(costsMonthlyUSD())+' / '+t('мес','mo'):''}</span></h2>
@@ -1225,8 +1230,8 @@ function viewFin(){
   :`<div class="hint" style="padding:6px 0">${t('Ожидаемые поступления и долги — чтобы деньги в пути не терялись из виду','Money in flight — expected receipts and dues')}</div>`}
   <div class="actions" style="margin-top:10px;justify-content:flex-start"><button class="btn sm" onclick="debtModal()">+ ${t('Обязательство','Obligation')}</button></div></div>
   <div class="card"><h2>${t('Реестр транзакций','Transaction ledger')} <span class="hint">${total}</span></h2>
-  ${total&&isMobile()?`<div class="txlist">${DB.tx.slice(0,TXN).map(txRow).join('')}</div>${moreTx(total)}`:total?`<table><tr><th>${t('Дата','Date')}</th><th>${t('Тип','Type')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Назначение','Purpose')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
-  ${DB.tx.slice(0,TXN).map(x=>{const u=toUSD(x.amount,x.currency)*(x.kind==='in'?1:-1);const prj=x.projectId?(DB.orders.find(p=>p.id===x.projectId)||{}).name:'';return `<tr><td class="mono" style="font-size:11px;white-space:nowrap">${x.date}</td><td><span class="${x.kind==='in'?'pos':'neg'}">${x.kind==='in'?t('Доход','Income'):x.kind==='payout'?t('Выплата','Payout'):t('Расход','Expense')}</span></td><td class="muted">${x.kind==='payout'?t('ФОТ','Payroll'):(x.category?esc(catL(x.category)):'—')}</td><td class="muted">${esc(entName(x.entityId))}</td><td>${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}${prj?` <span class="tag" style="color:var(--purple)">${esc(prj)}</span>`:''}</td><td class="n ${u>=0?'pos':'neg'}">${money(u)}</td><td style="text-align:right"><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></td></tr>`;}).join('')}</table>${moreTx(total)}`:`<div class="empty"><b>${t('Реестр пуст','Ledger empty')}</b>${t('Добавь первое движение (T). «Выплатить» в Команде тоже пишет сюда.','Add the first entry (T). Pay in Team writes here too.')}</div>`}</div>`;
+  ${total&&isMobile()?`<div class="txlist">${txByDate().slice(0,TXN).map(txRow).join('')}</div>${moreTx(total)}`:total?`<table><tr><th>${t('Дата','Date')}</th><th>${t('Тип','Type')}</th><th>${t('Категория','Category')}</th><th>${t('Юр.лицо','Entity')}</th><th>${t('Назначение','Purpose')}</th><th class="n">${t('Сумма','Amount')}</th><th></th></tr>
+  ${txByDate().slice(0,TXN).map(x=>{const u=toUSD(x.amount,x.currency)*txSign(x);const prj=x.projectId?(DB.orders.find(p=>p.id===x.projectId)||{}).name:'';return `<tr><td class="mono" style="font-size:11px;white-space:nowrap">${x.date}</td><td><span class="${x.kind==='xfer'?'muted':x.kind==='in'?'pos':'neg'}">${txKindLabel(x)}</span></td><td class="muted">${x.kind==='xfer'?esc(x.category||t('Перевод','Transfer')):x.kind==='payout'?t('ФОТ','Payroll'):(x.category?esc(catL(x.category)):'—')}</td><td class="muted">${esc(entName(x.entityId))}</td><td>${esc(x.memo||'')}${x.who?' · '+esc(x.who):''}${prj?` <span class="tag" style="color:var(--purple)">${esc(prj)}</span>`:''}</td><td class="n ${x.kind==='xfer'?'muted':u>=0?'pos':'neg'}">${money(u)}</td><td style="text-align:right"><button class="ib danger" onclick="delTx('${x.id}')" aria-label="delete">×</button></td></tr>`;}).join('')}</table>${moreTx(total)}`:`<div class="empty"><b>${t('Реестр пуст','Ledger empty')}</b>${t('Добавь первое движение (T). «Выплатить» в Команде тоже пишет сюда.','Add the first entry (T). Pay in Team writes here too.')}</div>`}</div>`;
 }
 
 /* ── projects: data collection orders + monitoring ── */
@@ -1439,7 +1444,31 @@ function shDel(eid,sid){const e=DB.settings.entities.find(x=>x.id===eid);if(!e)r
 function saveFx(v){DB.settings.fx=parseFloat(v)||1;save('settings');render();toast(t('Курс обновлён','FX updated'));}
 function saveFxEur(v){DB.settings.fxEur=parseFloat(v)||1.08;save('settings');render();toast(t('Курс обновлён','FX updated'));}
 function exportData(){const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='worldsense-os-'+today()+'.json';a.click();toast(t('Экспортировано','Exported'));}
-function importPrompt(){const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);['settings','costs','income','tasks','payroll','tx','contracts','orders','debts','docs','invoices'].forEach(k=>{if(d[k])DB[k]=d[k];});['settings','costs','income','tasks','payroll','tx','contracts','orders','debts','docs','invoices'].forEach(save);render();toast(t('Импортировано','Imported'));}catch(e){toast(t('Ошибка файла','File error'));}};r.readAsText(f);};inp.click();}
+/* импорт-дополнение: {"_append":{"tx":[…]}} — дописывает записи, ничего не затирая; повторный импорт того же файла ничего не задвоит */
+function importAppend(d){
+  const add=(d._append&&d._append.tx)||[];const have=new Set(DB.tx.map(x=>x.id));
+  const fresh=add.filter(x=>x&&x.id&&!have.has(x.id)&&x.date&&x.kind&&typeof x.amount==='number');
+  if(!fresh.length){toast(t('Нечего добавлять — всё уже есть','Nothing new — already imported'));return;}
+  const before=balLine();
+  confirmModal(t(`Добавить ${fresh.length} записей в реестр? Существующие записи не меняются.`,`Add ${fresh.length} entries to the ledger? Existing entries stay untouched.`),()=>{
+    DB.tx=fresh.concat(DB.tx);save('tx');render();
+    toast(t('Добавлено','Added')+': '+fresh.length+' · '+t('было','was')+' '+before+' → '+balLine());
+  },false);
+}
+/* сверка с банком: вводишь фактические остатки — разница проводится корректировкой (не доход/расход) */
+function reconcileModal(){
+  const b=balByCur();const ent=(DB.settings.entities.find(e=>e.kind==='business'&&e.status==='active')||DB.settings.entities[0]||{}).id||'';
+  modal(`<h3>${t('Сверка с банком','Bank reconciliation')}</h3><div class="field-stack">
+  <div class="hint">${t('Введи фактические остатки по выписке. Разница запишется корректировкой — она двигает кассу, но не попадает в доходы и расходы.','Enter actual balances from the statement. The difference is posted as an adjustment — moves cash, not income/expense.')}</div>
+  <div class="f2"><div class="fs"><label>${t('Дата','Date')}</label><input id="rc-date" type="date" value="${today()}"></div>
+  <div class="fs"><label>${t('Юр. лицо','Entity')}</label><select id="rc-ent">${DB.settings.entities.map(e=>`<option value="${e.id}" ${e.id===ent?'selected':''}>${esc(e.name)}</option>`).join('')}</select></div></div>
+  ${['UZS','USD','EUR'].map(c=>`<div class="f2"><div class="fs"><label>${c} · ${t('в банке','actual')}</label><input id="rc-${c}" class="mono" type="number" step="0.01" placeholder="${t('пусто — не трогать','empty — skip')}"></div><div class="fs"><label>${t('сейчас в реестре','in ledger now')}</label><input class="mono" disabled value="${fmtRaw(b[c]||0)}"></div></div>`).join('')}
+  </div><div class="actions"><button class="btn" onclick="closeModal()">${t('Отмена','Cancel')}</button><button class="btn pri" onclick="saveReconcile()">${t('Провести','Post')}</button></div>`);}
+function saveReconcile(){const g=k=>document.getElementById(k);const b=balByCur();const date=g('rc-date').value||today();const ent=g('rc-ent').value;let n=0;
+  ['UZS','USD','EUR'].forEach(c=>{const v=g('rc-'+c).value;if(v==='')return;const diff=Math.round((parseFloat(v)-(b[c]||0))*100)/100;if(!diff)return;
+    addTx({kind:'xfer',dir:diff>0?'in':'out',amount:Math.abs(diff),currency:c,entityId:ent,date,category:t('Корректировка','Adjustment'),memo:t('Корректировка по выписке банка','Bank statement adjustment')+' · '+date,who:'',projectId:''});n++;});
+  closeModal();render();toast(n?t('Остатки сверены','Balances reconciled'):t('Расхождений нет','No differences'));}
+function importPrompt(){const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d._append){importAppend(d);return;}['settings','costs','income','tasks','payroll','tx','contracts','orders','debts','docs','invoices'].forEach(k=>{if(d[k])DB[k]=d[k];});['settings','costs','income','tasks','payroll','tx','contracts','orders','debts','docs','invoices'].forEach(save);render();toast(t('Импортировано','Imported'));}catch(e){toast(t('Ошибка файла','File error'));}};r.readAsText(f);};inp.click();}
 
 /* ── keyboard shortcuts ── */
 const SHORTCUTS=[
